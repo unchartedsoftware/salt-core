@@ -1,0 +1,8 @@
+*.class
+.gradle
+build/
+classes/
+target/
+.idea/
+*.iml
+.vagrant

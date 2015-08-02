@@ -1,0 +1,72 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+project.ext {
+    scalaVersion = "2.10"
+    sparkVersion = "1.3.0"
+}
+
+jar {
+    baseName = 'com.uncharted.mosaic'
+    version =  '0.0.1'
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+
+dependencies {
+    //scala
+    provided("org.scala-lang:scala-library:2.10.4")
+
+    //spark
+    provided "org.apache.spark:spark-core_${scalaVersion}:${sparkVersion}"
+    provided "org.apache.spark:spark-sql_${scalaVersion}:${sparkVersion}"
+    //provided "org.apache.spark:spark-streaming_${scalaVersion}:${sparkVersion}"
+    //provided "org.apache.spark:spark-graphx_${scalaVersion}:${sparkVersion}"
+    //provided "org.apache.spark:spark-mllib_${scalaVersion}:${sparkVersion}"
+    provided "org.scala-lang:scala-library:$scalaVersion"
+
+
+    testCompile "org.scalatest:scalatest_${scalaVersion}:1.9.1"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
+
+idea {
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
+}
