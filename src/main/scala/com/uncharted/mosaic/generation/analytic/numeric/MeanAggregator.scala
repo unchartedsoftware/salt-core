@@ -1,7 +1,7 @@
-package com.uncharted.mosiac.generation.analytic.numeric
+package com.uncharted.mosaic.generation.analytic.numeric
 
-import com.uncharted.mosiac.generation.analytic.Aggregator
-import com.uncharted.mosiac.generation.analytic.numeric._
+import com.uncharted.mosaic.generation.analytic.Aggregator
+import com.uncharted.mosaic.generation.analytic.numeric._
 
 //Track sums and counts separately, then finish by dividing
 class MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Double] {

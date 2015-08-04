@@ -1,7 +1,7 @@
-package com.uncharted.mosiac.generation
+package com.uncharted.mosaic.generation
 
-import com.uncharted.mosiac.generation.analytic.{Aggregator, ValueExtractor}
-import com.uncharted.mosiac.generation.projection.Projection
+import com.uncharted.mosaic.generation.analytic.{Aggregator, ValueExtractor}
+import com.uncharted.mosaic.generation.projection.Projection
 import scala.reflect.ClassTag
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{AccumulableParam, Accumulable}

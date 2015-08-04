@@ -1,12 +1,12 @@
-package com.uncharted.mosiac.generation.serialization
+package com.uncharted.mosaic.generation.serialization
 
 import java.io.{ByteArrayOutputStream, IOException, OutputStream}
 
 import com.uncharted.mosaic.generation.serialization.AvroSchemaComposer
 import com.uncharted.mosaic.generation.serialization.PatternedSchemaStore
-import com.uncharted.mosiac.generation.TileData
-import com.uncharted.mosiac.generation.analytic.numeric.MaxMinAggregator
-import com.uncharted.mosiac.generation.projection.Projection
+import com.uncharted.mosaic.generation.TileData
+import com.uncharted.mosaic.generation.analytic.numeric.MaxMinAggregator
+import com.uncharted.mosaic.generation.projection.Projection
 import org.apache.avro.Schema
 import org.apache.avro.file.{CodecFactory, DataFileWriter}
 import org.apache.avro.generic.{GenericData, GenericDatumWriter, GenericRecord}

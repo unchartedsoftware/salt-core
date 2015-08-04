@@ -1,4 +1,4 @@
-package com.uncharted.mosiac.generation.projection
+package com.uncharted.mosaic.generation.projection
 
 import com.uncharted.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row

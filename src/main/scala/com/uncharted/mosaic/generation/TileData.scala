@@ -1,6 +1,6 @@
-package com.uncharted.mosiac.generation
+package com.uncharted.mosaic.generation
 
-import com.uncharted.mosiac.generation.projection.Projection
+import com.uncharted.mosaic.generation.projection.Projection
 
 /**
  * A thin wrapper class for the output of a tile generation

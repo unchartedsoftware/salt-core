@@ -1,6 +1,6 @@
-package com.uncharted.mosiac.generation.analytic.numeric
+package com.uncharted.mosaic.generation.analytic.numeric
 
-import com.uncharted.mosiac.generation.analytic.Aggregator
+import com.uncharted.mosaic.generation.analytic.Aggregator
 
 object MinAggregator extends Aggregator[Double, Double, java.lang.Double] {
   def default(): Double = {

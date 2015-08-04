@@ -1,4 +1,4 @@
-package com.uncharted.mosiac.generation.analytic
+package com.uncharted.mosaic.generation.analytic
 
 import org.apache.spark.sql.Row
 
