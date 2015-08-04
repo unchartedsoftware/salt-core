@@ -23,7 +23,7 @@ class TileBuilderPool[T, U: ClassTag, V, W, X](
   bProjection: Broadcast[Projection],
   bExtractor: Broadcast[ValueExtractor[T]],
   bBinAggregator: Broadcast[Aggregator[T, U, V]],
-  bTileAggregator: Broadcast[Aggregator[T, W, X]]
+  bTileAggregator: Broadcast[Aggregator[V, W, X]]
 ) {
   private val pool = mutable.Stack[TileBuilder[T, U, V, W, X]]()
 

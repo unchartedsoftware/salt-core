@@ -6,10 +6,6 @@ import org.apache.spark.sql.Row
 /**
  * Accumulator for a TileBuilder
  */
-class TileGenerationAccumulable[T, U, V, W, X](val initialValue: TileBuilder[T, U, V, W, X])
-  extends Accumulable[TileBuilder[T, U, V, W, X], ((Int, Int), Row)](initialValue, new TileGenerationAccumulableParam()) {
-}
-
 class TileGenerationAccumulableParam[T, U, V, W, X]()
   extends AccumulableParam[TileBuilder[T, U, V, W, X], ((Int, Int), Row)]() {
 

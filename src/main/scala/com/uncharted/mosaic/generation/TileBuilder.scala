@@ -30,10 +30,7 @@ class TileBuilder[T, U: ClassTag, V, W, X](
   bProjection: Broadcast[Projection],
   bExtractor: Broadcast[ValueExtractor[T]],
   bBinAggregator: Broadcast[Aggregator[T, U, V]],
-  bTileAggregator: Broadcast[Aggregator[T, W, X]]) extends Serializable {
-
-  //will store intermediate values for the tile analytic
-  protected var _tile: W = bTileAggregator.value.default
+  bTileAggregator: Broadcast[Aggregator[V, W, X]]) extends Serializable {
 
   //will store intermediate values for the bin analytic
   private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
@@ -53,7 +50,6 @@ class TileBuilder[T, U: ClassTag, V, W, X](
       _binTouchMap.set(index)
     }
     _bins(index) = bBinAggregator.value.add(current, value)
-    //_tile.add(Some(b.value)) //FIXME should this happen once at the end, across all bins?
     this
   }
 
@@ -61,7 +57,6 @@ class TileBuilder[T, U: ClassTag, V, W, X](
     for (i <- 0 until bProjection.value.xBins*bProjection.value.yBins) {
       _bins(i) = bBinAggregator.value.merge(_bins(i), other._bins(i))
     }
-    _tile = bTileAggregator.value.merge(_tile, other._tile)
     _binTouchMap.and(other._binTouchMap)
     this
   }
@@ -71,7 +66,14 @@ class TileBuilder[T, U: ClassTag, V, W, X](
   }
 
   def getTileAggregator: X = {
-    bTileAggregator.value.finish(_tile)
+    val tileAggregator = bTileAggregator.value
+    val binAggregator = bBinAggregator.value
+    //will store intermediate values for the tile analytic
+    var _tile: W = tileAggregator.default
+    for (i <- 0 until _bins.length) {
+      _tile = tileAggregator.add(_tile, Some(binAggregator.finish(_bins(i))))
+    }
+    tileAggregator.finish(_tile)
   }
 
   def binsTouched: Int = {
@@ -96,6 +98,5 @@ class TileBuilder[T, U: ClassTag, V, W, X](
     for (i <- 0 until _bins.length) {
       _bins(i) = bBinAggregator.value.default
     }
-    _tile = bTileAggregator.value.default
   }
 }
