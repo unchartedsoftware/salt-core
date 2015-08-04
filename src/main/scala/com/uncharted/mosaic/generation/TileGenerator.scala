@@ -54,7 +54,7 @@ class TileGenerator[T,U,V,W,X](
       var binsTouched = 0
       //this needs to copy the results from the accumulator, not reference them...
       val finishedBins = value.value.map(a => {
-        if (a != binAggregator.default) binsTouched+=1
+        if (!a.equals(binAggregator.default)) binsTouched+=1
         val bin = binAggregator.finish(a)
         tile = tileAggregator.add(tile, Some(bin))
         bin
