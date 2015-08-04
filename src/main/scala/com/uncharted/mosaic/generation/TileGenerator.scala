@@ -10,7 +10,7 @@ import scala.collection.mutable.HashMap
 
 /**
  * Tile Generator for a batch of tiles
- * @param aggregatorPool A TileAggregatorPool for this generator
+ * @param builderPool A TileAggregatorPool for this generator
  * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
  * @tparam T Input data type for aggregators
  * @tparam U Intermediate data type for bin aggregators
@@ -19,7 +19,7 @@ import scala.collection.mutable.HashMap
  * @tparam X Output data type for tile aggregators
  */
 class TileGenerator[T,U,V,W,X](
-  aggregatorPool: TileBuilderPool[T,U,V,W,X],
+  builderPool: TileBuilderPool[T,U,V,W,X],
   projection: Projection) {
 
   def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileBuilder[T,U,V,W,X]] = {
@@ -27,7 +27,7 @@ class TileGenerator[T,U,V,W,X](
     for (i <- 0 until tiles.length) {
       val coord = tiles(i)
       val param = new TileGenerationAccumulableParam[T,U,V,W,X]()
-      val accumulator = sc.accumulable(aggregatorPool.reserve(coord))(param)
+      val accumulator = sc.accumulable(builderPool.reserve(coord))(param)
       accumulators.put(coord, accumulator)
     }
 

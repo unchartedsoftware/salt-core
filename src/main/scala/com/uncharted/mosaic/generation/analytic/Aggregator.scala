@@ -8,7 +8,7 @@ package com.uncharted.mosiac.generation.analytic
  * N intermediate type
  * O output type
  */
-trait Aggregator[I, N, O] extends Serializable {
+trait Aggregator[-I, N, O] extends Serializable {
   def default(): N
   def add(current: N, next: Option[I]): N
   def merge(left: N, right: N): N
