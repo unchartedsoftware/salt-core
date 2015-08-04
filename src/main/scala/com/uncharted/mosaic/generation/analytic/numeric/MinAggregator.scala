@@ -4,12 +4,14 @@ import com.uncharted.mosiac.generation.analytic.Aggregator
 
 object MinAggregator extends Aggregator[Double, Double, java.lang.Double] {
   def default(): Double = {
-    Double.MaxValue
+    Double.NaN
   }
 
   override def add(current: Double, next: Option[Double]): Double = {
     if (next.isDefined) {
-      Math.min(current, next.get)
+      var fixedCurrent = current
+      if (current == Double.NaN) fixedCurrent = Double.MaxValue
+      Math.max(fixedCurrent, next.get)
     } else {
       current
     }
