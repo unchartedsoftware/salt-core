@@ -4,7 +4,7 @@ import com.uncharted.mosaic.generation.analytic.Aggregator
 import com.uncharted.mosaic.generation.analytic.numeric._
 
 //Track sums and counts separately, then finish by dividing
-class MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Double] {
+object MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Double] {
   def default(): (Double, Double) = {
     (CountAggregator.default, SumAggregator.default)
   }
