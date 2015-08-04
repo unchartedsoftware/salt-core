@@ -11,6 +11,10 @@ apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'maven'
+
+group = 'com.uncharted'
+version = '0.0.1'
 
 project.ext {
     scalaVersion = "2.10"
@@ -18,7 +22,7 @@ project.ext {
 }
 
 jar {
-    baseName = 'com.uncharted.mosaic'
+    baseName = 'mosaic'
     version =  '0.0.1'
     dependsOn configurations.runtime
     from {
