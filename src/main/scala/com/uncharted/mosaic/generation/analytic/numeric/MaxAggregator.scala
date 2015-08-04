@@ -2,33 +2,23 @@ package com.uncharted.mosiac.generation.analytic.numeric
 
 import com.uncharted.mosiac.generation.analytic.Aggregator
 
-class MaxAggregator extends Aggregator[Double, java.lang.Double] {
-  var _max = Double.MinValue
+object MaxAggregator extends Aggregator[Double, Double, java.lang.Double] {
+  def default(): Double = {
+    Double.MinValue
+  }
 
-  override def add(num: Option[Double]): Aggregator[Double, java.lang.Double] = {
-    if (num.isDefined) {
-      _max = Math.max(_max, num.get)
+  override def add(current: Double, next: Option[Double]): Double = {
+    if (next.isDefined) {
+      Math.max(current, next.get)
+    } else {
+      current
     }
-    this
   }
-  override def merge(other: Aggregator[Double, java.lang.Double]): Aggregator[Double, java.lang.Double] = {
-    other match {
-      case o: MaxAggregator => {
-        _max = Math.max(_max, o.value)
-        this
-      }
-      case _ => {
-        throw new IllegalArgumentException("Cannot merge MaxAggregator with a non-MaxAggregator")
-      }
-    }
-    this
+  override def merge(left: Double, right: Double): Double = {
+    Math.max(left, right)
   }
 
-  def value(): java.lang.Double = {
-    _max
-  }
-
-  def reset(): Unit = {
-    _max = Double.MinValue
+  def finish(intermediate: Double): java.lang.Double = {
+    intermediate
   }
 }

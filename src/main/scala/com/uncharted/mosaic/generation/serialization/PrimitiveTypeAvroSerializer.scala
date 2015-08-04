@@ -4,7 +4,7 @@ import java.io.{ByteArrayOutputStream, IOException, OutputStream}
 
 import com.uncharted.mosaic.generation.serialization.AvroSchemaComposer
 import com.uncharted.mosaic.generation.serialization.PatternedSchemaStore
-import com.uncharted.mosiac.generation.TileAggregator
+import com.uncharted.mosiac.generation.TileBuilder
 import com.uncharted.mosiac.generation.analytic.numeric.MaxMinAggregator
 import com.uncharted.mosiac.generation.projection.Projection
 import org.apache.avro.Schema
@@ -16,7 +16,7 @@ import scala.collection.JavaConversions._
 /**
  * Suitable for serializing tiles where values are primitive values
  */
-class PrimitiveTypeAvroSerializer[U,V](val tileDataType: Class[_ <: U], val maxBinCount: Int) extends Serializer[U,V] {
+class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val maxBinCount: Int) extends Serializer[V, X] {
 
   private val VALID_PRIMITIVE_TYPES = Map[Class[_], String](
     classOf[java.lang.Boolean] -> "boolean",
@@ -40,25 +40,25 @@ class PrimitiveTypeAvroSerializer[U,V](val tileDataType: Class[_ <: U], val maxB
   /**
    * Determines if a class represents a valid Avro primitive type
    */
-  private def isValidPrimitive(candidateType: Class[_ <: U]): Boolean = {
+  private def isValidPrimitive(candidateType: Class[_ <: V]): Boolean = {
     VALID_PRIMITIVE_TYPES.contains(candidateType)
   }
 
   /**
    * Get the avro string type of a valid primitive type
    */
-  def getAvroType(key: Class[_ <: U]): Option[String] = {
+  def getAvroType(key: Class[_ <: V]): Option[String] = {
     VALID_PRIMITIVE_TYPES.get(key)
   }
 
   //TODO make this abstract
-  def setValue(valueRecord: GenericRecord, value: U) = {
+  def setValue(valueRecord: GenericRecord, value: V) = {
     valueRecord.put("value", value)
   }
 
-  def getTileMetaData(tileData: TileAggregator[_, U, V]): java.util.Map[String, String] = {
+  def getTileMetaData(tileData: TileBuilder[_, _, V, _, X]): java.util.Map[String, String] = {
     mapAsJavaMap(tileData.getTileAggregator match {
-      case m: MaxMinAggregator => Map("minimum" -> m.value._1.toString, "maximum" -> m.value._2.toString)
+      case m: (_, _) => Map("minimum" -> m._1.toString, "maximum" -> m._2.toString)
       case _ => Map()
     })
   }
@@ -115,13 +115,13 @@ class PrimitiveTypeAvroSerializer[U,V](val tileDataType: Class[_ <: U], val maxB
   }
   private val defaultValueRecord = new GenericData.Record(_recordSchema)
 
-  private def serializeSparse(tileData: TileAggregator[_, U, V], projection: Projection, defaultValue: U, stream: ByteArrayOutputStream): Unit = {
+  private def serializeSparse(tileData: TileBuilder[_, _, V, _, X], projection: Projection, defaultValue: V, stream: ByteArrayOutputStream): Unit = {
     var i=0
     for (x <- 0 until projection.xBins) {
       for (y <- 0 until projection.yBins) {
         sparseBins.get(i).put("xIndex", x)
         sparseBins.get(i).put("yIndex", y)
-        setValue(valueRecords.get(i), tileData.getBinAggregator(x, y).value)
+        setValue(valueRecords.get(i), tileData.getBinValue(x, y))
         sparseBins.get(i).put("value", valueRecords.get(i))
         i+=1
       }
@@ -139,11 +139,11 @@ class PrimitiveTypeAvroSerializer[U,V](val tileDataType: Class[_ <: U], val maxB
     writeRecord(sparseTileRecord, _sparseSchema, stream)
   }
 
-  private def serializeDense(tileData: TileAggregator[_, U, V], projection: Projection, defaultValue: U, stream: ByteArrayOutputStream): Unit = {
+  private def serializeDense(tileData: TileBuilder[_, _, V, _, X], projection: Projection, defaultValue: V, stream: ByteArrayOutputStream): Unit = {
     var i=0
     for (x <- 0 until projection.xBins) {
       for (y <- 0 until projection.yBins) {
-        setValue(valueRecords.get(i), tileData.getBinAggregator(x, y).value)
+        setValue(valueRecords.get(i), tileData.getBinValue(x, y))
         i+=1
       }
     }
@@ -160,7 +160,7 @@ class PrimitiveTypeAvroSerializer[U,V](val tileDataType: Class[_ <: U], val maxB
   }
 
 
-  override def serialize(tileData: TileAggregator[_, U, V], projection: Projection, defaultValue: U): Array[Byte] = {
+  override def serialize(tileData: TileBuilder[_, _, V, _, X], projection: Projection, defaultValue: V): Array[Byte] = {
     val os = new ByteArrayOutputStream() //TODO pool?
     //decide between sparse and dense representation based on standard Tiles heuristic
     tileData.binsTouched > projection.xBins*projection.yBins/2 match {

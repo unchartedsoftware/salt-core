@@ -2,31 +2,20 @@ package com.uncharted.mosiac.generation.analytic.numeric
 
 import com.uncharted.mosiac.generation.analytic.Aggregator
 
-class CountAggregator extends Aggregator[Double, java.lang.Double] {
-  var _count = 0D
+object CountAggregator extends Aggregator[Any, Long, java.lang.Double] {
 
-  override def add(num: Option[Double]): Aggregator[Double, java.lang.Double] = {
-    _count += 1
-    this
-  }
-  override def merge(other: Aggregator[Double, java.lang.Double]): Aggregator[Double, java.lang.Double] = {
-    other match {
-      case o: CountAggregator => {
-        _count += o.value
-        this
-      }
-      case _ => {
-        throw new IllegalArgumentException("Cannot merge CountAggregator with a non-CountAggregator")
-      }
-    }
-    this
+  def default(): Long = {
+    0L
   }
 
-  def value(): java.lang.Double = {
-    _count
+  override def add(current: Long, next: Option[Any]): Long = {
+    current + 1
+  }
+  override def merge(left: Long, right: Long): Long = {
+    left+right
   }
 
-  def reset(): Unit = {
-    _count = 0D
+  def finish(intermediate: Long): java.lang.Double = {
+    intermediate.toDouble
   }
 }

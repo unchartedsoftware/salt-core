@@ -2,33 +2,23 @@ package com.uncharted.mosiac.generation.analytic.numeric
 
 import com.uncharted.mosiac.generation.analytic.Aggregator
 
-class SumAggregator extends Aggregator[Double, java.lang.Double] {
-  var _sum = 0D
+object SumAggregator extends Aggregator[Double, Double, java.lang.Double] {
+  def default(): Double = {
+    0D
+  }
 
-  override def add(num: Option[Double]): Aggregator[Double, java.lang.Double] = {
-    if (num.isDefined) {
-      _sum += num.get
+  override def add(current: Double, next: Option[Double]): Double = {
+    if (next.isDefined) {
+      current + next.get
+    } else {
+      current
     }
-    this
   }
-  override def merge(other: Aggregator[Double, java.lang.Double]): Aggregator[Double, java.lang.Double] = {
-    other match {
-      case o: SumAggregator => {
-        _sum += o.value
-        this
-      }
-      case _ => {
-        throw new IllegalArgumentException("Cannot merge SumAggregator with a non-SumAggregator")
-      }
-    }
-    this
+  override def merge(left: Double, right: Double): Double = {
+    left + right
   }
 
-  def value(): java.lang.Double = {
-    _sum
-  }
-
-  def reset(): Unit = {
-    _sum = 0D
+  def finish(intermediate: Double): java.lang.Double = {
+    intermediate
   }
 }

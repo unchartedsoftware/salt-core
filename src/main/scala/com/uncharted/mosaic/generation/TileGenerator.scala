@@ -1,6 +1,6 @@
 package com.uncharted.mosiac.generation
 
-import com.uncharted.mosiac.generation.analytic.{Analytic, ValueExtractor}
+import com.uncharted.mosiac.generation.analytic.{Aggregator, ValueExtractor}
 import com.uncharted.mosiac.generation.projection.Projection
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
@@ -13,18 +13,20 @@ import scala.collection.mutable.HashMap
  * @param aggregatorPool A TileAggregatorPool for this generator
  * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
  * @tparam T Input data type for aggregators
- * @tparam U Output data type for bin aggregators
- * @tparam V Output data type for tile aggregators
+ * @tparam U Intermediate data type for bin aggregators
+ * @tparam V Output data type for bin aggregators
+ * @tparam W Intermediate data type for tile aggregators
+ * @tparam X Output data type for tile aggregators
  */
-class TileGenerator[T, U, V](
-  aggregatorPool: TileAggregatorPool[T, U, V],
+class TileGenerator[T,U,V,W,X](
+  aggregatorPool: TileBuilderPool[T,U,V,W,X],
   projection: Projection) {
 
-  def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileAggregator[T, U, V]] = {
-    val accumulators = new HashMap[(Int, Int, Int), Accumulable[TileAggregator[T,U,V], ((Int, Int), Row)]]()
+  def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileBuilder[T,U,V,W,X]] = {
+    val accumulators = new HashMap[(Int, Int, Int), Accumulable[TileBuilder[T,U,V,W,X], ((Int, Int), Row)]]()
     for (i <- 0 until tiles.length) {
       val coord = tiles(i)
-      val param = new TileGenerationAccumulableParam[T,U,V]()
+      val param = new TileGenerationAccumulableParam[T,U,V,W,X]()
       val accumulator = sc.accumulable(aggregatorPool.reserve(coord))(param)
       accumulators.put(coord, accumulator)
     }

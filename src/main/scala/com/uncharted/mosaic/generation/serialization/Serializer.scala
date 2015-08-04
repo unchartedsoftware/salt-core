@@ -1,8 +1,8 @@
 package com.uncharted.mosiac.generation.serialization
 
-import com.uncharted.mosiac.generation.TileAggregator
+import com.uncharted.mosiac.generation.TileBuilder
 import com.uncharted.mosiac.generation.projection.Projection
 
-trait Serializer[U, V] {
-  def serialize(tileData: TileAggregator[_, U, V], projection: Projection, defaultValue: U): Array[Byte]
+trait Serializer[V, X] {
+  def serialize(tileData: TileBuilder[_, _, V, _, X], projection: Projection, defaultValue: V): Array[Byte]
 }
