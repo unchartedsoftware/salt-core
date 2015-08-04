@@ -10,8 +10,14 @@ object MinAggregator extends Aggregator[Double, Double, java.lang.Double] {
   override def add(current: Double, next: Option[Double]): Double = {
     if (next.isDefined) {
       var fixedCurrent = current
-      if (current == Double.NaN) fixedCurrent = Double.MaxValue
-      Math.max(fixedCurrent, next.get)
+      var fixedNext = next.get
+      if (fixedCurrent.equals(Double.NaN)) {
+        fixedCurrent = Double.MaxValue
+      }
+      if (fixedNext.equals(Double.NaN)) {
+        fixedNext = Double.MaxValue
+      }
+      Math.min(fixedCurrent, fixedNext)
     } else {
       current
     }
