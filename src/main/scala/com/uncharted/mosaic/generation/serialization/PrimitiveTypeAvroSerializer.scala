@@ -2,8 +2,6 @@ package com.uncharted.mosaic.generation.serialization
 
 import java.io.{ByteArrayOutputStream, IOException, OutputStream}
 
-import com.uncharted.mosaic.generation.serialization.AvroSchemaComposer
-import com.uncharted.mosaic.generation.serialization.PatternedSchemaStore
 import com.uncharted.mosaic.generation.TileData
 import com.uncharted.mosaic.generation.analytic.numeric.MaxMinAggregator
 import com.uncharted.mosaic.generation.projection.Projection
