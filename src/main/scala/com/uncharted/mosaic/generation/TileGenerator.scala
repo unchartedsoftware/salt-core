@@ -10,25 +10,24 @@ import scala.collection.mutable.HashMap
 
 /**
  * Tile Generator for a batch of tiles
- * @param builderPool A TileAggregatorPool for this generator
+ * @param accumulatorPool A pool of tile bin value accumulators for this generator
  * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
- * @tparam T Input data type for aggregators
+ * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
- * @tparam V Output data type for bin aggregators
+ * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
 class TileGenerator[T,U,V,W,X](
-  builderPool: TileBuilderPool[T,U,V,W,X],
-  projection: Projection) {
+  accumulatorPool: TileGenerationAccumulableParamPool[T,U],
+  projection: Projection,
+  binAggregator: Aggregator[T, U, V],
+  tileAggregator: Aggregator[V, W, X]) {
 
-  def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileBuilder[T,U,V,W,X]] = {
-    val accumulators = new HashMap[(Int, Int, Int), Accumulable[TileBuilder[T,U,V,W,X], ((Int, Int), Row)]]()
+  def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileData[V, X]] = {
+    val accumulators = new HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]()
     for (i <- 0 until tiles.length) {
-      val coord = tiles(i)
-      val param = new TileGenerationAccumulableParam[T,U,V,W,X]()
-      val accumulator = sc.accumulable(builderPool.reserve(coord))(param)
-      accumulators.put(coord, accumulator)
+      accumulators.put(tiles(i), accumulatorPool.reserve)
     }
 
     //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
@@ -50,6 +49,19 @@ class TileGenerator[T,U,V,W,X](
       }
     })
 
-    accumulators map { case (key, value) => (key, value.value)}
+    accumulators map { case (key, value) => {
+      var tile: W = tileAggregator.default
+      var binsTouched = 0
+      //this needs to copy the results from the accumulator, not reference them...
+      val finishedBins = value.value.map(a => {
+        if (a != binAggregator.default) binsTouched+=1
+        val bin = binAggregator.finish(a)
+        tile = tileAggregator.add(tile, Some(bin))
+        bin
+      })
+      val info = new TileData[V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
+      accumulatorPool.release(value)
+      (key, info)
+    }}
   }
 }
