@@ -44,13 +44,10 @@ class TileGenerator[T,U: ClassTag,V,W,X](
       accumulators.put(tiles(i), sc.accumulable(bins)(param))
     }
 
-    //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
-    val _bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
-
     //generate data by iterating over each row of the source data frame
     dataFrame
       .foreach(row => {
-      val _coords = _bCoords.value
+      val _coords = new Array[(Int, Int, Int, Int, Int)](bProjection.value.maxZoom + 1)
       val inBounds = bProjection.value.rowToCoords(row, _coords)
       if (inBounds) {
         _coords.foreach((c: (Int, Int, Int, Int, Int)) => {
