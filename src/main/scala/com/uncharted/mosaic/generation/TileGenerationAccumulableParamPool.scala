@@ -18,16 +18,18 @@ import scala.reflect.ClassTag
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
- * @tparam W Intermediate data type for tile aggregators
- * @tparam X Output data type for tile aggregators
  */
-class TileGenerationAccumulableParamPool[T, U: ClassTag](
+class TileGenerationAccumulableParamPool[T, U: ClassTag, V](
   sc: SparkContext,
-  bProjection: Broadcast[Projection],
-  bExtractor: Broadcast[ValueExtractor[T]],
-  bBinAggregator: Broadcast[Aggregator[T, U, _]]
+  projection: Projection,
+  extractor: ValueExtractor[T],
+  binAggregator: Aggregator[T, U, V]
 ) {
   private val pool = mutable.Stack[Accumulable[Array[U], ((Int, Int), Row)]]()
+
+  private val bProjection = sc.broadcast(projection);
+  private val bExtractor = sc.broadcast(extractor);
+  private val bBinAggregator = sc.broadcast(binAggregator);
 
   //will store intermediate values for the bin analytic
   private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
@@ -40,7 +42,7 @@ class TileGenerationAccumulableParamPool[T, U: ClassTag](
         pool.pop()
       } else {
         val bins = makeBins(bProjection.value.xBins*bProjection.value.yBins, bBinAggregator.value.default)
-        val param = new TileGenerationAccumulableParam[T,U](bProjection, bExtractor, bBinAggregator)
+        val param = new TileGenerationAccumulableParam[T,U,V](bProjection, bExtractor, bBinAggregator)
         sc.accumulable(bins)(param)
       }
     })
@@ -52,7 +54,10 @@ class TileGenerationAccumulableParamPool[T, U: ClassTag](
     })
   }
 
-  def releaseAll(): Unit = {
+  def cleanup(): Unit = {
     pool.clear
+    bProjection.unpersist
+    bExtractor.unpersist
+    bBinAggregator.unpersist
   }
 }

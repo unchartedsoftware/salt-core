@@ -19,7 +19,7 @@ import scala.collection.mutable.HashMap
  * @tparam X Output data type for tile aggregators
  */
 class TileGenerator[T,U,V,W,X](
-  accumulatorPool: TileGenerationAccumulableParamPool[T,U],
+  accumulatorPool: TileGenerationAccumulableParamPool[T,U,V],
   projection: Projection,
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X]) {
@@ -48,6 +48,9 @@ class TileGenerator[T,U,V,W,X](
         })
       }
     })
+
+    _bCoords.unpersist
+    bProjection.unpersist
 
     accumulators map { case (key, value) => {
       var tile: W = tileAggregator.default

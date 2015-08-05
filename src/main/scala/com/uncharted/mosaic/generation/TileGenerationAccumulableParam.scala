@@ -11,11 +11,12 @@ import org.apache.spark.sql.Row
  * Accumulator which aggregates bin values for a tile
  * @tparam T Input data type for aggregators
  * @tparam U Intermediate data type for bin aggregators
+ * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
-class TileGenerationAccumulableParam[T, U: ClassTag](
+class TileGenerationAccumulableParam[T, U: ClassTag, V](
     bProjection: Broadcast[Projection],
     bExtractor: Broadcast[ValueExtractor[T]],
-    bBinAggregator: Broadcast[Aggregator[T, U, _]]
+    bBinAggregator: Broadcast[Aggregator[T, U, V]]
   ) extends AccumulableParam[Array[U], ((Int, Int), Row)]() {
 
   //will store intermediate values for the bin analytic

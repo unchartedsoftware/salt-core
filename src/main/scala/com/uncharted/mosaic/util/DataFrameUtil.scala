@@ -16,8 +16,8 @@ object DataFrameUtil {
       case l: Long => l.toDouble
       case f: Float => f.toDouble
       case d: Double => d
-      case d: Date => (d.getTime * 1000).toDouble
-      case t: Timestamp => (t.getTime*1000).toDouble
+      case d: Date => (d.getTime).toDouble
+      case t: Timestamp => (t.getTime).toDouble
       case _ => {
         val colType = r.get(col).getClass.getName
         throw new IllegalArgumentException(s"Column $col is non-numeric (type: $colType)")
