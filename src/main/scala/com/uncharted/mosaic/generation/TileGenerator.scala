@@ -5,35 +5,48 @@ import com.uncharted.mosaic.generation.projection.Projection
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
+import scala.reflect.ClassTag
 
 import scala.collection.mutable.HashMap
 
 /**
  * Tile Generator for a batch of tiles
- * @param accumulatorPool A pool of tile bin value accumulators for this generator
- * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
+ * @param projection the  projection from data to some space (i.e. 2D or 1D)
+ * @param extractor a mechanism for grabbing the "value" column from a source record
+ * @param binAggregator the desired bin analytic strategy
+ * @param tileAggregator the desired tile analytic strategy
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class TileGenerator[T,U,V,W,X](
-  accumulatorPool: TileGenerationAccumulableParamPool[T,U,V],
+class TileGenerator[T,U: ClassTag,V,W,X](
   projection: Projection,
+  extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X]) {
 
+  //builds an array that can store intermediate values for the bin analytic
+  private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
+    Array.fill[A](length)(default)
+  }
+
   def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileData[V, X]] = {
+    val bProjection = sc.broadcast(projection)
+    val bExtractor = sc.broadcast(extractor)
+    val bBinAggregator = sc.broadcast(binAggregator)
+
     val accumulators = new HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]()
     for (i <- 0 until tiles.length) {
-      accumulators.put(tiles(i), accumulatorPool.reserve)
+      val bins = makeBins(projection.xBins*projection.yBins, binAggregator.default)
+      val param = new TileGenerationAccumulableParam[T,U,V](bProjection, bExtractor, bBinAggregator)
+      accumulators.put(tiles(i), sc.accumulable(bins)(param))
     }
 
     //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
     val _bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
 
-    val bProjection = sc.broadcast(projection)
     //generate data by iterating over each row of the source data frame
     dataFrame
       .foreach(row => {
@@ -48,11 +61,7 @@ class TileGenerator[T,U,V,W,X](
         })
       }
     })
-
-    _bCoords.unpersist
-    bProjection.unpersist
-
-    accumulators map { case (key, value) => {
+    val result = accumulators map { case (key, value) => {
       var tile: W = tileAggregator.default
       var binsTouched = 0
       //this needs to copy the results from the accumulator, not reference them...
@@ -63,8 +72,13 @@ class TileGenerator[T,U,V,W,X](
         bin
       })
       val info = new TileData[V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
-      accumulatorPool.release(value)
       (key, info)
     }}
+
+    bProjection.unpersist
+    bExtractor.unpersist
+    bBinAggregator.unpersist
+
+    result
   }
 }

@@ -19,6 +19,7 @@ import scala.reflect.ClassTag
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
+@deprecated
 class TileGenerationAccumulableParamPool[T, U: ClassTag, V](
   sc: SparkContext,
   projection: Projection,
