@@ -6,7 +6,7 @@ import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
 import scala.reflect.ClassTag
-
+import scala.util.Try
 import scala.collection.mutable.HashMap
 
 /**
@@ -48,18 +48,19 @@ class TileGenerator[T,U: ClassTag,V,W,X](
     val _bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
 
     //generate data by iterating over each row of the source data frame
-    dataFrame
-      .foreach(row => {
-      val _coords = _bCoords.value
-      val inBounds = bProjection.value.rowToCoords(row, _coords)
-      if (inBounds) {
-        _coords.foreach((c: (Int, Int, Int, Int, Int)) => {
-          val coord = (c._1, c._2, c._3)
-          if (accumulators.contains(coord)) {
-            accumulators.get(coord).get.add(((c._4, c._5), row))
-          }
-        })
-      }
+    dataFrame.foreach(row => {
+      Try({
+        val _coords = _bCoords.value
+        val inBounds = bProjection.value.rowToCoords(row, _coords)
+        if (inBounds) {
+          _coords.foreach((c: (Int, Int, Int, Int, Int)) => {
+            val coord = (c._1, c._2, c._3)
+            if (accumulators.contains(coord)) {
+              accumulators.get(coord).get.add(((c._4, c._5), row))
+            }
+          })
+        }
+      })
     })
     val result = accumulators map { case (key, value) => {
       var tile: W = tileAggregator.default

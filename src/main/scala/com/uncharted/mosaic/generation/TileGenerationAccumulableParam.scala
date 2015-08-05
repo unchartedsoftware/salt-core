@@ -6,6 +6,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{AccumulableParam, Accumulable}
 import org.apache.spark.sql.Row
+import scala.util.Try
 
 /**
  * Accumulator which aggregates bin values for a tile
@@ -27,10 +28,12 @@ class TileGenerationAccumulableParam[T, U: ClassTag, V](
   override def addAccumulator(r: Array[U], t: ((Int, Int), Row)): Array[U] = {
     val bin = t._1
     val row = t._2
-    val value: Option[T] = bExtractor.value.rowToValue(row)
     val index = bin._1 + bin._2*bProjection.value.xBins
     val current = r(index)
-    r(index) = bBinAggregator.value.add(current, value)
+    Try({
+      val value: Option[T] = bExtractor.value.rowToValue(row)
+      r(index) = bBinAggregator.value.add(current, value)
+    })
     r
   }
 
