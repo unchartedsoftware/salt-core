@@ -141,8 +141,8 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
   private def serializeDense(tileData: TileData[V, X], stream: ByteArrayOutputStream): Unit = {
     var i=0
     val projection = tileData.projection
-    for (x <- 0 until projection.xBins) {
-      for (y <- 0 until projection.yBins) {
+    for (y <- 0 until projection.yBins) {
+      for (x <- 0 until projection.xBins) {
         setValue(valueRecords.get(i), tileData.getBin(x, y))
         i+=1
       }
