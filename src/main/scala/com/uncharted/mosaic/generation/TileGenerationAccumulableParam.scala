@@ -10,15 +10,28 @@ import scala.util.Try
 
 /**
  * Accumulator which aggregates bin values for a tile
+ * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
+ * @param bExtractor a (broadcasted) mechanism for grabbing the "value" column from a source record
+ * @param bBinAggregator the (broadcasted) desired bin analytic strategy
  * @tparam T Input data type for aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
 class TileGenerationAccumulableParam[T, U: ClassTag, V](
-    bProjection: Broadcast[Projection],
-    bExtractor: Broadcast[ValueExtractor[T]],
-    bBinAggregator: Broadcast[Aggregator[T, U, V]]
+    private var bProjection: Broadcast[Projection],
+    private var bExtractor: Broadcast[ValueExtractor[T]],
+    private var bBinAggregator: Broadcast[Aggregator[T, U, V]]
   ) extends AccumulableParam[Array[U], ((Int, Int), Row)]() {
+
+  def reset(
+    newBProjection: Broadcast[Projection],
+    newBExtractor: Broadcast[ValueExtractor[T]],
+    newBBinAggregator: Broadcast[Aggregator[T, U, V]]
+  ): Unit = {
+    bProjection = newBProjection
+    bExtractor = newBExtractor
+    bBinAggregator = newBBinAggregator
+  }
 
   //will store intermediate values for the bin analytic
   private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {

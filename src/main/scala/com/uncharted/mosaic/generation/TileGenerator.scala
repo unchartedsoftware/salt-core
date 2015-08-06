@@ -7,7 +7,7 @@ import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
 import scala.reflect.ClassTag
 import scala.util.Try
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.{HashMap, ListBuffer}
 
 /**
  * Tile Generator for a batch of tiles
@@ -22,35 +22,66 @@ import scala.collection.mutable.HashMap
  * @tparam X Output data type for tile aggregators
  */
 class TileGenerator[T,U: ClassTag,V,W,X](
+  sc: SparkContext,
   projection: Projection,
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X]) {
 
-  //builds an array that can store intermediate values for the bin analytic
-  private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
-    Array.fill[A](length)(default)
-  }
+  private val pool = new TileAccumulablePool[T, U, V](sc)
 
-  def generate(sc: SparkContext, dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileData[V, X]] = {
+  def generate(dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileData[V, X]] = {
     val bProjection = sc.broadcast(projection)
     val bExtractor = sc.broadcast(extractor)
     val bBinAggregator = sc.broadcast(binAggregator)
+    val bTileAggregator = sc.broadcast(tileAggregator)
 
     val accumulators = new HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]()
+    val toRelease = ListBuffer.empty[TileAccumulable[T, U, V]]
     for (i <- 0 until tiles.length) {
-      val bins = makeBins(projection.xBins*projection.yBins, binAggregator.default)
-      val param = new TileGenerationAccumulableParam[T,U,V](bProjection, bExtractor, bBinAggregator)
-      accumulators.put(tiles(i), sc.accumulable(bins)(param))
+      val acc = pool.reserve(bProjection, bExtractor, bBinAggregator)
+      accumulators.put(tiles(i), acc.accumulable)
+      toRelease.append(acc)
     }
 
     //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
-    val _bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
+    val bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
 
-    //generate data by iterating over each row of the source data frame
+    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, bCoords, dataFrame, tiles, accumulators)
+
+    //release accumulators back to pool, and unpersist broadcast variables
+    toRelease.foreach(a => {
+      pool.release(a)
+    })
+    bProjection.unpersist
+    bExtractor.unpersist
+    bBinAggregator.unpersist
+    bTileAggregator.unpersist
+    bCoords.unpersist
+
+    result
+  }
+
+  /**
+   * Since spark serializes closures, everything within the closure must be serializable
+   * This does the real work of generate, excluding the handling of anything that isn't
+   * serializable and needs to be dealt with on the master.
+   */
+  private def _sanitizedClosureGenerate(
+    bProjection: Broadcast[Projection],
+    bExtractor: Broadcast[ValueExtractor[T]],
+    bBinAggregator: Broadcast[Aggregator[T, U, V]],
+    bTileAggregator: Broadcast[Aggregator[V, W, X]],
+    bCoords: Broadcast[Array[(Int, Int, Int, Int, Int)]],
+    dataFrame: DataFrame,
+    tiles: Seq[(Int, Int, Int)],
+    accumulators: HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]
+  ): HashMap[(Int, Int, Int), TileData[V, X]] = {
+
+    //generate bin data by iterating over each row of the source data frame
     dataFrame.foreach(row => {
       Try({
-        val _coords = _bCoords.value
+        val _coords = bCoords.value
         val inBounds = bProjection.value.rowToCoords(row, _coords)
         if (inBounds) {
           _coords.foreach((c: (Int, Int, Int, Int, Int)) => {
@@ -62,11 +93,17 @@ class TileGenerator[T,U: ClassTag,V,W,X](
         }
       })
     })
-    val result = accumulators map { case (key, value) => {
+
+    //finish tile by computing tile-level statistics
+    //TODO parallelize on workers to avoid memory overloading on the master
+    accumulators map { case (key, accumulator) => {
+      val binAggregator = bBinAggregator.value
+      val tileAggregator = bTileAggregator.value
+      val projection = bProjection.value
       var tile: W = tileAggregator.default
       var binsTouched = 0
       //this needs to copy the results from the accumulator, not reference them...
-      val finishedBins = value.value.map(a => {
+      val finishedBins = accumulator.value.map(a => {
         if (!a.equals(binAggregator.default)) binsTouched+=1
         val bin = binAggregator.finish(a)
         tile = tileAggregator.add(tile, Some(bin))
@@ -75,12 +112,5 @@ class TileGenerator[T,U: ClassTag,V,W,X](
       val info = new TileData[V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
       (key, info)
     }}
-
-    bProjection.unpersist
-    bExtractor.unpersist
-    bBinAggregator.unpersist
-    _bCoords.unpersist
-
-    result
   }
 }
