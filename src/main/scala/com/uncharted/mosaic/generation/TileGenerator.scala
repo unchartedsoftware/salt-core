@@ -95,14 +95,14 @@ class TileGenerator[T,U: ClassTag,V,W,X](
     })
 
     //finish tile by computing tile-level statistics
-    //TODO parallelize on workers to avoid memory overloading on the master
+    //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
     accumulators map { case (key, accumulator) => {
       val binAggregator = bBinAggregator.value
       val tileAggregator = bTileAggregator.value
       val projection = bProjection.value
       var tile: W = tileAggregator.default
       var binsTouched = 0
-      //this needs to copy the results from the accumulator, not reference them...
+
       val finishedBins = accumulator.value.map(a => {
         if (!a.equals(binAggregator.default)) binsTouched+=1
         val bin = binAggregator.finish(a)
