@@ -23,7 +23,13 @@ object MaxAggregator extends Aggregator[Double, Double, java.lang.Double] {
     }
   }
   override def merge(left: Double, right: Double): Double = {
-    Math.max(left, right)
+    if (left.equals(Double.NaN)) {
+      right
+    } else if (right.equals(Double.NaN)) {
+      left
+    } else {
+      Math.max(left, right)
+    }
   }
 
   def finish(intermediate: Double): java.lang.Double = {
