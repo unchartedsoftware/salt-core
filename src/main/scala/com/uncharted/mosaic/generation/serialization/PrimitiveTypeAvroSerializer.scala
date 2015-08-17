@@ -95,8 +95,8 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
   //precompute schemas
   //TODO make this class abstract and extract schemas to factories
   private val _recordSchema: Schema = __schemaStore.getSchema(tileDataType, getAvroType(tileDataType).get)
-  private val _sparseSchema: Schema = new AvroSchemaComposer().add(_recordSchema).addResource("sparseTile.avsc").resolved
-  private val _denseSchema: Schema = new AvroSchemaComposer().add(_recordSchema).addResource("denseTile.avsc").resolved
+  private val _sparseSchema: Schema = new AvroSchemaComposer().add(_recordSchema).addResource("sparseTileSchema.avsc").resolved
+  private val _denseSchema: Schema = new AvroSchemaComposer().add(_recordSchema).addResource("denseTileSchema.avsc").resolved
   private val _sparseBinSchema: Schema = _sparseSchema.getField("values").schema.getElementType
   private val _denseBinSchema: Schema = _denseSchema.getField("values").schema.getElementType
 
