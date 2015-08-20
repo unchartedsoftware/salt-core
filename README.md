@@ -12,7 +12,7 @@ $ ./gradlew build
 Assuming you have a table such as:
 
 ```scala
-scala> sql("select * from taxi_micro").schema
+scala> sqlContext.sql("select * from taxi_micro").schema
 
 res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,StringType,true), StructField(license,StringType,true), StructField(code,StringType,true), StructField(flag,IntegerType,true), StructField(type,StringType,true), StructField(pickup_time,TimestampType,true), StructField(dropoff_time,TimestampType,true), StructField(passengers,IntegerType,true), StructField(duration,IntegerType,true), StructField(distance,DoubleType,true), StructField(pickup_lon,DoubleType,true), StructField(pickup_lat,DoubleType,true), StructField(dropoff_lon,DoubleType,true), StructField(dropoff_lat,DoubleType,true))
 ```
@@ -28,13 +28,18 @@ import com.uncharted.mosaic.generation.serialization.PrimitiveTypeAvroSerializer
 import com.uncharted.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
+// source DataFrame
+// NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
+val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
+frame.cache
+
 // which tiles are we generating?
 val indices = List((0,0,0), (1,0,0))
 // max/min zoom
 val zoomBounds = indices.reduceLeft((x:(Int, Int, Int), y:(Int, Int, Int)) => (x._1 min y._1, x._1 max y._1, 0))
 
-// create a projection into 2D space
-val proj: Projection = new SpatialProjection(256, 256, zoomBounds._1, zoomBounds._2, 5, 1358725677000D, 1356998880000D, 9, 95.85D, 0)
+// create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
+val proj: Projection = new SpatialProjection(256, 256, zoomBounds._1, zoomBounds._2, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
 
 // our value extractor does nothing, since we're just counting records
 val extractor = new ValueExtractor[Double] {
@@ -42,10 +47,6 @@ val extractor = new ValueExtractor[Double] {
     return None
   }
 }
-
-// source DataFrame
-val frame = sql("select * from taxi_micro")
-frame.cache
 
 // Tile Generator, with appropriate input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
 val gen = new TileGenerator[Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)

@@ -31,11 +31,15 @@ class TileGenerator[T,U: ClassTag,V,W,X](
   private val pool = new TileAccumulablePool[T, U, V](sc)
 
   def generate(dataFrame: DataFrame, tiles: Seq[(Int, Int, Int)]): HashMap[(Int, Int, Int), TileData[V, X]] = {
+    dataFrame.cache //ensure data is cached
+
+    //broadcast stuff we'll use on the workers throughout our tilegen process
     val bProjection = sc.broadcast(projection)
     val bExtractor = sc.broadcast(extractor)
     val bBinAggregator = sc.broadcast(binAggregator)
     val bTileAggregator = sc.broadcast(tileAggregator)
 
+    //build a map of our tile accumulators using the pool
     val accumulators = new HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]()
     val toRelease = ListBuffer.empty[TileAccumulable[T, U, V]]
     for (i <- 0 until tiles.length) {
