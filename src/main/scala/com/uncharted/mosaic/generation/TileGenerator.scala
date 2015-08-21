@@ -49,9 +49,12 @@ class TileGenerator[T,U: ClassTag,V,W,X](
     }
 
     //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
-    val bCoords = sc.broadcast(new Array[(Int, Int, Int, Int, Int)](projection.maxZoom + 1))
+    val bCoords = sc.broadcast(new Array[Int](5))
 
-    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, bCoords, dataFrame, tiles, accumulators)
+    //map requested tile set to a map of level -> tiles_at_level
+    val levelMappedTiles = tiles.groupBy(c => c._1)
+
+    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, bCoords, dataFrame, levelMappedTiles, accumulators)
 
     //release accumulators back to pool, and unpersist broadcast variables
     toRelease.foreach(a => {
@@ -76,9 +79,9 @@ class TileGenerator[T,U: ClassTag,V,W,X](
     bExtractor: Broadcast[ValueExtractor[T]],
     bBinAggregator: Broadcast[Aggregator[T, U, V]],
     bTileAggregator: Broadcast[Aggregator[V, W, X]],
-    bCoords: Broadcast[Array[(Int, Int, Int, Int, Int)]],
+    bCoords: Broadcast[Array[Int]],
     dataFrame: DataFrame,
-    tiles: Seq[(Int, Int, Int)],
+    levelMappedTiles: Map[Int, Seq[(Int, Int, Int)]],
     accumulators: HashMap[(Int, Int, Int), Accumulable[Array[U], ((Int, Int), Row)]]
   ): HashMap[(Int, Int, Int), TileData[V, X]] = {
 
@@ -86,15 +89,15 @@ class TileGenerator[T,U: ClassTag,V,W,X](
     dataFrame.foreach(row => {
       Try({
         val _coords = bCoords.value
-        val inBounds = bProjection.value.rowToCoords(row, _coords)
-        if (inBounds) {
-          _coords.foreach((c: (Int, Int, Int, Int, Int)) => {
-            val coord = (c._1, c._2, c._3)
+        levelMappedTiles.foreach(l => {
+          val inBounds = bProjection.value.rowToCoords(row, l._1, _coords)
+          if (inBounds) {
+            val coord = (_coords(0), _coords(1), _coords(2))
             if (accumulators.contains(coord)) {
-              accumulators.get(coord).get.add(((c._4, c._5), row))
+              accumulators.get(coord).get.add(((_coords(4), _coords(5)), row))
             }
-          })
-        }
+          }
+        })
       })
     })
 

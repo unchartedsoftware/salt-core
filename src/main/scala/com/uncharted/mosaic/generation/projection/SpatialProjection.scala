@@ -26,7 +26,11 @@ class SpatialProjection(xBins: Int,
   val tileWidths = tileCounts.map(a => _xRange/a)
   val tileHeights = tileCounts.map(a => _yRange/a)
 
-  override def rowToCoords (r: Row, inCoords: Array[(Int, Int, Int, Int, Int)]) = {
+  override def rowToCoords (r: Row, z: Int, inCoords: Array[Int]): Boolean = {
+    if (z > maxZoom || z < minZoom) {
+      throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
+    }
+
     //convert value to a double
     val doubleX = DataFrameUtil.getDouble(xCol, r)
     val doubleY = DataFrameUtil.getDouble(yCol, r)
@@ -41,24 +45,19 @@ class SpatialProjection(xBins: Int,
       val scaledDataX = translatedDataX / _xRange
       val scaledDataY = translatedDataY / _yRange
 
-      //compute all tile/bin coordinates (z, x, y, bX, bY)
-      var x = 0
-      var y = 0
-      var xBin = 0
-      var yBin = 0
-      var howFarX = 0D
-      var howFarY = 0D
+      //compute tile/bin coordinates (z, x, y, bX, bY)
+      var howFarX = scaledDataX * tileCounts(z)
+      var howFarY = scaledDataY * tileCounts(z)
+      var x = howFarX.toInt
+      var y = howFarY.toInt
+      var xBin = ((howFarX - x)*xBins).toInt
+      var yBin = (yBins-1) - ((howFarY - y)*yBins).toInt
+      inCoords(0) = z
+      inCoords(1) = x
+      inCoords(2) = y
+      inCoords(3) = xBin
+      inCoords(4) = yBin
 
-      for (i <- 0 until maxZoom + 1) {
-        howFarX = scaledDataX * tileCounts(i)
-        howFarY = scaledDataY * tileCounts(i)
-
-        x = howFarX.toInt
-        y = howFarY.toInt
-        xBin = ((howFarX - x)*xBins).toInt
-        yBin = (yBins-1) - ((howFarY - y)*yBins).toInt
-        inCoords(i) = (i, x, y, xBin, yBin)
-      }
       true
     }
   }

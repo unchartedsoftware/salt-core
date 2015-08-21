@@ -21,7 +21,10 @@ class SeriesProjection(
   //width of a tile in data space at each zoom level
   val tileWidths = tileCounts.map(a => _range/a)
 
-  override def rowToCoords (r: Row, inCoords: Array[(Int, Int, Int, Int, Int)]): Boolean = {
+  override def rowToCoords (r: Row, z: Int, inCoords: Array[Int]): Boolean = {
+    if (z > maxZoom || z < minZoom) {
+      throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
+    }
     //convert value to a double
     val doubleX = DataFrameUtil.getDouble(xCol, r)
 
@@ -33,15 +36,15 @@ class SeriesProjection(
       val scaledDataX = translatedDataX/_range
 
       //compute all tile/bin coordinates (z, x, y, bX, bY)
-      var x = 0
-      var xBin = 0
-      var howFarX = 0D
-      for (i <- 0 until maxZoom+1) {
-        howFarX = scaledDataX * tileCounts(i)
-        x = howFarX.toInt
-        xBin = ((howFarX - x)*xBins).toInt
-        inCoords(i) = (i, x, 0, xBin, 0)
-      }
+      var howFarX = scaledDataX * tileCounts(z)
+      var x = howFarX.toInt
+      var xBin = ((howFarX - x)*xBins).toInt
+      inCoords(0) = z
+      inCoords(1) = x
+      inCoords(2) = 0
+      inCoords(3) = xBin
+      inCoords(4) = 0
+
       true
     }
   }
