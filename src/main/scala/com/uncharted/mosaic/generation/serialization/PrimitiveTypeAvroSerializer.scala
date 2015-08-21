@@ -118,11 +118,15 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
     val projection = tileData.projection
     for (x <- 0 until projection.xBins) {
       for (y <- 0 until projection.yBins) {
-        sparseBins.get(i).put("xIndex", x)
-        sparseBins.get(i).put("yIndex", y)
-        setValue(valueRecords.get(i), tileData.getBin(x, y))
-        sparseBins.get(i).put("value", valueRecords.get(i))
-        i+=1
+        val value = tileData.getBin(x, y)
+        if (!value.equals(tileData.defaultBinValue)) {
+          val valueRecord = valueRecords.get(i)
+          sparseBins.get(i).put("xIndex", x)
+          sparseBins.get(i).put("yIndex", y)
+          setValue(valueRecord, value)
+          sparseBins.get(i).put("value", valueRecord)
+          i+=1
+        }
       }
     }
     sparseTileRecord.put("level", tileData.z)
@@ -130,7 +134,7 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
     sparseTileRecord.put("yIndex", tileData.y)
     sparseTileRecord.put("xBinCount", projection.xBins)
     sparseTileRecord.put("yBinCount", projection.yBins)
-    sparseTileRecord.put("values", sparseBins.subList(0, projection.xBins*projection.yBins))
+    sparseTileRecord.put("values", sparseBins.subList(0, i))
     sparseTileRecord.put("meta", getTileMetaData(tileData))
     setValue(defaultValueRecord, tileData.defaultBinValue)
     sparseTileRecord.put("default", defaultValueRecord)
