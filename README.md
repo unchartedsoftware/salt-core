@@ -20,12 +20,12 @@ res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,String
 Then you can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
 
 ```scala
-import com.uncharted.mosaic.generation.projection.{Projection, SpatialProjection}
-import com.uncharted.mosaic.generation.TileGenerator
-import com.uncharted.mosaic.generation.analytic._
-import com.uncharted.mosaic.generation.analytic.numeric._
-import com.uncharted.mosaic.generation.serialization.PrimitiveTypeAvroSerializer
-import com.uncharted.mosaic.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.core.projection.{Projection, SpatialProjection}
+import com.unchartedsoftware.mosaic.core.TileGenerator
+import com.unchartedsoftware.mosaic.core.analytic._
+import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
+import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 // source DataFrame
