@@ -59,7 +59,7 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
     val bCoords = sc.broadcast(reusableCoord)
 
     //map requested tile set to a map of level -> tiles_at_level
-    val levelMappedTiles = tiles.groupBy(c => projection.coordToZoomLevel(c))
+    val levelMappedTiles = tiles.groupBy(c => c.z)
 
     val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, bCoords, dataFrame, levelMappedTiles, accumulators)
 

@@ -20,10 +20,6 @@ class SpatialProjection(val xBins: Int,
                         val maxY: Double,
                         val minY: Double) extends Projection[SpatialCoord](xBins*yBins, minZoom, maxZoom) {
 
-  override def coordToZoomLevel(coords: SpatialCoord): Int = {
-    return coords.z
-  }
-
   //Precompute some stuff we'll use frequently
   val _xRange = maxX - minX
   val _yRange = maxY - minY

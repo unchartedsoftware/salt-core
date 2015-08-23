@@ -17,10 +17,6 @@ class SeriesProjection(
   val maxX: Double,
   val minX: Double) extends Projection[SeriesCoord](bins, minZoom, maxZoom) {
 
-  override def coordToZoomLevel(coords: SeriesCoord): Int = {
-    return coords.z
-  }
-
   //Precompute some stuff we'll use frequently
   val _range = maxX - minX
   //number of tiles at each zoom level

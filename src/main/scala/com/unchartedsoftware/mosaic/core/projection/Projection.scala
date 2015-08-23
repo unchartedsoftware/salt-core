@@ -15,12 +15,6 @@ abstract class Projection[TC <:TileCoord](
 ) extends Serializable {
 
   /**
-   * @param coords A tile coordinate
-   * @return Int the zoom level of the given coordinate
-   */
-  def coordToZoomLevel(coords: TC): Int
-
-  /**
    * @param r the Row to retrieve data from
    * @param z the zoom level
    * @param inTileCoords will fill this in with the tile coordinates, if the return value is true
