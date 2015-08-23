@@ -18,7 +18,7 @@ import scala.collection.JavaConversions._
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam X Output data type for tile aggregators
  */
-class PrimitiveTypeAvroSerializer[TC, V, X](val tileDataType: Class[_ <: V], val maxBinCount: Int) extends Serializer[TC, V, X] {
+class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[_ <: V], val maxBinCount: Int) extends Serializer[TC, V, X] {
 
   private val VALID_PRIMITIVE_TYPES = Map[Class[_], String](
     classOf[java.lang.Boolean] -> "boolean",

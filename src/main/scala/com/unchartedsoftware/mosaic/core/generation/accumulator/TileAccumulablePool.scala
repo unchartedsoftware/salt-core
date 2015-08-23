@@ -1,7 +1,7 @@
 package com.unchartedsoftware.mosaic.core.generation.accumulator
 
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
-import com.unchartedsoftware.mosaic.core.projection.Projection
+import com.unchartedsoftware.mosaic.core.projection.{TileCoord, Projection}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.sql.Row
@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 /**
  * A wrapper which links Accumulables to their associated AccumulableParam
  */
-class TileAccumulable[TC, T, U: ClassTag, V](
+class TileAccumulable[TC <:TileCoord, T, U: ClassTag, V](
   val accumulable: Accumulable[Array[U], (Int, Row)],
   val param: TileGenerationAccumulableParam[TC, T, U, V]
 ) {}
@@ -27,7 +27,7 @@ class TileAccumulable[TC, T, U: ClassTag, V](
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
-class TileAccumulablePool[TC, T, U: ClassTag, V](sc: SparkContext) {
+class TileAccumulablePool[TC <:TileCoord, T, U: ClassTag, V](sc: SparkContext) {
   private val pool = mutable.Stack[TileAccumulable[TC, T, U, V]]()
 
   //will store intermediate values for the bin analytic

@@ -1,6 +1,6 @@
 package com.unchartedsoftware.mosaic.core.generation.output
 
-import com.unchartedsoftware.mosaic.core.projection.Projection
+import com.unchartedsoftware.mosaic.core.projection.{TileCoord, Projection}
 
 /**
  * A thin wrapper class for the output of a tile generation
@@ -13,7 +13,7 @@ import com.unchartedsoftware.mosaic.core.projection.Projection
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam X Output data type for tile aggregators
  */
-class TileData[TC, V, X](
+class TileData[TC <:TileCoord, V, X](
   val coords: TC,
   val bins: Seq[V],
   val binsTouched: Int,

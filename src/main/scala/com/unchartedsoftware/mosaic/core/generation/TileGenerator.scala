@@ -1,7 +1,7 @@
 package com.unchartedsoftware.mosaic.core.generation
 
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
-import com.unchartedsoftware.mosaic.core.projection.Projection
+import com.unchartedsoftware.mosaic.core.projection.{TileCoord, Projection}
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
@@ -23,7 +23,7 @@ import scala.collection.mutable.{HashMap, ListBuffer}
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-abstract class TileGenerator[TC, T, U: ClassTag, V, W, X](
+abstract class TileGenerator[TC <:TileCoord, T, U: ClassTag, V, W, X](
   sc: SparkContext,
   projection: Projection[TC],
   extractor: ValueExtractor[T],

@@ -8,7 +8,7 @@ import org.apache.spark.sql.Row
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  */
-abstract class Projection[TC](
+abstract class Projection[TC <:TileCoord](
   val bins: Int,
   val minZoom: Int,
   val maxZoom: Int
