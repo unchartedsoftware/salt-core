@@ -29,8 +29,7 @@ class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   projection: Projection[TC],
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
-  tileAggregator: Aggregator[V, W, X],
-  private implicit val tileCoordManifest: Manifest[TC])
+  tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
 extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   private val pool = new TileAccumulablePool[TC, T, U, V](sc)

@@ -3,7 +3,11 @@ package com.unchartedsoftware.mosaic.core.projection
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
-class SpatialCoord(var z: Int = 0, var x: Int = 0, var y: Int = 0) extends Serializable {}
+class SpatialCoord(var z: Int, var x: Int, var y: Int) extends Serializable {
+  def this() = {
+    this(0, 0, 0)
+  }
+}
 
 class SpatialProjection(val xBins: Int,
                         val yBins: Int,

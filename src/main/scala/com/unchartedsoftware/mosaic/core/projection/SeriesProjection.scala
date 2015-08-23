@@ -3,7 +3,11 @@ package com.unchartedsoftware.mosaic.core.projection
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
-class SeriesCoord(var z: Int = 0, var x: Int = 0) extends Serializable {}
+class SeriesCoord(var z: Int, var x: Int) extends Serializable {
+  def this() = {
+    this(0, 0)
+  }
+}
 
 class SeriesProjection(
   bins: Int,

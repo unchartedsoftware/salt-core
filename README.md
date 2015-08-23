@@ -20,8 +20,8 @@ res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,String
 Then you can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
 
 ```scala
-import com.unchartedsoftware.mosaic.core.projection.{Projection, SpatialProjection}
-import com.unchartedsoftware.mosaic.core.TileGenerator
+import com.unchartedsoftware.mosaic.core.projection._
+import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
 import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
@@ -34,12 +34,14 @@ val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
 frame.cache
 
 // which tiles are we generating?
-val indices = List((0,0,0), (1,0,0))
+// we use SpatialCoord to represent them, since this is the coordinate type for SpatialProjection (which we'll employ below)
+val indices = List((0,0,0), (1,0,0)).map(c => new SpatialCoord(c._1, c._2, c._3))
+
 // max/min zoom
-val zoomBounds = indices.reduceLeft((x:(Int, Int, Int), y:(Int, Int, Int)) => (x._1 min y._1, x._1 max y._1, 0))
+val zoomBounds = indices.foldLeft((Int.MaxValue, Int.MinValue))((c:(Int, Int), next:SpatialCoord) => (c._1 min next.z, c._2 max next.z))
 
 // create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
-val proj: Projection = new SpatialProjection(256, 256, zoomBounds._1, zoomBounds._2, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+val proj = new SpatialProjection(256, 256, zoomBounds._1, zoomBounds._2, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
 
 // our value extractor does nothing, since we're just counting records
 val extractor = new ValueExtractor[Double] {
@@ -48,14 +50,14 @@ val extractor = new ValueExtractor[Double] {
   }
 }
 
-// Tile Generator, with appropriate input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-val gen = new TileGenerator[Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
+// Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
+val gen = new AccumulatorTileGenerator[SpatialCoord, Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
 
-// For serializing tiles to AVRO
-val serializer = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.xBins*proj.yBins)
+// For serializing basic spatial and series tiles to AVRO
+val serializer = new PrimitiveTypeAvroSerializer[SpatialCoord, java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
 
 // Flip the switch
-val result = gen.generate(frame, tilesBuffer.toList)
+val result = gen.generate(frame, indices)
 result.map(t => (t._1, serializer.serialize(t._2)))
 ```
 

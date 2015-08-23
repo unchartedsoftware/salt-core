@@ -141,24 +141,24 @@ class PrimitiveTypeAvroSerializer[TC, V, X](val tileDataType: Class[_ <: V], val
     }
     tileData.coords match {
       case s: SeriesCoord => {
-        denseTileRecord.put("level", s.z)
-        denseTileRecord.put("xIndex", s.x)
-        denseTileRecord.put("yIndex", 1)
+        sparseTileRecord.put("level", s.z)
+        sparseTileRecord.put("xIndex", s.x)
+        sparseTileRecord.put("yIndex", 1)
       }
       case p: SpatialCoord => {
-        denseTileRecord.put("level", p.z)
-        denseTileRecord.put("xIndex", p.x)
-        denseTileRecord.put("yIndex", p.y)
+        sparseTileRecord.put("level", p.z)
+        sparseTileRecord.put("xIndex", p.x)
+        sparseTileRecord.put("yIndex", p.y)
       }
     }
     tileData.projection match {
       case s: SeriesProjection => {
-        denseTileRecord.put("xBinCount", s.bins)
-        denseTileRecord.put("yBinCount", 1)
+        sparseTileRecord.put("xBinCount", s.bins)
+        sparseTileRecord.put("yBinCount", 1)
       }
       case p: SpatialProjection => {
-        denseTileRecord.put("xBinCount", p.xBins)
-        denseTileRecord.put("yBinCount", p.yBins)
+        sparseTileRecord.put("xBinCount", p.xBins)
+        sparseTileRecord.put("yBinCount", p.yBins)
       }
     }
     sparseTileRecord.put("values", sparseBins.subList(0, i))
@@ -211,7 +211,7 @@ class PrimitiveTypeAvroSerializer[TC, V, X](val tileDataType: Class[_ <: V], val
     }
     denseTileRecord.put("values", valueRecords.subList(0, projection.bins))
     denseTileRecord.put("meta", getTileMetaData(tileData))
-    sparseTileRecord.put("default", null)
+    denseTileRecord.put("default", null)
 
     writeRecord(denseTileRecord, _denseSchema, stream)
   }
