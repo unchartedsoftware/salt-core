@@ -13,7 +13,7 @@ import scala.collection.JavaConversions._
 
 /**
  * Suitable for serializing tiles where values are primitive values.
- * Currently supports SeriesProjection and SpatialProjection
+ * Currently supports SeriesProjection and CartesianProjection
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam X Output data type for tile aggregators
@@ -120,11 +120,11 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
     val projection = tileData.projection
     val xBins = projection match {
       case s: SeriesProjection => s.bins
-      case p: SpatialProjection => p.xBins
+      case p: CartesianProjection => p.xBins
     }
     val yBins = projection match {
       case s: SeriesProjection => 1
-      case p: SpatialProjection => p.yBins
+      case p: CartesianProjection => p.yBins
     }
     for (x <- 0 until xBins) {
       for (y <- 0 until yBins) {
@@ -145,7 +145,7 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
         sparseTileRecord.put("xIndex", s.x)
         sparseTileRecord.put("yIndex", 1)
       }
-      case p: SpatialCoord => {
+      case p: CartesianCoord => {
         sparseTileRecord.put("level", p.z)
         sparseTileRecord.put("xIndex", p.x)
         sparseTileRecord.put("yIndex", p.y)
@@ -156,7 +156,7 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
         sparseTileRecord.put("xBinCount", s.bins)
         sparseTileRecord.put("yBinCount", 1)
       }
-      case p: SpatialProjection => {
+      case p: CartesianProjection => {
         sparseTileRecord.put("xBinCount", p.xBins)
         sparseTileRecord.put("yBinCount", p.yBins)
       }
@@ -175,11 +175,11 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
     val projection = tileData.projection
     val xBins = tileData.projection match {
       case s: SeriesProjection => s.bins
-      case p: SpatialProjection => p.xBins
+      case p: CartesianProjection => p.xBins
     }
     val yBins = tileData.projection match {
       case s: SeriesProjection => 1
-      case p: SpatialProjection => p.yBins
+      case p: CartesianProjection => p.yBins
     }
     for (y <- 0 until xBins) {
       for (x <- 0 until yBins) {
@@ -193,7 +193,7 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
         denseTileRecord.put("xIndex", s.x)
         denseTileRecord.put("yIndex", 1)
       }
-      case p: SpatialCoord => {
+      case p: CartesianCoord => {
         denseTileRecord.put("level", p.z)
         denseTileRecord.put("xIndex", p.x)
         denseTileRecord.put("yIndex", p.y)
@@ -204,7 +204,7 @@ class PrimitiveTypeAvroSerializer[TC <:TileCoord, V, X](val tileDataType: Class[
         denseTileRecord.put("xBinCount", s.bins)
         denseTileRecord.put("yBinCount", 1)
       }
-      case p: SpatialProjection => {
+      case p: CartesianProjection => {
         denseTileRecord.put("xBinCount", p.xBins)
         denseTileRecord.put("yBinCount", p.yBins)
       }

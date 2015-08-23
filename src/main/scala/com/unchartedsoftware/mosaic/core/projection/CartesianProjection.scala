@@ -3,13 +3,13 @@ package com.unchartedsoftware.mosaic.core.projection
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
-class SpatialCoord(z: Int, var x: Int, var y: Int) extends TileCoord(z) {
+class CartesianCoord(z: Int, var x: Int, var y: Int) extends TileCoord(z) {
   def this() = {
     this(0, 0, 0)
   }
 }
 
-class SpatialProjection(val xBins: Int,
+class CartesianProjection(val xBins: Int,
                         val yBins: Int,
                         minZoom: Int,
                         maxZoom: Int,
@@ -18,7 +18,7 @@ class SpatialProjection(val xBins: Int,
                         val minX: Double,
                         val yCol: Int,
                         val maxY: Double,
-                        val minY: Double) extends Projection[SpatialCoord](xBins*yBins, minZoom, maxZoom) {
+                        val minY: Double) extends Projection[CartesianCoord](xBins*yBins, minZoom, maxZoom) {
 
   //Precompute some stuff we'll use frequently
   val _xRange = maxX - minX
@@ -32,7 +32,7 @@ class SpatialProjection(val xBins: Int,
   val tileWidths = tileCounts.map(a => _xRange/a)
   val tileHeights = tileCounts.map(a => _yRange/a)
 
-  override def rowToCoords (r: Row, z: Int, inTileCoords: SpatialCoord): Option[Int] = {
+  override def rowToCoords (r: Row, z: Int, inTileCoords: CartesianCoord): Option[Int] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     }
