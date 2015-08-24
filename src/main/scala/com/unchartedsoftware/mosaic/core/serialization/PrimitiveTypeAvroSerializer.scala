@@ -120,10 +120,12 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
     val xBins = projection match {
       case s: SeriesProjection => s.bins
       case p: CartesianProjection => p.xBins
+      case m: MercatorProjection => m.xBins
     }
     val yBins = projection match {
       case s: SeriesProjection => 1
       case p: CartesianProjection => p.yBins
+      case m: MercatorProjection => m.yBins
     }
     for (x <- 0 until xBins) {
       for (y <- 0 until yBins) {
@@ -159,6 +161,10 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
         sparseTileRecord.put("xBinCount", p.xBins)
         sparseTileRecord.put("yBinCount", p.yBins)
       }
+      case m: MercatorProjection => {
+        sparseTileRecord.put("xBinCount", m.xBins)
+        sparseTileRecord.put("yBinCount", m.yBins)
+      }
     }
     sparseTileRecord.put("values", sparseBins.subList(0, i))
     sparseTileRecord.put("meta", getTileMetaData(tileData))
@@ -175,10 +181,12 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
     val xBins = tileData.projection match {
       case s: SeriesProjection => s.bins
       case p: CartesianProjection => p.xBins
+      case m: MercatorProjection => m.xBins
     }
     val yBins = tileData.projection match {
       case s: SeriesProjection => 1
       case p: CartesianProjection => p.yBins
+      case m: MercatorProjection => m.yBins
     }
     for (y <- 0 until xBins) {
       for (x <- 0 until yBins) {
@@ -206,6 +214,10 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
       case p: CartesianProjection => {
         denseTileRecord.put("xBinCount", p.xBins)
         denseTileRecord.put("yBinCount", p.yBins)
+      }
+      case m: MercatorProjection => {
+        denseTileRecord.put("xBinCount", m.xBins)
+        denseTileRecord.put("yBinCount", m.yBins)
       }
     }
     denseTileRecord.put("values", valueRecords.subList(0, projection.bins))
