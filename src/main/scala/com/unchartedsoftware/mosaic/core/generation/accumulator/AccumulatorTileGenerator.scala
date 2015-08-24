@@ -94,7 +94,7 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
 
     //generate bin data by iterating over each row of the source data frame
     dataFrame.foreach(row => {
-      Try({
+      // Try({
         val _coord = bCoords.value
         levelMappedTiles.foreach(l => {
           val bin = bProjection.value.rowToCoords(row, l._1, _coord)
@@ -105,7 +105,7 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
             }
           }
         })
-      })
+      // })
     })
 
     //finish tile by computing tile-level statistics

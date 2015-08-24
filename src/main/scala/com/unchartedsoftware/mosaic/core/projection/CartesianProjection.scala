@@ -7,6 +7,13 @@ class CartesianCoord(z: Int, var x: Int, var y: Int) extends TileCoord(z) {
   def this() = {
     this(0, 0, 0)
   }
+
+  override def equals(other: Any) = {
+    other match {
+      case c: CartesianCoord => c.z == z && c.x == x && c.y == y
+      case _ => false
+    }
+  }
 }
 
 class CartesianProjection(val xBins: Int,

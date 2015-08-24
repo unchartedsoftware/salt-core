@@ -7,6 +7,13 @@ class SeriesCoord(z: Int, var x: Int) extends TileCoord(z) {
   def this() = {
     this(0, 0)
   }
+
+  override def equals(other: Any) = {
+    other match {
+      case s: SeriesCoord => s.z == z && s.x == x
+      case _ => false
+    }
+  }
 }
 
 class SeriesProjection(

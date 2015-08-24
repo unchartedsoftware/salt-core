@@ -9,4 +9,11 @@ abstract class TileCoord(var z: Int) extends Serializable {
   def this() = {
     this(0)
   }
+
+  override def equals(other: Any) = {
+    other match {
+      case t: TileCoord => t.z == z
+      case _ => false
+    }
+  }
 }
