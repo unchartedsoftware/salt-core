@@ -59,7 +59,7 @@ class MercatorProjection(
         var xBin = ((howFarX - x)*xBins).toInt
         var yBin = (yBins-1) - ((howFarY - y)*yBins).toInt
 
-        Some(((z, x, -y), xBin + yBin*xBins))
+        Some(((z, x, y), xBin + yBin*xBins))
       }
     }
   }
