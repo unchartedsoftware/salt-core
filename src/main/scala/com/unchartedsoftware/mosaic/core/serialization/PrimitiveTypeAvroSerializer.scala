@@ -139,15 +139,15 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
       }
     }
     tileData.coords match {
-      case s: SeriesCoord => {
-        sparseTileRecord.put("level", s.z)
-        sparseTileRecord.put("xIndex", s.x)
+      case (z: Int, x: Int) => {
+        sparseTileRecord.put("level", z)
+        sparseTileRecord.put("xIndex", x)
         sparseTileRecord.put("yIndex", 1)
       }
-      case p: CartesianCoord => {
-        sparseTileRecord.put("level", p.z)
-        sparseTileRecord.put("xIndex", p.x)
-        sparseTileRecord.put("yIndex", p.y)
+      case (z: Int, x: Int, y: Int) => {
+        sparseTileRecord.put("level", z)
+        sparseTileRecord.put("xIndex", x)
+        sparseTileRecord.put("yIndex", y)
       }
     }
     tileData.projection match {
@@ -187,15 +187,15 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
       }
     }
     tileData.coords match {
-      case s: SeriesCoord => {
-        denseTileRecord.put("level", s.z)
-        denseTileRecord.put("xIndex", s.x)
+      case (z: Int, x: Int) => {
+        denseTileRecord.put("level", z)
+        denseTileRecord.put("xIndex", x)
         denseTileRecord.put("yIndex", 1)
       }
-      case p: CartesianCoord => {
-        denseTileRecord.put("level", p.z)
-        denseTileRecord.put("xIndex", p.x)
-        denseTileRecord.put("yIndex", p.y)
+      case (z: Int, x: Int, y: Int) => {
+        denseTileRecord.put("level", z)
+        denseTileRecord.put("xIndex", x)
+        denseTileRecord.put("yIndex", y)
       }
     }
     tileData.projection match {

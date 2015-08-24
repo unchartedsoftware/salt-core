@@ -1,7 +1,7 @@
 package com.unchartedsoftware.mosaic.core.generation.accumulator
 
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
-import com.unchartedsoftware.mosaic.core.projection.{TileCoord, Projection}
+import com.unchartedsoftware.mosaic.core.projection.Projection
 import scala.reflect.ClassTag
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{AccumulableParam, Accumulable}
@@ -18,7 +18,7 @@ import scala.util.Try
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
-class TileGenerationAccumulableParam[TC <:TileCoord, T, U: ClassTag, V](
+class TileGenerationAccumulableParam[TC, T, U: ClassTag, V](
     private var bProjection: Broadcast[Projection[TC]],
     private var bExtractor: Broadcast[ValueExtractor[T]],
     private var bBinAggregator: Broadcast[Aggregator[T, U, V]]

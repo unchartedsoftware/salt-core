@@ -1,7 +1,7 @@
 package com.unchartedsoftware.mosaic.core.generation.accumulator
 
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
-import com.unchartedsoftware.mosaic.core.projection.{TileCoord, Projection}
+import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.TileGenerator
 import org.apache.spark.{Accumulable, SparkContext}
@@ -24,7 +24,7 @@ import scala.collection.mutable.{HashMap, ListBuffer}
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class AccumulatorTileGenerator[TC <:TileCoord : ClassTag, T, U: ClassTag, V, W, X](
+class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   sc: SparkContext,
   projection: Projection[TC],
   extractor: ValueExtractor[T],
@@ -54,14 +54,10 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
       toRelease.append(acc)
     }
 
-    //deliberately broadcast this 'incorrectly', so we have one copy on each worker, even though they'll diverge
-    val reusableCoord: TC = tileCoordManifest.runtimeClass.newInstance.asInstanceOf[TC]
-    val bCoords = sc.broadcast(reusableCoord)
-
     //map requested tile set to a map of level -> tiles_at_level
-    val levelMappedTiles = tiles.groupBy(c => c.z)
+    val levelMappedTiles = tiles.groupBy(c => projection.getZoomLevel(c))
 
-    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, bCoords, dataFrame, levelMappedTiles, accumulators)
+    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, dataFrame, levelMappedTiles, accumulators)
 
     //release accumulators back to pool, and unpersist broadcast variables
     toRelease.foreach(a => {
@@ -71,7 +67,6 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
     bExtractor.unpersist
     bBinAggregator.unpersist
     bTileAggregator.unpersist
-    bCoords.unpersist
 
     result
   }
@@ -86,7 +81,6 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
     bExtractor: Broadcast[ValueExtractor[T]],
     bBinAggregator: Broadcast[Aggregator[T, U, V]],
     bTileAggregator: Broadcast[Aggregator[V, W, X]],
-    bCoords: Broadcast[TC],
     dataFrame: DataFrame,
     levelMappedTiles: Map[Int, Seq[TC]],
     accumulators: HashMap[TC, Accumulable[Array[U], (Int, Row)]]
@@ -94,18 +88,17 @@ extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregato
 
     //generate bin data by iterating over each row of the source data frame
     dataFrame.foreach(row => {
-      // Try({
-        val _coord = bCoords.value
+      Try({
         levelMappedTiles.foreach(l => {
-          val bin = bProjection.value.rowToCoords(row, l._1, _coord)
+          val coord = bProjection.value.rowToCoords(row, l._1)
           //bin is defined when we are in the bounds of the projection
-          if (bin.isDefined) {
-            if (accumulators.contains(_coord)) {
-              accumulators.get(_coord).get.add((bin.get, row))
+          if (coord.isDefined) {
+            if (accumulators.contains(coord.get._1)) {
+              accumulators.get(coord.get._1).get.add((coord.get._2, row))
             }
           }
         })
-      // })
+      })
     })
 
     //finish tile by computing tile-level statistics
