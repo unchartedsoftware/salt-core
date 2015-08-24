@@ -47,7 +47,7 @@ class MercatorProjection(
       if (lon >= maxX || lon <= minX || lat >= maxY || lat <= minY) {
         None
       } else {
-        val latRad = lat * piOver180;
+        val latRad = (-lat) * piOver180;
         val n = tileCounts(z);
         val howFarX = n * ((lon + 180) / 360);
         val howFarY = n * (1-(Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) /
