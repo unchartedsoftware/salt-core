@@ -188,8 +188,8 @@ class PrimitiveTypeAvroSerializer[V, X](val tileDataType: Class[_ <: V], val max
       case p: CartesianProjection => p.yBins
       case m: MercatorProjection => m.yBins
     }
-    for (y <- 0 until xBins) {
-      for (x <- 0 until yBins) {
+    for (y <- 0 until yBins) {
+      for (x <- 0 until xBins) {
         setValue(valueRecords.get(i), tileData.getBin(x + y*xBins))
         i+=1
       }
