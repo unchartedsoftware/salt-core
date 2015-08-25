@@ -50,8 +50,7 @@ class MercatorProjection(
         val latRad = (-lat) * piOver180;
         val n = tileCounts(z);
         val howFarX = n * ((lon + 180) / 360);
-        val howFarY = n * (1-(Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) /
-        Math.PI)) / 2
+        val howFarY = n * (1-(Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI)) / 2
 
         val x = howFarX.toInt
         val y = howFarY.toInt
