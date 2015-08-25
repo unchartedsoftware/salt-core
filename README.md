@@ -65,11 +65,10 @@ result.map(t => (t._1, serializer.serialize(t._2)))
 
 ## Projections
 
-Mosaic currently supports two projections:
+Mosaic currently supports three projections:
  * CartesianProjection (x, y, v)
+ * MercatorProjection (x, y, v)
  * SeriesProjection (x, v)
-
-A mercator projection would be nice, but hasn't been implemented yet.
 
 ## Aggregators
 
