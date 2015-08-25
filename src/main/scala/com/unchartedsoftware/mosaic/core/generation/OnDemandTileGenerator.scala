@@ -23,7 +23,7 @@ import scala.collection.mutable.{HashMap, ListBuffer}
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-abstract class TileGenerator[TC, T, U: ClassTag, V, W, X](
+abstract class OnDemandTileGenerator[TC, T, U: ClassTag, V, W, X](
   sc: SparkContext,
   projection: Projection[TC],
   extractor: ValueExtractor[T],

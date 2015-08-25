@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.generation.accumulator
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
-import com.unchartedsoftware.mosaic.core.generation.TileGenerator
+import com.unchartedsoftware.mosaic.core.generation.OnDemandTileGenerator
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
@@ -30,7 +30,7 @@ class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
-extends TileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
+extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   private val pool = new TileAccumulablePool[TC, T, U, V](sc)
 
