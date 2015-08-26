@@ -29,7 +29,7 @@ class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   projection: Projection[TC],
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
-  tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
+  tileAggregator: Aggregator[V, W, X])
 extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   private val pool = new TileAccumulablePool[TC, T, U, V](sc)
@@ -94,7 +94,7 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
           //bin is defined when we are in the bounds of the projection
           if (coord.isDefined) {
             if (accumulators.contains(coord.get._1)) {
-              accumulators.get(coord.get._1).get.add((coord.get._2, row))
+              Try(accumulators.get(coord.get._1).get.add((coord.get._2, row)))
             }
           }
         })
