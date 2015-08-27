@@ -56,54 +56,13 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
 
     //map requested tile set to a map of level -> tiles_at_level
     val levelMappedTiles = tiles.groupBy(c => projection.getZoomLevel(c))
+    val bLevelMappedTiles = sc.broadcast(levelMappedTiles)
 
-    val result = _sanitizedClosureGenerate(bProjection, bExtractor, bBinAggregator, bTileAggregator, dataFrame, levelMappedTiles, accumulators)
-
-    //release accumulators back to pool, and unpersist broadcast variables
-    toRelease.foreach(a => {
-      pool.release(a)
-    })
-    bProjection.unpersist
-    bExtractor.unpersist
-    bBinAggregator.unpersist
-    bTileAggregator.unpersist
-
-    result
-  }
-
-  /**
-   * Since spark serializes closures, everything within the closure must be serializable
-   * This does the real work of generate, excluding the handling of anything that isn't
-   * serializable and needs to be dealt with on the master.
-   */
-  private def _sanitizedClosureGenerate(
-    bProjection: Broadcast[Projection[TC]],
-    bExtractor: Broadcast[ValueExtractor[T]],
-    bBinAggregator: Broadcast[Aggregator[T, U, V]],
-    bTileAggregator: Broadcast[Aggregator[V, W, X]],
-    dataFrame: DataFrame,
-    levelMappedTiles: Map[Int, Seq[TC]],
-    accumulators: HashMap[TC, Accumulable[Array[U], (Int, Row)]]
-  ): HashMap[TC, TileData[TC, V, X]] = {
-
-    //generate bin data by iterating over each row of the source data frame
-    dataFrame.foreach(row => {
-      Try({
-        levelMappedTiles.foreach(l => {
-          val coord = bProjection.value.rowToCoords(row, l._1)
-          //bin is defined when we are in the bounds of the projection
-          if (coord.isDefined) {
-            if (accumulators.contains(coord.get._1)) {
-              Try(accumulators.get(coord.get._1).get.add((coord.get._2, row)))
-            }
-          }
-        })
-      })
-    })
+    _sanitizedClosureGenerate(bProjection, dataFrame, bLevelMappedTiles, accumulators)
 
     //finish tile by computing tile-level statistics
     //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
-    accumulators map { case (key, accumulator) => {
+    val result = accumulators.map { case (key, accumulator) => {
       val binAggregator = bBinAggregator.value
       val tileAggregator = bTileAggregator.value
       val projection = bProjection.value
@@ -119,5 +78,44 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
       val info = new TileData[TC, V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
       (key, info)
     }}
+
+    //release accumulators back to pool, and unpersist broadcast variables
+    toRelease.foreach(a => {
+      pool.release(a)
+    })
+    bLevelMappedTiles.unpersist
+    bProjection.unpersist
+    bExtractor.unpersist
+    bBinAggregator.unpersist
+    bTileAggregator.unpersist
+
+    result
+  }
+
+  /**
+   * Since spark serializes closures, everything within the closure must be serializable
+   * This does the real work of generate, excluding the handling of anything that isn't
+   * serializable and needs to be dealt with on the master.
+   */
+  def _sanitizedClosureGenerate(
+    bProjection: Broadcast[Projection[TC]],
+    dataFrame: DataFrame,
+    bLevelMappedTiles: Broadcast[Map[Int, Seq[TC]]],
+    accumulators: HashMap[TC, Accumulable[Array[U], (Int, Row)]]
+  ): Unit = {
+
+    //generate bin data by iterating over each row of the source data frame
+    dataFrame.foreach(row => {
+      val projection = bProjection.value
+      Try({
+        bLevelMappedTiles.value.foreach(l => {
+          val coord = projection.rowToCoords(row, l._1)
+          //bin is defined when we are in the bounds of the projection
+          if (coord.isDefined && accumulators.contains(coord.get._1)) {
+            Try(accumulators.get(coord.get._1).get += (coord.get._2, row))
+          }
+        })
+      })
+    })
   }
 }

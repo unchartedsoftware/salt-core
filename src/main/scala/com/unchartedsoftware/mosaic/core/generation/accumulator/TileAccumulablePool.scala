@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 /**
  * A wrapper which links Accumulables to their associated AccumulableParam
  */
-class TileAccumulable[TC, T, U: ClassTag, V](
+case class TileAccumulable[TC, T, U: ClassTag, V](
   val accumulable: Accumulable[Array[U], (Int, Row)],
   val param: TileGenerationAccumulableParam[TC, T, U, V]
 ) {}
