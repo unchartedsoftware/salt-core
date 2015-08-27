@@ -9,6 +9,7 @@ import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
 import scala.reflect.ClassTag
 import scala.util.Try
+import scala.collection.Map
 import scala.collection.mutable.{HashMap, ListBuffer}
 
 /**
@@ -32,11 +33,9 @@ class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   tileAggregator: Aggregator[V, W, X])
 extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
-  private val pool = new TileAccumulablePool[TC, T, U, V](sc)
-
   //TODO find a way to eliminate inCoords by using reflection to locate a zero-arg constructor and invoke it.
   //then we can remove this from the superclass as well
-  def generate(dataFrame: DataFrame, tiles: Seq[TC]): HashMap[TC, TileData[TC, V, X]] = {
+  def generate(dataFrame: DataFrame, tiles: Seq[TC]): scala.collection.Map[TC, TileData[TC, V, X]] = {
     dataFrame.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
@@ -45,31 +44,30 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
     val bBinAggregator = sc.broadcast(binAggregator)
     val bTileAggregator = sc.broadcast(tileAggregator)
 
-    //build a map of our tile accumulators using the pool
-    val accumulators = new HashMap[TC, Accumulable[Array[U], (Int, Row)]]()
-    val toRelease = ListBuffer.empty[TileAccumulable[TC, T, U, V]]
-    for (i <- 0 until tiles.length) {
-      val acc = pool.reserve(bProjection, bExtractor, bBinAggregator)
-      accumulators.put(tiles(i), acc.accumulable)
-      toRelease.append(acc)
-    }
+    //create an accumulator for this tile batch
+    val param = new TileGenerationAccumulableParam[TC, T, U, V](bProjection, bExtractor, bBinAggregator)
+    val initialValue = new HashMap[TC, Array[U]]
+    tiles.foreach(a => {
+      initialValue.put(a, Array.fill[U](0)(binAggregator.default))
+    })
+    val accumulator = sc.accumulable(initialValue)(param)
 
     //map requested tile set to a map of level -> tiles_at_level
     val levelMappedTiles = tiles.groupBy(c => projection.getZoomLevel(c))
     val bLevelMappedTiles = sc.broadcast(levelMappedTiles)
 
-    _sanitizedClosureGenerate(bProjection, dataFrame, bLevelMappedTiles, accumulators)
+    _sanitizedClosureGenerate(bProjection, dataFrame, bLevelMappedTiles, accumulator)
 
     //finish tile by computing tile-level statistics
     //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
-    val result = accumulators.map { case (key, accumulator) => {
+    val result = accumulator.value.map { case (key: TC, bins: Array[U]) => {
       val binAggregator = bBinAggregator.value
       val tileAggregator = bTileAggregator.value
       val projection = bProjection.value
       var tile: W = tileAggregator.default
       var binsTouched = 0
 
-      val finishedBins = accumulator.value.map(a => {
+      val finishedBins = bins.map(a => {
         if (!a.equals(binAggregator.default)) binsTouched+=1
         val bin = binAggregator.finish(a)
         tile = tileAggregator.add(tile, Some(bin))
@@ -79,10 +77,6 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
       (key, info)
     }}
 
-    //release accumulators back to pool, and unpersist broadcast variables
-    toRelease.foreach(a => {
-      pool.release(a)
-    })
     bLevelMappedTiles.unpersist
     bProjection.unpersist
     bExtractor.unpersist
@@ -100,8 +94,8 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
   def _sanitizedClosureGenerate(
     bProjection: Broadcast[Projection[TC]],
     dataFrame: DataFrame,
-    bLevelMappedTiles: Broadcast[Map[Int, Seq[TC]]],
-    accumulators: HashMap[TC, Accumulable[Array[U], (Int, Row)]]
+    bLevelMappedTiles: Broadcast[scala.collection.immutable.Map[Int, Seq[TC]]],
+    accumulator: Accumulable[HashMap[TC, Array[U]], (TC, Int, Row)]
   ): Unit = {
 
     //generate bin data by iterating over each row of the source data frame
@@ -111,8 +105,8 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
         bLevelMappedTiles.value.foreach(l => {
           val coord = projection.rowToCoords(row, l._1)
           //bin is defined when we are in the bounds of the projection
-          if (coord.isDefined && accumulators.contains(coord.get._1)) {
-            Try(accumulators.get(coord.get._1).get += (coord.get._2, row))
+          if (coord.isDefined) {
+            Try(accumulator += (coord.get._1, coord.get._2, row))
           }
         })
       })

@@ -7,9 +7,10 @@ import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{AccumulableParam, Accumulable}
 import org.apache.spark.sql.Row
 import scala.util.Try
+import scala.collection.mutable.HashMap
 
 /**
- * Accumulator which aggregates bin values for a tile
+ * Accumulator which aggregates bin values for a batch of tiles
  * @param bProjection the (broadcasted) projection from data to some space (i.e. 2D or 1D)
  * @param bExtractor a (broadcasted) mechanism for grabbing the "value" column from a source record
  * @param bBinAggregator the (broadcasted) desired bin analytic strategy
@@ -18,11 +19,11 @@ import scala.util.Try
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  */
-class TileGenerationAccumulableParam[TC, T, U: ClassTag, V](
+class TileGenerationAccumulableParam[TC: ClassTag, T, U: ClassTag, V](
     private var bProjection: Broadcast[Projection[TC]],
     private var bExtractor: Broadcast[ValueExtractor[T]],
     private var bBinAggregator: Broadcast[Aggregator[T, U, V]]
-  ) extends AccumulableParam[Array[U], (Int, Row)]() {
+  ) extends AccumulableParam[HashMap[TC, Array[U]], (TC, Int, Row)]() {
 
   def reset(
     newBProjection: Broadcast[Projection[TC]],
@@ -39,27 +40,41 @@ class TileGenerationAccumulableParam[TC, T, U: ClassTag, V](
     Array.fill[A](length)(default)
   }
 
-  override def addAccumulator(r: Array[U], t: (Int, Row)): Array[U] = {
-    val index = t._1
-    val row = t._2
-    val current = r(index)
+  override def addAccumulator(r: HashMap[TC, Array[U]], t: (TC, Int, Row)): HashMap[TC, Array[U]] = {
+    val tile = t._1
+    val bin = t._2
+    val row = t._3
     Try({
+      val bins = r.get(tile)
+      val current = bins.get(bin)
       val value: Option[T] = bExtractor.value.rowToValue(row)
-      r(index) = bBinAggregator.value.add(current, value)
+      bins.get(bin) = bBinAggregator.value.add(current, value)
     })
     r
   }
 
-  override def addInPlace(r1: Array[U], r2: Array[U]): Array[U] = {
-    val limit = bProjection.value.bins
+  override def addInPlace(r1: HashMap[TC, Array[U]], r2: HashMap[TC, Array[U]]): HashMap[TC, Array[U]] = {
+    val numBins = bProjection.value.bins
     val binAggregator = bBinAggregator.value
-    for (i <- 0 until limit) {
-      r1(i) = binAggregator.merge(r1(i), r2(i))
-    }
+
+    r2.foreach(t => {
+      if (r1.contains(t._1)) {
+        val r1Bins = r1.get(t._1).get
+        for (i <- 0 until numBins) {
+          r1Bins(i) = binAggregator.merge(r1Bins(i), t._2(i))
+        }
+      } else {
+        r1.put(t._1, t._2)
+      }
+    })
     r1
   }
 
-  override def zero(initialValue: Array[U]): Array[U] = {
-    makeBins(bProjection.value.bins, bBinAggregator.value.default)
+  override def zero(initialValue: HashMap[TC, Array[U]]): HashMap[TC, Array[U]] = {
+    val tiles = new HashMap[TC, Array[U]]()
+    initialValue.foreach(t => {
+      tiles.put(t._1, makeBins(bProjection.value.bins, bBinAggregator.value.default))
+    })
+    tiles
   }
 }
