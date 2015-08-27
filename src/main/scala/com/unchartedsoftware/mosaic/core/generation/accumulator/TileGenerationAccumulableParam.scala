@@ -35,21 +35,17 @@ class TileGenerationAccumulableParam[TC: ClassTag, T, U: ClassTag, V](
     bBinAggregator = newBBinAggregator
   }
 
-  //will store intermediate values for the bin analytic
-  private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
-    Array.fill[A](length)(default)
-  }
-
   override def addAccumulator(r: HashMap[TC, Array[U]], t: (TC, Int, Row)): HashMap[TC, Array[U]] = {
     val tile = t._1
     val bin = t._2
     val row = t._3
-    Try({
-      val bins = r.get(tile)
-      val current = bins.get(bin)
-      val value: Option[T] = bExtractor.value.rowToValue(row)
-      bins.get(bin) = bBinAggregator.value.add(current, value)
-    })
+    if (r.contains(tile)) {
+      val bins = r.get(tile).get
+      Try({
+        val value: Option[T] = bExtractor.value.rowToValue(row)
+        bins(bin) = bBinAggregator.value.add(bins(bin), value)
+      })
+    }
     r
   }
 
@@ -58,23 +54,21 @@ class TileGenerationAccumulableParam[TC: ClassTag, T, U: ClassTag, V](
     val binAggregator = bBinAggregator.value
 
     r2.foreach(t => {
+      // if a partial tile from r2 is in r1, merge all bins
       if (r1.contains(t._1)) {
         val r1Bins = r1.get(t._1).get
         for (i <- 0 until numBins) {
           r1Bins(i) = binAggregator.merge(r1Bins(i), t._2(i))
         }
+      //otherwise, just add the partial tile to r1
       } else {
-        r1.put(t._1, t._2)
+        r1 += t
       }
     })
     r1
   }
 
   override def zero(initialValue: HashMap[TC, Array[U]]): HashMap[TC, Array[U]] = {
-    val tiles = new HashMap[TC, Array[U]]()
-    initialValue.foreach(t => {
-      tiles.put(t._1, makeBins(bProjection.value.bins, bBinAggregator.value.default))
-    })
-    tiles
+    initialValue
   }
 }

@@ -7,8 +7,6 @@ import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
 import scala.reflect.ClassTag
-import scala.util.Try
-import scala.collection.mutable.{HashMap, ListBuffer}
 
 /**
  * On-demand tile Generator for a small batch of tiles

@@ -48,7 +48,7 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
     val param = new TileGenerationAccumulableParam[TC, T, U, V](bProjection, bExtractor, bBinAggregator)
     val initialValue = new HashMap[TC, Array[U]]
     tiles.foreach(a => {
-      initialValue.put(a, Array.fill[U](0)(binAggregator.default))
+      initialValue.put(a, Array.fill[U](projection.bins)(binAggregator.default))
     })
     val accumulator = sc.accumulable(initialValue)(param)
 
