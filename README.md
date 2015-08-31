@@ -1,4 +1,4 @@
-# mosaic
+# Mosaic
 > Smaller tiles.
 
 # Building
@@ -7,9 +7,11 @@
 $ ./gradlew build
 ```
 
-# Usage
+# Getting Started
 
-Assuming you have a table such as:
+We need something to tile. Let's start with a small sample of the [NYC Taxi Dataset](http://www.andresmh.com/nyctaxitrips/), which can be [downloaded from here](http://assets.oculusinfo.com/pantera/taxi_micro.csv).
+
+Create a temp table called "taxi_micro" with the following schema:
 
 ```scala
 scala> sqlContext.sql("select * from taxi_micro").schema
@@ -17,12 +19,15 @@ scala> sqlContext.sql("select * from taxi_micro").schema
 res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,StringType,true), StructField(license,StringType,true), StructField(code,StringType,true), StructField(flag,IntegerType,true), StructField(type,StringType,true), StructField(pickup_time,TimestampType,true), StructField(dropoff_time,TimestampType,true), StructField(passengers,IntegerType,true), StructField(duration,IntegerType,true), StructField(distance,DoubleType,true), StructField(pickup_lon,DoubleType,true), StructField(pickup_lat,DoubleType,true), StructField(dropoff_lon,DoubleType,true), StructField(dropoff_lat,DoubleType,true))
 ```
 
-Then you can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
+# Tiling with Accumulators
+
+We can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection._
 import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
 import com.unchartedsoftware.mosaic.core.analytic._
+import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
 import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
@@ -33,15 +38,11 @@ import org.apache.spark.sql.Row
 val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
 frame.cache
 
-// which tiles are we generating?
-// we use (Int, Int, Int) to represent them, since this is the coordinate type for CartesianProjection (which we'll employ below)
-val indices = List((0,0,0), (1,0,0))
-
-// max/min zoom
-val zoomBounds = indices.foldLeft((Int.MaxValue, Int.MinValue))((c:(Int, Int), next:(Int, Int, Int)) => (c._1 min next._1, c._2 max next._1))
-
 // create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
-val proj = new CartesianProjection(256, 256, zoomBounds._1, zoomBounds._2, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+val proj = new CartesianProjection(256, 256, 0, 1, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+
+// which tiles are we generating?
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
 
 // our value extractor does nothing, since we're just counting records
 val extractor = new ValueExtractor[Double] {
@@ -57,8 +58,15 @@ val gen = new AccumulatorTileGenerator[(Int, Int, Int), Double, Double, java.lan
 val serializer = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
 
 // Flip the switch
-val result = gen.generate(frame, indices)
+val result = gen.generate(frame, request)
 result.map(t => (t._1, serializer.serialize(t._2)))
+```
+
+# Tiling with Map/Reduce
+
+This process is almost identical to accumulator tile generation, but with a slightly different serialization step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
+
+```scala
 ```
 
 # Mosaic Library Contents
@@ -83,26 +91,20 @@ Mosaic includes six sample aggregators:
 
 Additional aggregators can be implemented on-the-fly within your script as you see fit.
 
+## Requests
+
+Mosaic allows tile batches to be phrased in several ways:
+
+ * TileSeqRequest (built from a Seq[TC] of tile coordinates, requesting specific tiles)
+ * TileLevelRequest (built from a Seq[Int] of levels, requesting all tiles at those levels)
+
 ## Generation
 
-Mosiac supports live tiling, but does not currently include an intuitive batch mode.
+Mosaic supports two strategies for tile generation:
 
-A poor man's batch mode could be implemented as follows, but would probably run out of memory unless the long tile list was broken up into batches.
+### OnDemandTileGenerator
 
-```scala
-import scala.collection.mutable.ListBuffer
-
-val zoomLevel = 17
-val tilesBuffer = new ListBuffer[(Int, Int, Int)]()
-for (z <- 0 until zoomLevel+1) {
-  for (x <- 0 until Math.pow(2,z).toInt) {
-    for (y <- 0 until Math.pow(2,z).toInt) {
-      tilesBuffer.append((z, x, y))
-    }
-  }
-}
-val indices = tilesBuffer.toList
-```
+### BatchTileGenerator
 
 ## Serialization
 

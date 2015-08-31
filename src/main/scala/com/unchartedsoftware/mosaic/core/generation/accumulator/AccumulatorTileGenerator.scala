@@ -4,6 +4,7 @@ import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.OnDemandTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
@@ -35,7 +36,7 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
 
   //TODO find a way to eliminate inCoords by using reflection to locate a zero-arg constructor and invoke it.
   //then we can remove this from the superclass as well
-  def generate(dataFrame: DataFrame, tiles: Seq[TC]): scala.collection.Map[TC, TileData[TC, V, X]] = {
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): scala.collection.Map[TC, TileData[TC, V, X]] = {
     dataFrame.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
@@ -43,20 +44,14 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
     val bExtractor = sc.broadcast(extractor)
     val bBinAggregator = sc.broadcast(binAggregator)
     val bTileAggregator = sc.broadcast(tileAggregator)
+    val bRequest = sc.broadcast(request)
 
     //create an accumulator for this tile batch
     val param = new TileGenerationAccumulableParam[TC, T, U, V](bProjection, bExtractor, bBinAggregator)
     val initialValue = new HashMap[TC, Array[U]]
-    tiles.foreach(a => {
-      initialValue.put(a, Array.fill[U](projection.bins)(binAggregator.default))
-    })
     val accumulator = sc.accumulable(initialValue)(param)
 
-    //map requested tile set to a map of level -> tiles_at_level
-    val levelMappedTiles = tiles.groupBy(c => projection.getZoomLevel(c))
-    val bLevelMappedTiles = sc.broadcast(levelMappedTiles)
-
-    _sanitizedClosureGenerate(bProjection, dataFrame, bLevelMappedTiles, accumulator)
+    _sanitizedClosureGenerate(bProjection, dataFrame, bRequest, accumulator)
 
     //finish tile by computing tile-level statistics
     //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
@@ -77,7 +72,7 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
       (key, info)
     }}
 
-    bLevelMappedTiles.unpersist
+    bRequest.unpersist
     bProjection.unpersist
     bExtractor.unpersist
     bBinAggregator.unpersist
@@ -94,22 +89,26 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
   def _sanitizedClosureGenerate(
     bProjection: Broadcast[Projection[TC]],
     dataFrame: DataFrame,
-    bLevelMappedTiles: Broadcast[scala.collection.immutable.Map[Int, Seq[TC]]],
+    bRequest: Broadcast[TileRequest[TC]],
     accumulator: Accumulable[HashMap[TC, Array[U]], (TC, Int, Row)]
   ): Unit = {
+    val bLevels = sc.broadcast(bRequest.value.levels)
 
     //generate bin data by iterating over each row of the source data frame
     dataFrame.foreach(row => {
       val projection = bProjection.value
+      val request = bRequest.value
       Try({
-        bLevelMappedTiles.value.foreach(l => {
-          val coord = projection.rowToCoords(row, l._1)
+        bLevels.value.foreach(l => {
+          val coord = projection.rowToCoords(row, l)
           //bin is defined when we are in the bounds of the projection
-          if (coord.isDefined) {
+          if (coord.isDefined && request.inRequest(coord.get._1)) {
             Try(accumulator += (coord.get._1, coord.get._2, row))
           }
         })
       })
     })
+
+    bLevels.unpersist
   }
 }

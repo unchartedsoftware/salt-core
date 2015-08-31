@@ -39,13 +39,14 @@ class TileGenerationAccumulableParam[TC: ClassTag, T, U: ClassTag, V](
     val tile = t._1
     val bin = t._2
     val row = t._3
-    if (r.contains(tile)) {
-      val bins = r.get(tile).get
-      Try({
-        val value: Option[T] = bExtractor.value.rowToValue(row)
-        bins(bin) = bBinAggregator.value.add(bins(bin), value)
-      })
+    if (!r.contains(tile)) {
+      r.put(tile, Array.fill[U](bProjection.value.bins)(bBinAggregator.value.default))
     }
+    val bins = r.get(tile).get
+    Try({
+      val value: Option[T] = bExtractor.value.rowToValue(row)
+      bins(bin) = bBinAggregator.value.add(bins(bin), value)
+    })
     r
   }
 

@@ -3,6 +3,7 @@ package com.unchartedsoftware.mosaic.core.generation
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
+import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.{Row, DataFrame}
@@ -30,7 +31,7 @@ abstract class OnDemandTileGenerator[TC, T, U: ClassTag, V, W, X](
 
   /**
    * @param dataFrame the DataFrame containing source data
-   * @param tiles a Seq of requested tile coordinates (phrased using type TC)
+   * @param request tiles requested for generation
    */
-  def generate(dataFrame: DataFrame, tiles: Seq[TC]): scala.collection.Map[TC, TileData[TC, V, X]]
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): scala.collection.Map[TC, TileData[TC, V, X]]
 }
