@@ -33,5 +33,5 @@ abstract class OnDemandTileGenerator[TC, T, U: ClassTag, V, W, X](
    * @param dataFrame the DataFrame containing source data
    * @param request tiles requested for generation
    */
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): scala.collection.Map[TC, TileData[TC, V, X]]
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): Seq[TileData[TC, V, X]]
 }

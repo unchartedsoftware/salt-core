@@ -59,7 +59,7 @@ val serializer = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Do
 
 // Flip the switch
 val result = gen.generate(frame, request)
-result.map(t => (t._1, serializer.serialize(t._2)))
+result.map(t => (t.coords, serializer.serialize(t)))
 ```
 
 # Tiling with Map/Reduce
@@ -67,6 +67,7 @@ result.map(t => (t._1, serializer.serialize(t._2)))
 This process is almost identical to accumulator tile generation, but with a slightly different serialization step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
 
 ```scala
+//TODO
 ```
 
 # Mosaic Library Contents

@@ -36,7 +36,7 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
 
   //TODO find a way to eliminate inCoords by using reflection to locate a zero-arg constructor and invoke it.
   //then we can remove this from the superclass as well
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): scala.collection.Map[TC, TileData[TC, V, X]] = {
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): Seq[TileData[TC, V, X]] = {
     dataFrame.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
@@ -55,7 +55,9 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
 
     //finish tile by computing tile-level statistics
     //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
-    val result = accumulator.value.map { case (key: TC, bins: Array[U]) => {
+    val result = accumulator.value.toSeq.map( e => {
+      val key = e._1
+      val bins = e._2
       val binAggregator = bBinAggregator.value
       val tileAggregator = bTileAggregator.value
       val projection = bProjection.value
@@ -68,9 +70,8 @@ extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binA
         tile = tileAggregator.add(tile, Some(bin))
         bin
       })
-      val info = new TileData[TC, V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
-      (key, info)
-    }}
+      new TileData[TC, V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
+    })
 
     bRequest.unpersist
     bProjection.unpersist
