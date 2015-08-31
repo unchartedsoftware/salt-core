@@ -85,7 +85,7 @@ frame.cache
 val proj = new CartesianProjection(256, 256, 0, 1, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
 
 // which tiles are we generating?
-val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
 
 // our value extractor does nothing, since we're just counting records
 val extractor = new ValueExtractor[Double] {
@@ -100,8 +100,8 @@ val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.
 // Flip the switch
 val result = gen.generate(frame, request)
 result.mapPartitions(p => {  
-  // We make one serializer per partition, since the output of this process is an RDD and we can't just keep one serializer on the master.
-  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
+  // We make one serializer per partition, since the output of this process is an RDD and we can't just keep one on the master.
+  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], 256*256) //referring to proj.bins here directly would cause a serialization issue because it would pull in the closure above (which includes non-serializable things)
   p.map(t => {
     s.serialize(t)
   })
