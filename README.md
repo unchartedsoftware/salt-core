@@ -67,7 +67,45 @@ result.map(t => (t.coords, serializer.serialize(t)))
 This process is almost identical to accumulator tile generation, but with a slightly different serialization step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
 
 ```scala
-//TODO
+import com.unchartedsoftware.mosaic.core.projection._
+import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
+import com.unchartedsoftware.mosaic.core.analytic._
+import com.unchartedsoftware.mosaic.core.generation.request._
+import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
+import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
+import org.apache.spark.sql.Row
+
+// source DataFrame
+// NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
+val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
+frame.cache
+
+// create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
+val proj = new CartesianProjection(256, 256, 0, 1, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+
+// which tiles are we generating?
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
+
+// our value extractor does nothing, since we're just counting records
+val extractor = new ValueExtractor[Double] {
+  override def rowToValue(r: Row): Option[Double] = {
+    return None
+  }
+}
+
+// Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
+val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
+
+// Flip the switch
+val result = gen.generate(frame, request)
+result.mapPartitions(p => {  
+  // We make one serializer per partition, since the output of this process is an RDD and we can't just keep one serializer on the master.
+  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
+  p.map(t => {
+    s.serialize(t)
+  })
+}).collect
 ```
 
 # Mosaic Library Contents
@@ -105,7 +143,11 @@ Mosaic supports two strategies for tile generation:
 
 ### OnDemandTileGenerator
 
+TODO
+
 ### BatchTileGenerator
+
+TODO
 
 ## Serialization
 

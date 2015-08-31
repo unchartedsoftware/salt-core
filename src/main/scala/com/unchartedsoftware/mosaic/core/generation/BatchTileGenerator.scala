@@ -3,6 +3,7 @@ package com.unchartedsoftware.mosaic.core.generation
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
+import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.broadcast.Broadcast
@@ -35,7 +36,7 @@ abstract class BatchTileGenerator[TC, T, U: ClassTag, V, W, X](
 
   /**
    * @param dataFrame the DataFrame containing source data
-   * @param levels a Seq of requested zoom levels
+   * @param request tiles requested for generation
    */
-  def generate(dataFrame: DataFrame, levels: Seq[Int]): RDD[TileData[TC, V, X]]
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): RDD[TileData[TC, V, X]]
 }

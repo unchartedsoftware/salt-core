@@ -4,6 +4,7 @@ import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.BatchTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.broadcast.Broadcast
@@ -41,17 +42,18 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
     dataFrame: DataFrame,
     bProjection: Broadcast[Projection[TC]],
     bExtractor: Broadcast[ValueExtractor[T]],
-    bLevels: Broadcast[Seq[Int]]): RDD[(TC, (Int, Option[T]))] = {
+    bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Option[T]))] = {
     dataFrame.flatMap(r => {
 
+      val request = bRequest.value
       //extract value for this row
       val value = bExtractor.value.rowToValue(r)
 
       //map all input data to an RDD of (TC, (bin, Option[value]))
-      bLevels.value
+      request.levels
       .flatMap(l => {
         val coords = bProjection.value.rowToCoords(r, l)
-        if (coords.isDefined) {
+        if (coords.isDefined && request.inRequest(coords.get._1)) {
           Seq((coords.get._1, (coords.get._2, value)))
         } else {
           Seq()
@@ -60,7 +62,7 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
     })
   }
 
-  def generate(dataFrame: DataFrame, levels: Seq[Int]): RDD[TileData[TC, V, X]] = {
+  def generate(dataFrame: DataFrame, request: TileRequest[TC]): RDD[TileData[TC, V, X]] = {
     dataFrame.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
@@ -68,10 +70,10 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
     val bExtractor = sc.broadcast(extractor)
     val bBinAggregator = sc.broadcast(binAggregator)
     val bTileAggregator = sc.broadcast(tileAggregator)
-    val bLevels = sc.broadcast(levels)
+    val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD(TC, (bin, Option[value]))
-    val transformedData = transformData(dataFrame, bProjection, bExtractor, bLevels)
+    val transformedData = transformData(dataFrame, bProjection, bExtractor, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.
@@ -86,7 +88,7 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
                     bBinAggregator,
                     bTileAggregator)
 
-    bLevels.unpersist
+    bRequest.unpersist
     bProjection.unpersist
     bExtractor.unpersist
     bBinAggregator.unpersist
