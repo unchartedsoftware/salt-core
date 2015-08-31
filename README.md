@@ -95,13 +95,13 @@ val extractor = new ValueExtractor[Double] {
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
+@transient val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, request)
 result.mapPartitions(p => {  
   // We make one serializer per partition, since the output of this process is an RDD and we can't just keep one on the master.
-  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], 256*256) //referring to proj.bins here directly would cause a serialization issue because it would pull in the closure above (which includes non-serializable things)
+  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
   p.map(t => {
     s.serialize(t)
   })
