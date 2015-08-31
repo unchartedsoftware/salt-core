@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.generation.accumulator
+package com.unchartedsoftware.mosaic.core.generation.mapreduce
 
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
@@ -60,11 +60,6 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
     })
   }
 
-  //will store intermediate values for the bin analytic
-  private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
-    Array.fill[A](length)(default)
-  }
-
   def generate(dataFrame: DataFrame, levels: Seq[Int]): RDD[TileData[TC, V, X]] = {
     dataFrame.cache //ensure data is cached
 
@@ -78,34 +73,44 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
     //Start by transforming the raw input data into a distributed RDD(TC, (bin, Option[value]))
     val transformedData = transformData(dataFrame, bProjection, bExtractor, bLevels)
 
-    //Now we are going to use combineByKey, but we have to make some lambdas first:
-      //create a new combiner, with a fresh set of bins
-    val createCombiner = (firstValue: (Int, Option[T])) => {
-      val binAggregator = bBinAggregator.value
-      val bins: Array[U] = makeBins(bProjection.value.bins, binAggregator.default)
-      bins(firstValue._1) = binAggregator.add(binAggregator.default, firstValue._2)
-      bins
-    }: Array[U]
-      //how to add a value to a combiner
-    val mergeValue = (combiner: Array[U], newValue: (Int, Option[T])) => {
-      val binAggregator = bBinAggregator.value
-      combiner(newValue._1) = binAggregator.add(combiner(newValue._1), newValue._2)
-      combiner
-    }: Array[U]
-      //how to merge combiners
-    val mergeCombiners = (r1: Array[U], r2: Array[U]) => {
-      val limit = bProjection.value.bins
-      val binAggregator = bBinAggregator.value
-      for (i <- 0 until limit) {
-        r1(i) = binAggregator.merge(r1(i), r2(i))
-      }
-      r1
-    }: Array[U]
+    //Now we are going to use combineByKey, but we need some lambdas which are
+    //defined in MapReduceTileGeneratorCombiner first.
+    val combiner = new MapReduceTileGeneratorCombiner[TC, T, U, V](bProjection, bExtractor, bBinAggregator)
 
+    //do the work in a closure which is sanitized of all non-serializable things
+    val result = _sanitizedClosureGenerate(
+                    transformedData,
+                    combiner,
+                    bProjection,
+                    bExtractor,
+                    bBinAggregator,
+                    bTileAggregator)
+
+    bLevels.unpersist
+    bProjection.unpersist
+    bExtractor.unpersist
+    bBinAggregator.unpersist
+    bTileAggregator.unpersist
+
+    result
+  }
+
+  def _sanitizedClosureGenerate(
+    transformedData: RDD[(TC, (Int, Option[T]))],
+    combiner: MapReduceTileGeneratorCombiner[TC, T, U, V],
+    bProjection: Broadcast[Projection[TC]],
+    bExtractor: Broadcast[ValueExtractor[T]],
+    bBinAggregator: Broadcast[Aggregator[T, U, V]],
+    bTileAggregator: Broadcast[Aggregator[V, W, X]]
+  ): RDD[TileData[TC, V, X]] = {
     //Do the actual combineByKey to produce finished bin data
-    val tileData = transformedData.combineByKey(createCombiner, mergeValue, mergeCombiners)
+    val tileData = transformedData.combineByKey(
+      combiner.createCombiner,
+      combiner.mergeValue,
+      combiner.mergeCombiners
+    )
 
-    val result = tileData.map(t => {
+    tileData.map(t => {
       val binAggregator = bBinAggregator.value
       val tileAggregator = bTileAggregator.value
       val projection = bProjection.value
@@ -121,13 +126,41 @@ extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggr
       })
       new TileData[TC, V, X](key, finishedBins, binsTouched, binAggregator.finish(binAggregator.default), tileAggregator.finish(tile), projection)
     })
+  }
+}
 
-    bLevels.unpersist
-    bProjection.unpersist
-    bExtractor.unpersist
-    bBinAggregator.unpersist
-    bTileAggregator.unpersist
+private class MapReduceTileGeneratorCombiner[TC, T, U: ClassTag, V](
+  bProjection: Broadcast[Projection[TC]],
+  bExtractor: Broadcast[ValueExtractor[T]],
+  bBinAggregator: Broadcast[Aggregator[T, U, V]]) extends Serializable {
 
-    result
+  //will store intermediate values for the bin analytic
+  private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
+    Array.fill[A](length)(default)
+  }
+
+  //create a new combiner, with a fresh set of bins
+  def createCombiner(firstValue: (Int, Option[T])): Array[U] = {
+    val binAggregator = bBinAggregator.value
+    val bins: Array[U] = makeBins(bProjection.value.bins, binAggregator.default)
+    bins(firstValue._1) = binAggregator.add(binAggregator.default, firstValue._2)
+    bins
+  }
+
+  //how to add a value to a combiner
+  def mergeValue(combiner: Array[U], newValue: (Int, Option[T])): Array[U] = {
+    val binAggregator = bBinAggregator.value
+    combiner(newValue._1) = binAggregator.add(combiner(newValue._1), newValue._2)
+    combiner
+  }
+
+  //how to merge combiners
+  def mergeCombiners(r1: Array[U], r2: Array[U]): Array[U] = {
+    val limit = bProjection.value.bins
+    val binAggregator = bBinAggregator.value
+    for (i <- 0 until limit) {
+      r1(i) = binAggregator.merge(r1(i), r2(i))
+    }
+    r1
   }
 }
