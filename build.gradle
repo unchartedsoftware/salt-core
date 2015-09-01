@@ -67,6 +67,8 @@ sourceSets {
   main { compileClasspath += configurations.provided }
   test { compileClasspath += configurations.provided }
   test { runtimeClasspath += configurations.provided }
+  scoverage { compileClasspath += configurations.provided }
+  testScoverage { compileClasspath += configurations.provided }
 }
 
 dependencies {
