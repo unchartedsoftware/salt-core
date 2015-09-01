@@ -1,11 +1,17 @@
+/**
+ * $ ./gradlew
+ * The default task will build the project and the tests,
+ * actually running the tests (since they need to run inside Spark)
+ */
+
 buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
     }
     dependencies {
-    }
         classpath 'com.github.maiflai:gradle-scalatest:0.9', 'org.scoverage:gradle-scoverage:1.0.9'
+    }
 }
 
 apply plugin: 'java'
@@ -39,6 +45,12 @@ jar {
         exclude "META-INF/*.RSA"
     }
 }
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
@@ -83,3 +95,6 @@ idea {
         outputDir = file("$buildDir/classes/main/")
     }
 }
+
+//defaultTasks 'clean', 'assemble', 'testJar'
+defaultTasks 'assemble', 'testJar'

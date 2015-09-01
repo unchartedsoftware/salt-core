@@ -14,4 +14,4 @@ MAINTAINER Sean McIntyre <smcintyre@uncharted.software>
 ADD . /opt/mosaic
 
 WORKDIR /opt/mosaic
-CMD ["./gradlew", "clean", "build"]
+CMD ["./gradlew", "clean", "assemble"]
