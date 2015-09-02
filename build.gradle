@@ -1,7 +1,9 @@
 /**
  * $ ./gradlew
- * The default task will build the project and the tests,
- * actually running the tests (since they need to run inside Spark)
+ * The default task will build the project and run the test suite inside
+ * your local spark environment (spark-submit must be on the PATH).
+ *
+ * TODO integrate https://github.com/kt3k/coveralls-gradle-plugin
  */
 
 buildscript {
