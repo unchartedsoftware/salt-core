@@ -33,7 +33,7 @@ project.ext {
 
 jar {
     baseName = 'mosaic'
-    version =  '0.0.1'
+    version =  version
     dependsOn configurations.runtime
     from {
         (configurations.runtime - configurations.provided).collect {
@@ -49,6 +49,15 @@ jar {
 task testJar(type: Jar) {
   classifier = 'tests'
   from sourceSets.test.output
+}
+
+task test(overwrite: true, type: Exec, dependsOn: [jarScoverage, testJar]) {
+  executable = 'spark-submit'
+  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/mosaic/build/libs/mosaic-${version}-scoverage.jar","--class","com.unchartedsoftware.mosaic.Main","build/libs/mosaic-${version}-tests.jar"]
+}
+
+task coverage(overwrite: true, dependsOn: test) << {
+  reportScoverage.execute()
 }
 
 sourceCompatibility = 1.7
@@ -104,4 +113,4 @@ idea {
 }
 
 //defaultTasks 'clean', 'assemble', 'testJar'
-defaultTasks 'assemble', 'testJar'
+defaultTasks 'coverage'
