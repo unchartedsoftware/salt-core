@@ -20,6 +20,9 @@ ADD . /opt/mosaic
 WORKDIR /opt/mosaic
 RUN mkdir /opt/libs
 
+# for dev environment
+ENV GRADLE_OPTS -Dorg.gradle.daemon=true
+
 # download scalatest
 RUN curl http://central.maven.org/maven2/org/scalatest/scalatest_2.10/2.2.5/scalatest_2.10-2.2.5.jar > /opt/libs/scalatest_2.10-2.2.5.jar
 
