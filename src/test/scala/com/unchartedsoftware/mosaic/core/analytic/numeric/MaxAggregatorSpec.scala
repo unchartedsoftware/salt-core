@@ -31,9 +31,25 @@ class MaxAggregatorSpec extends FunSpec {
 
     describe("#merge()") {
       it("should combine two counts using max()") {
-        var left = Math.random()
-        var right = Math.random()
+        var left = Math.random
+        var right = Math.random
         assert(MaxAggregator.merge(left, right) === Math.max(left, right))
+      }
+
+      it("should ignore NaNs in favour of actual values") {
+        var left = Double.NaN
+        var right = Math.random
+        assert(MaxAggregator.merge(left, right) === right)
+        assert(MaxAggregator.merge(right, left) === right)
+        assert(MaxAggregator.merge(left, left).equals(left))
+      }
+    }
+
+    describe("#finish()") {
+      it("should convert the intermediate value into a java Double") {
+        var test = Math.random
+        assert(MaxAggregator.finish(test).isInstanceOf[java.lang.Double])
+        assert(MaxAggregator.finish(test).equals(new java.lang.Double(test)))
       }
     }
   }

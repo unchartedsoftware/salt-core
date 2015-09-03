@@ -35,5 +35,13 @@ class MeanAggregatorSpec extends FunSpec {
         ))
       }
     }
+
+    describe("#finish()") {
+      it("should convert the intermediate value into a java Double which represents the mean") {
+        var test = (Math.round(Math.random).toDouble, Math.random)
+        assert(MeanAggregator.finish(test).isInstanceOf[java.lang.Double])
+        assert(MeanAggregator.finish(test).equals(new java.lang.Double(test._2/test._1)))
+      }
+    }
   }
 }

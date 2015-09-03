@@ -36,5 +36,13 @@ class SumAggregatorSpec extends FunSpec {
         assert(SumAggregator.merge(left, right) === left + right)
       }
     }
+
+    describe("#finish()") {
+      it("should convert the intermediate value into a java Double") {
+        var test = Math.random
+        assert(SumAggregator.finish(test).isInstanceOf[java.lang.Double])
+        assert(SumAggregator.finish(test).equals(new java.lang.Double(test)))
+      }
+    }
   }
 }

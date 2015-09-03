@@ -35,6 +35,22 @@ class MinAggregatorSpec extends FunSpec {
         var right = Math.random()
         assert(MinAggregator.merge(left, right) === Math.min(left, right))
       }
+      
+      it("should ignore NaNs in favour of actual values") {
+        var left = Double.NaN
+        var right = Math.random
+        assert(MinAggregator.merge(left, right) === right)
+        assert(MinAggregator.merge(right, left) === right)
+        assert(MinAggregator.merge(left, left).equals(left))
+      }
+    }
+
+    describe("#finish()") {
+      it("should convert the intermediate value into a java Double") {
+        var test = Math.random
+        assert(MinAggregator.finish(test).isInstanceOf[java.lang.Double])
+        assert(MinAggregator.finish(test).equals(new java.lang.Double(test)))
+      }
     }
   }
 }

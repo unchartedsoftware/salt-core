@@ -28,5 +28,13 @@ class CountAggregatorSpec extends FunSpec {
         assert(CountAggregator.merge(left, right) === left + right)
       }
     }
+
+    describe("#finish()") {
+      it("should convert the intermediate value into a java Double") {
+        var test = Math.random
+        assert(CountAggregator.finish(test).isInstanceOf[java.lang.Double])
+        assert(CountAggregator.finish(test).equals(new java.lang.Double(test)))
+      }
+    }
   }
 }
