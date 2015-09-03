@@ -48,6 +48,10 @@ jar {
     }
 }
 
+checkScoverage {
+    minimumRate = 1
+}
+
 task testJar(type: Jar) {
   classifier = 'tests'
   from sourceSets.test.output
@@ -115,4 +119,4 @@ idea {
 }
 
 //defaultTasks 'clean', 'assemble', 'testJar'
-defaultTasks 'coverage'
+defaultTasks 'coverage', 'checkScoverage'
