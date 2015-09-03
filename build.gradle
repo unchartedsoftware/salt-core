@@ -64,6 +64,7 @@ task test(overwrite: true, type: Exec, dependsOn: [jarScoverage, testJar]) {
 
 task coverage(overwrite: true, dependsOn: test) << {
   reportScoverage.execute()
+  checkScoverage.execute()
 }
 
 sourceCompatibility = 1.7
@@ -119,4 +120,4 @@ idea {
 }
 
 //defaultTasks 'clean', 'assemble', 'testJar'
-defaultTasks 'coverage', 'checkScoverage'
+defaultTasks 'coverage'

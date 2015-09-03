@@ -23,8 +23,8 @@ class CountAggregatorSpec extends FunSpec {
 
     describe("#merge()") {
       it("should combine two counts using addition") {
-        var left = Math.random()
-        var right = Math.random()
+        var left = Math.random
+        var right = Math.random
         assert(CountAggregator.merge(left, right) === left + right)
       }
     }
