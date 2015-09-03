@@ -8,7 +8,7 @@ object SumAggregator extends Aggregator[Double, Double, java.lang.Double] {
   }
 
   override def add(current: Double, next: Option[Double]): Double = {
-    if (next.isDefined) {
+    if (next.isDefined && !next.get.equals(Double.NaN)) {
       current + next.get
     } else {
       current
