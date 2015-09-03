@@ -28,8 +28,8 @@ class MeanAggregatorSpec extends FunSpec {
 
     describe("#merge()") {
       it("should return a tuple representing the result of calling merge() on a CountAggregator and a SumAggregator") {
-        var left = (Math.round(Math.random).toDouble, Math.random)
-        var right = (Math.round(Math.random).toDouble, Math.random)
+        var left = (Math.round(100*Math.random).toDouble, Math.random)
+        var right = (Math.round(100*Math.random).toDouble, Math.random)
         assert(MeanAggregator.merge(left, right).equals(
           (CountAggregator.merge(left._1, right._1), SumAggregator.merge(left._2, right._2))
         ))
@@ -38,7 +38,7 @@ class MeanAggregatorSpec extends FunSpec {
 
     describe("#finish()") {
       it("should convert the intermediate value into a java Double which represents the mean") {
-        var test = (Math.round(Math.random).toDouble, Math.random)
+        var test = (Math.round(100*Math.random).toDouble, Math.random)
         assert(MeanAggregator.finish(test).isInstanceOf[java.lang.Double])
         assert(MeanAggregator.finish(test).equals(new java.lang.Double(test._2/test._1)))
       }
