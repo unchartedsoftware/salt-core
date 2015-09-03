@@ -141,13 +141,9 @@ Mosaic allows tile batches to be phrased in several ways:
 
 Mosaic supports two strategies for tile generation:
 
-### OnDemandTileGenerator
+ * **ActiveTileGenerator**: Produces a Seq[TileData]. In contrast with LazyTileGenerator, these tiles actually exist when generate() returns, since they have been pulled back to the Spark driver generate() returns (possibly because the driver needed to manipulate them somehow in a non-distributed fashion).
 
-TODO
-
-### BatchTileGenerator
-
-TODO
+ * **LazyTileGenerator**: Produces an RDD[TileData] which only materializes when an operation pulls some or all of those tiles back to the Spark driver
 
 ## Serialization
 

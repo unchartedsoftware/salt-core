@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.generation.accumulator
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
-import com.unchartedsoftware.mosaic.core.generation.OnDemandTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.ActiveTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
@@ -32,7 +32,7 @@ class AccumulatorTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X])
-extends OnDemandTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
+extends ActiveTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   //TODO find a way to eliminate inCoords by using reflection to locate a zero-arg constructor and invoke it.
   //then we can remove this from the superclass as well

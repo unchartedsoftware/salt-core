@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.generation.mapreduce
 import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
-import com.unchartedsoftware.mosaic.core.generation.BatchTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.LazyTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -32,7 +32,7 @@ class MapReduceTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
-extends BatchTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
+extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
