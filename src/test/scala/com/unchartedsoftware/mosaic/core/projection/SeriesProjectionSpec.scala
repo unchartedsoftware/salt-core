@@ -9,7 +9,7 @@ class SeriesProjectionSpec extends FunSpec {
     describe("#getZoomLevel()") {
       it("should return the first component of a tile coordinate as the zoom level") {
         val projection = new SeriesProjection(100, 0, 1, 0, 100, 0)
-        val coord = (Math.round(Math.random*100).toInt, 1)
+        val coord = (Math.round(Math.random*100).toInt, 0)
         assert(projection.getZoomLevel(coord) === coord._1)
       }
     }
@@ -36,9 +36,15 @@ class SeriesProjectionSpec extends FunSpec {
           val row = Row(Math.random)
           val coords = projection.rowToCoords(row, 0)
           assert(coords.isDefined)
-          assert(projection.getZoomLevel(coords.get._1) === 0)
-          assert(coords.get._1._2 === 0)
-          assert(coords.get._2 === Math.floor(row.getDouble(0)*100))
+
+          //check zoom level
+          assert(projection.getZoomLevel(coords.get._1) === 0, "check zoom level")
+
+          //check coordinates
+          assert(coords.get._1._2 === 0, "check coordinates")
+
+          //check bin
+          assert(coords.get._2 === Math.floor(row.getDouble(0)*100), "check bin index")
         }
       }
 
@@ -49,10 +55,16 @@ class SeriesProjectionSpec extends FunSpec {
           val row = Row(Math.random)
           val coords = projection.rowToCoords(row, 1)
           assert(coords.isDefined)
-          assert(projection.getZoomLevel(coords.get._1) === 1)
-          assert(coords.get._1._2 === Math.floor(row.getDouble(0)*2))
-          val bin = Math.floor( (row.getDouble(0)*200) % 100).toInt
-          assert(coords.get._2 === bin)
+
+          //check zoom level
+          assert(projection.getZoomLevel(coords.get._1) === 1, "check zoom level")
+
+          //check coordinates
+          assert(coords.get._1._2 === Math.floor(row.getDouble(0)*2), "check coordinates")
+
+          //check bin
+          val bin = ( (row.getDouble(0)*200) % 100).toInt
+          assert(coords.get._2 === bin, "check bin index")
         }
       }
     }
