@@ -87,7 +87,7 @@ extends ActiveTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAgg
    * This does the real work of generate, excluding the handling of anything that isn't
    * serializable and needs to be dealt with on the master.
    */
-  def _sanitizedClosureGenerate(
+  private def _sanitizedClosureGenerate(
     bProjection: Broadcast[Projection[TC]],
     dataFrame: DataFrame,
     bRequest: Broadcast[TileRequest[TC]],

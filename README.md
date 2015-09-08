@@ -62,7 +62,7 @@ result.map(t => (t.coords, t.bins))
 
 # Tiling with Map/Reduce
 
-This process is almost identical to accumulator tile generation, but with a slightly different serialization step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
+This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection._
