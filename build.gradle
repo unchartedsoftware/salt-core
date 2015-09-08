@@ -23,7 +23,7 @@ apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
 
-group = 'com.uncharted.mosaic'
+group = 'com.unchartedsoftware.mosaic'
 version = '0.0.1'
 
 project.ext {

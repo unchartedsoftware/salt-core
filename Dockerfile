@@ -9,8 +9,12 @@
 # $ docker run --rm docker.uncharted.software/mosaic-test
 #
 # Dev environment usage:
-# $ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
+# $ docker run -v $(pwd):/opt/mosaic -v ~/.m2:~/.m2 -it docker.uncharted.software/mosaic-test bash
 # container$ ./gradlew
+#
+# If you need to install the jars to your local m2 repository, be sure to clean
+# the build directory from inside the docker container, since the container
+# happens to assign root permissions to all the files in the /build directory
 
 FROM sequenceiq/spark:1.4.0
 MAINTAINER Sean McIntyre <smcintyre@uncharted.software>

@@ -29,7 +29,6 @@ import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileG
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
@@ -54,12 +53,11 @@ val extractor = new ValueExtractor[Double] {
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
 val gen = new AccumulatorTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
 
-// For serializing basic spatial and series tiles to AVRO
-val serializer = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
-
 // Flip the switch
 val result = gen.generate(frame, request)
-result.map(t => (t.coords, serializer.serialize(t)))
+
+// Try to read some values from bins
+result.map(t => (t.coords, t.bins))
 ```
 
 # Tiling with Map/Reduce
@@ -72,7 +70,6 @@ import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGener
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.serialization.PrimitiveTypeAvroSerializer
 import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
@@ -99,13 +96,9 @@ val extractor = new ValueExtractor[Double] {
 
 // Flip the switch
 val result = gen.generate(frame, request)
-result.mapPartitions(p => {  
-  // We make one serializer per partition, since the output of this process is an RDD and we can't just keep one on the master.
-  val s = new PrimitiveTypeAvroSerializer[java.lang.Double, (java.lang.Double, java.lang.Double)](classOf[java.lang.Double], proj.bins)
-  p.map(t => {
-    s.serialize(t)
-  })
-}).collect
+
+// Try to read some values from bins
+result.map(t => (t.coords, t.bins)).collect
 ```
 
 # Mosaic Library Contents
@@ -147,4 +140,4 @@ Mosaic supports two strategies for tile generation:
 
 ## Serialization
 
-Mosaic currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas.
+Mosaic currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas. This functionality is provided in a separate package called mosaic-avro-serializer.

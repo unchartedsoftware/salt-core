@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.serialization
+package com.unchartedsoftware.mosaic.serialization
 
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 
