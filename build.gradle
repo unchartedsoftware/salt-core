@@ -7,13 +7,13 @@
  */
 
 buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.github.maiflai:gradle-scalatest:0.9', 'org.scoverage:gradle-scoverage:1.0.9'
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.github.maiflai:gradle-scalatest:0.9', 'org.scoverage:gradle-scoverage:1.0.9'
+  }
 }
 
 apply plugin: 'java'
@@ -23,33 +23,33 @@ apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
 
-group = 'com.uncharted'
+group = 'com.uncharted.mosaic'
 version = '0.0.1'
 
 project.ext {
-    scalaBinaryVersion = '2.10'
-    scalaVersion = '2.10.4'
-    sparkVersion = '1.3.0'
-    scoverageVersion = '1.1.1'
+  scalaBinaryVersion = '2.10'
+  scalaVersion = '2.10.4'
+  sparkVersion = '1.3.0'
+  scoverageVersion = '1.1.1'
 }
 
 jar {
-    baseName = 'mosaic'
-    version =  version
-    dependsOn configurations.runtime
-    from {
-        (configurations.runtime - configurations.provided).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    } {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
+  baseName = 'mosaic-core'
+  version =  version
+  dependsOn configurations.runtime
+  from {
+    (configurations.runtime - configurations.provided).collect {
+      it.isDirectory() ? it : zipTree(it)
     }
+  } {
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+  }
 }
 
 checkScoverage {
-    minimumRate = 1
+  minimumRate = 1
 }
 
 task testJar(type: Jar) {
@@ -57,9 +57,9 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-task test(overwrite: true, type: Exec, dependsOn: [jarScoverage, testJar]) {
+task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar]) {
   executable = 'spark-submit'
-  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/mosaic/build/libs/mosaic-${version}-scoverage.jar","--class","com.unchartedsoftware.mosaic.Main","build/libs/mosaic-${version}-tests.jar"]
+  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/mosaic/build/libs/mosaic-core-${version}-scoverage.jar","--class","com.unchartedsoftware.mosaic.Main","build/libs/mosaic-core-${version}-tests.jar"]
 }
 
 task coverage(overwrite: true, dependsOn: test) << {
