@@ -1,6 +1,6 @@
 package com.unchartedsoftware.mosaic.core.projection
 
-import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 class SeriesProjection(

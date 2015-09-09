@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.util
+package com.unchartedsoftware.mosaic.util
 
 import java.sql.{Date, Timestamp}
 import org.apache.spark.sql.Row

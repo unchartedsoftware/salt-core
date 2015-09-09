@@ -1,6 +1,6 @@
-package com.unchartedsoftware.mosaic.core.projection
+package com.unchartedsoftware.mosaic.util
 
-import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.util._
 import org.scalatest._
 import org.apache.spark.sql.Row
 import java.sql.{Date, Timestamp}
