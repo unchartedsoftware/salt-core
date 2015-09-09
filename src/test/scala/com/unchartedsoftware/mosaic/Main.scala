@@ -13,6 +13,9 @@ object Spark {
 
 object Main {
   def main(args: Array[String]): Unit = {
-    Runner.run(Array("-o", "-R", "build/classes/test"))
+    val testResult = Runner.run(Array("-o", "-R", "build/classes/test"))
+    if (!testResult) {
+      System.exit(1)
+    }
   }
 }

@@ -59,8 +59,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
-        assert(tiles(0).bins(0) === manualBins.get(false).get)
-        assert(tiles(0).bins(1) === manualBins.get(true).get)
+        assert(tiles(0).bins(0) === manualBins.get(false).getOrElse(0))
+        assert(tiles(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
         val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
@@ -93,8 +93,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
-        assert(tiles(0).bins(0) === manualBins.get(false).get)
-        assert(tiles(0).bins(1) === manualBins.get(true).get)
+        assert(tiles(0).bins(0) === manualBins.get(false).getOrElse(0))
+        assert(tiles(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
         val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
