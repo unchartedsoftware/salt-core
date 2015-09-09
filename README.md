@@ -4,10 +4,30 @@
 # Building
 
 ```
-$ ./gradlew build
+$ ./gradlew jar
 ```
 
-# Getting Started
+# Testing
+
+Since testing Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Mosaic within that environment:
+
+```bash
+$ docker build -t docker.uncharted.software/mosaic-test .
+$ docker run --rm docker.uncharted.software/mosaic-test
+```
+
+The above commands trigger a one-off build and test of Mosaic. If you want to interactively test Mosaic while developing (without having to re-run the container), use the following commands:
+
+```bash
+$ docker build -t docker.uncharted.software/mosaic-test .
+$ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
+# then, inside the running container
+$ ./gradlew
+```
+
+This will mount the code directory into the container as a volume, allowing you to make code changes on your host machine and test them on-the-fly.
+
+# Tiling
 
 We need something to tile. Let's start with a small sample of the [NYC Taxi Dataset](http://www.andresmh.com/nyctaxitrips/), which can be [downloaded from here](http://assets.oculusinfo.com/pantera/taxi_micro.csv).
 
@@ -19,7 +39,7 @@ scala> sqlContext.sql("select * from taxi_micro").schema
 res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,StringType,true), StructField(license,StringType,true), StructField(code,StringType,true), StructField(flag,IntegerType,true), StructField(type,StringType,true), StructField(pickup_time,TimestampType,true), StructField(dropoff_time,TimestampType,true), StructField(passengers,IntegerType,true), StructField(duration,IntegerType,true), StructField(distance,DoubleType,true), StructField(pickup_lon,DoubleType,true), StructField(pickup_lat,DoubleType,true), StructField(dropoff_lon,DoubleType,true), StructField(dropoff_lat,DoubleType,true))
 ```
 
-# Tiling with Accumulators
+## Tiling with Accumulators
 
 We can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
 
@@ -60,7 +80,7 @@ val result = gen.generate(frame, request)
 result.map(t => (t.coords, t.bins))
 ```
 
-# Tiling with Map/Reduce
+## Tiling with Map/Reduce
 
 This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
 
