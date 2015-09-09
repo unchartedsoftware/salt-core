@@ -24,6 +24,9 @@ ADD . /opt/mosaic
 WORKDIR /opt/mosaic
 RUN mkdir /opt/libs
 
+# silence log4j garbage from spark
+ADD src/test/resources/log4j.properties /usr/local/spark/conf/log4j.properties
+
 # for dev environment
 ENV GRADLE_OPTS -Dorg.gradle.daemon=true
 

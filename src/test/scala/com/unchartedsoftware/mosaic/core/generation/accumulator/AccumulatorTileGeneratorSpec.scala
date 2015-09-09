@@ -63,8 +63,8 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         assert(tiles(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
-        val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
-        val max = manualBins.map(a => a._2).reduce((a,b) => a max b)
+        val min = tiles(0).bins.reduce((a,b) => Math.min(a, b))
+        val max = tiles(0).bins.reduce((a,b) => Math.max(a, b))
         assert(tiles(0).tileMeta._1 === min)
         assert(tiles(0).tileMeta._2 === max)
 
@@ -97,8 +97,8 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         assert(tiles(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
-        val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
-        val max = manualBins.map(a => a._2).reduce((a,b) => a max b)
+        val min = tiles(0).bins.reduce((a,b) => Math.min(a, b))
+        val max = tiles(0).bins.reduce((a,b) => Math.max(a, b))
         assert(tiles(0).tileMeta._1 === min)
         assert(tiles(0).tileMeta._2 === max)
 

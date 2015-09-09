@@ -3,6 +3,8 @@
  * The default task will build the project and run the test suite inside
  * your local spark environment (spark-submit must be on the PATH).
  *
+ * A coverage report will be present at build/reports/scoverage/index.html
+ *
  * TODO integrate https://github.com/kt3k/coveralls-gradle-plugin
  */
 
