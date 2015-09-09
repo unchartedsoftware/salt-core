@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.analytic.numeric
 import org.scalatest._
 import com.unchartedsoftware.mosaic.Spark
 import com.unchartedsoftware.mosaic.core.projection._
-import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic._
@@ -12,7 +12,7 @@ import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 //define tests here so that scalatest stuff isn't serialized into spark closures
-object AccumulatorTileGeneratorSpecClosure {
+object MapReduceTileGeneratorSpecClosure {
   case class Element(x: Double)
 
   val sqlContext = new org.apache.spark.sql.SQLContext(Spark.sc)
@@ -28,15 +28,15 @@ object AccumulatorTileGeneratorSpecClosure {
     var frame = Spark.sc.parallelize(data).map(i => Element(i)).toDF()
 
     //create generator
-    val gen = new AccumulatorTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, extractor, CountAggregator, MaxMinAggregator)
+    val gen = new MapReduceTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, extractor, CountAggregator, MaxMinAggregator)
 
     //kickoff generation
-    gen.generate(frame, request)
+    gen.generate(frame, request).collect
   }
 }
 
-class AccumulatorTileGeneratorSpec extends FunSpec {
-  describe("AccumulatorTileGenerator") {
+class MapReduceTileGeneratorSpec extends FunSpec {
+  describe("MapReduceTileGenerator") {
     describe("#generate()") {
       it("should generate tile level 0, correctly distributing input points into bins") {
 
@@ -55,7 +55,7 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -89,7 +89,7 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -121,7 +121,7 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
         assert(tiles.length === 3) //did we generate tiles?
 
         //map the result so that it's easier to work with
