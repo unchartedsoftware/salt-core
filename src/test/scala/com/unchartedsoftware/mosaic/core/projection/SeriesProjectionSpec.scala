@@ -27,6 +27,8 @@ class SeriesProjectionSpec extends FunSpec {
         val projection = new SeriesProjection(100, 0, 1, 0, 1D, 0D)
         assert(projection.rowToCoords(Row(projection.maxX+1), 0) === None)
         assert(projection.rowToCoords(Row(projection.minX-1), 0) === None)
+        assert(projection.rowToCoords(Row(projection.maxX), 0) === None)
+        assert(projection.rowToCoords(Row(projection.minX), 0) === None)
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {

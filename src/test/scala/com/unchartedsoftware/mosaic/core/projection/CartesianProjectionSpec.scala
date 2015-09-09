@@ -27,12 +27,16 @@ class CartesianProjectionSpec extends FunSpec {
         val projection = new CartesianProjection(100, 100, 0, 1, 0, 1D, 0D, 1, 1D, 0D)
         assert(projection.rowToCoords(Row(projection.maxX+1, Math.random), 0) === None)
         assert(projection.rowToCoords(Row(projection.minX-1, Math.random), 0) === None)
+        assert(projection.rowToCoords(Row(projection.maxX, Math.random), 0) === None)
+        assert(projection.rowToCoords(Row(projection.minX, Math.random), 0) === None)
       }
 
       it("should return None when a row's yCol is outside of the defined bounds") {
         val projection = new CartesianProjection(100, 100, 0, 1, 0, 1D, 0D, 1, 1D, 0D)
         assert(projection.rowToCoords(Row(Math.random, projection.maxY+1), 0) === None)
         assert(projection.rowToCoords(Row(Math.random, projection.minY-1), 0) === None)
+        assert(projection.rowToCoords(Row(Math.random, projection.maxY), 0) === None)
+        assert(projection.rowToCoords(Row(Math.random, projection.minY), 0) === None)
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {

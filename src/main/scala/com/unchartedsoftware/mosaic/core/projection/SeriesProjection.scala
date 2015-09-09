@@ -32,7 +32,7 @@ class SeriesProjection(
       //convert value to a double
       val doubleX = DataFrameUtil.getDouble(xCol, r)
 
-      if (doubleX > maxX || doubleX < minX) {
+      if (doubleX >= maxX || doubleX <= minX) {
         None
       } else {
         val translatedDataX = doubleX - minX
