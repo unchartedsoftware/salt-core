@@ -25,15 +25,16 @@ class TileGenerationAccumulableParam[TC: ClassTag, T, U: ClassTag, V](
     private var bBinAggregator: Broadcast[Aggregator[T, U, V]]
   ) extends AccumulableParam[HashMap[TC, Array[U]], (TC, Int, Row)]() {
 
-  def reset(
-    newBProjection: Broadcast[Projection[TC]],
-    newBExtractor: Broadcast[ValueExtractor[T]],
-    newBBinAggregator: Broadcast[Aggregator[T, U, V]]
-  ): Unit = {
-    bProjection = newBProjection
-    bExtractor = newBExtractor
-    bBinAggregator = newBBinAggregator
-  }
+  // Only need this if we bring back pooling
+  // def reset(
+  //   newBProjection: Broadcast[Projection[TC]],
+  //   newBExtractor: Broadcast[ValueExtractor[T]],
+  //   newBBinAggregator: Broadcast[Aggregator[T, U, V]]
+  // ): Unit = {
+  //   bProjection = newBProjection
+  //   bExtractor = newBExtractor
+  //   bBinAggregator = newBBinAggregator
+  // }
 
   override def addAccumulator(r: HashMap[TC, Array[U]], t: (TC, Int, Row)): HashMap[TC, Array[U]] = {
     val tile = t._1

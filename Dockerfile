@@ -9,7 +9,7 @@
 # $ docker run --rm docker.uncharted.software/mosaic-test
 #
 # Dev environment usage:
-# $ docker run -v $(pwd):/opt/mosaic -v ~/.m2:~/.m2 -it docker.uncharted.software/mosaic-test bash
+# $ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
 # container$ ./gradlew
 #
 # If you need to install the jars to your local m2 repository, be sure to clean

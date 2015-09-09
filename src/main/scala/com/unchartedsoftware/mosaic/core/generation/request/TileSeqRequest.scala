@@ -7,7 +7,7 @@ import com.unchartedsoftware.mosaic.core.projection.Projection
  */
 class TileSeqRequest[TC](tiles: Seq[TC], projection: Projection[TC]) extends TileRequest[TC] {
 
-  private val _levels = tiles.map(c => projection.getZoomLevel(c))
+  private val _levels = tiles.map(c => projection.getZoomLevel(c)).distinct
   private val _tileMap = tiles.map(c => (c, true)).toMap
 
   /**

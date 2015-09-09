@@ -68,6 +68,50 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         //verify binning
         assert(tiles(0).bins(0) === manualBins.get(false).get)
         assert(tiles(0).bins(1) === manualBins.get(true).get)
+
+        //verify max/min tile analytic
+        val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
+        val max = manualBins.map(a => a._2).reduce((a,b) => a max b)
+        assert(tiles(0).tileMeta._1 === min)
+        assert(tiles(0).tileMeta._2 === max)
+
+        //verify bins touched
+        val binsTouched = manualBins.toSeq.length
+        assert(tiles(0).binsTouched === binsTouched)
+      }
+
+      it("should ignore rows which are outside the bounds of the projection") {
+        //generate some random data
+        val data = Array.fill(10)(0D).map(a => Math.random)
+
+        //manually bin
+        val manualBins = data.filter(a => a <= 0.5).groupBy(a => a > 0.25).map(a => (a._1, a._2.length))
+
+        //create projection, request, extractor
+        val projection = new SeriesProjection(2, 0, 1, 0, 0.5D, 0D)
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), projection)
+        val extractor = new ValueExtractor[Double] {
+          override def rowToValue(r: Row): Option[Double] = {
+            return None
+          }
+        }
+
+        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        assert(tiles.length === 1) //did we generate a tile?
+
+        //verify binning
+        assert(tiles(0).bins(0) === manualBins.get(false).get)
+        assert(tiles(0).bins(1) === manualBins.get(true).get)
+
+        //verify max/min tile analytic
+        val min = manualBins.map(a => a._2).reduce((a,b) => a min b)
+        val max = manualBins.map(a => a._2).reduce((a,b) => a max b)
+        assert(tiles(0).tileMeta._1 === min)
+        assert(tiles(0).tileMeta._2 === max)
+
+        //verify bins touched
+        val binsTouched = manualBins.toSeq.length
+        assert(tiles(0).binsTouched === binsTouched)
       }
 
       it("should generate successive tile levels, correctly distributing input points into bins") {
@@ -76,7 +120,7 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         val data = Array.fill(10)(0D).map(a => Math.random)
 
         //create projection, request, extractor
-        val projection = new SeriesProjection(2, 0, 1, 0, 1D, 0D)
+        val projection = new SeriesProjection(10, 0, 1, 0, 1D, 0D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)), projection)
         val extractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
@@ -92,6 +136,8 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
 
         //verify binning of level 1 by aggregating it into level 0
         val combinedOneBins = tilesMap.get((1,0)).get.bins ++ tilesMap.get((1,1)).get.bins
+
+        //verify tile levels 1 and 0 are consistent
         var j = 0
         for (i <- 0 until 10) {
           val zeroBin = tilesMap.get((0,0)).get.bins(i)

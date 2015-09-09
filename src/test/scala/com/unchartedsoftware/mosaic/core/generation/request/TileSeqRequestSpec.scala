@@ -20,7 +20,7 @@ class TileSeqRequestSpec extends FunSpec {
   describe("TileSeqRequest") {
     describe("#levels()") {
       it("should return the set of levels passed in to the request") {
-        val tiles = Seq((0,0), (1,0), (2,0), (5,0))
+        val tiles = Seq((0,0), (1,0), (1,1), (2,0), (5,0))
         val request = new TileSeqRequest(tiles, projection)
         assert(request.levels.equals(Seq(0,1,2,5)))
         assert(!request.levels.equals(Seq(0,5,7)))
