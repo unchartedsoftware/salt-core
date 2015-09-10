@@ -1,10 +1,11 @@
 # Mosaic
 > Smaller tiles.
 
-# Building
+# Building/Installing
 
 ```
 $ ./gradlew jar
+$ ./gradlew install
 ```
 
 # Testing
