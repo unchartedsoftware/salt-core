@@ -50,7 +50,7 @@ import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileG
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 // source DataFrame
@@ -91,7 +91,7 @@ import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGener
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 // source DataFrame
