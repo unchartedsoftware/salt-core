@@ -1,6 +1,6 @@
 #
 # Mosaic Test Container
-# Apache Spark 1.4.1
+# Apache Spark 1.4.0
 #
 # Runs the Mosaic test suite in a container
 #
