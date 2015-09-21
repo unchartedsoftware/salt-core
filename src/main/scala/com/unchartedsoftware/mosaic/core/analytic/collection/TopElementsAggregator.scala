@@ -49,7 +49,7 @@ extends Aggregator[Seq[ET], HashMap[ET, Int], List[(ET, Int)]] {
       x.enqueue(t)
     })
     var result = new ListBuffer[(ET, Int)]
-    for (i <- 0 until elementLimit) {
+    for (i <- 0 until Math.min(elementLimit, x.size)) {
       result.append(x.dequeue)
     }
     result.toList

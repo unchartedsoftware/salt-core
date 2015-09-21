@@ -7,7 +7,8 @@ import com.unchartedsoftware.mosaic.core.generation.ActiveTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.{Row, DataFrame}
+import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import scala.util.Try
 import scala.collection.Map
@@ -36,8 +37,8 @@ extends ActiveTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAgg
 
   //TODO find a way to eliminate inCoords by using reflection to locate a zero-arg constructor and invoke it.
   //then we can remove this from the superclass as well
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): Seq[TileData[TC, V, X]] = {
-    dataFrame.cache //ensure data is cached
+  def generate(data: RDD[Row], request: TileRequest[TC]): Seq[TileData[TC, V, X]] = {
+    data.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
     val bProjection = sc.broadcast(projection)
@@ -51,7 +52,7 @@ extends ActiveTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAgg
     val initialValue = new HashMap[TC, Array[U]]
     val accumulator = sc.accumulable(initialValue)(param)
 
-    _sanitizedClosureGenerate(bProjection, dataFrame, bRequest, accumulator)
+    _sanitizedClosureGenerate(bProjection, data, bRequest, accumulator)
 
     //finish tile by computing tile-level statistics
     //TODO parallelize on workers (if the number of tiles is heuristically large) to avoid memory overloading on the master?
@@ -89,14 +90,14 @@ extends ActiveTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAgg
    */
   private def _sanitizedClosureGenerate(
     bProjection: Broadcast[Projection[TC]],
-    dataFrame: DataFrame,
+    data: RDD[Row],
     bRequest: Broadcast[TileRequest[TC]],
     accumulator: Accumulable[HashMap[TC, Array[U]], (TC, Int, Row)]
   ): Unit = {
     val bLevels = sc.broadcast(bRequest.value.levels)
 
     //generate bin data by iterating over each row of the source data frame
-    dataFrame.foreach(row => {
+    data.foreach(row => {
       val projection = bProjection.value
       val request = bRequest.value
       Try({

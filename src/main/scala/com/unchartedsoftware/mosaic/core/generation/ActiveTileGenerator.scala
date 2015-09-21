@@ -6,7 +6,8 @@ import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.{Accumulable, SparkContext}
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.{Row, DataFrame}
+import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 
 /**
@@ -37,5 +38,5 @@ abstract class ActiveTileGenerator[TC, T, U: ClassTag, V, W, X](
    * @param dataFrame the DataFrame containing source data
    * @param request tiles requested for generation
    */
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): Seq[TileData[TC, V, X]]
+  def generate(data: RDD[Row], request: TileRequest[TC]): Seq[TileData[TC, V, X]]
 }

@@ -6,9 +6,9 @@ import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.LazyTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.{Row, DataFrame}
+import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -39,11 +39,11 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
    * rows which contain a tile coordinate, a bin and a value.
    */
   private def transformData(
-    dataFrame: DataFrame,
+    data: RDD[Row],
     bProjection: Broadcast[Projection[TC]],
     bExtractor: Broadcast[ValueExtractor[T]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Option[T]))] = {
-    dataFrame.flatMap(r => {
+    data.flatMap(r => {
 
       val request = bRequest.value
       //extract value for this row
@@ -62,8 +62,8 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
     })
   }
 
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): RDD[TileData[TC, V, X]] = {
-    dataFrame.cache //ensure data is cached
+  def generate(data: RDD[Row], request: TileRequest[TC]): RDD[TileData[TC, V, X]] = {
+    data.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
     val bProjection = sc.broadcast(projection)
@@ -73,7 +73,7 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD(TC, (bin, Option[value]))
-    val transformedData = transformData(dataFrame, bProjection, bExtractor, bRequest)
+    val transformedData = transformData(data, bProjection, bExtractor, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.

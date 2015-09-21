@@ -50,12 +50,11 @@ import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileG
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 // source DataFrame
 // NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
-val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
+val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
 frame.cache
 
 // create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
@@ -83,7 +82,7 @@ result.map(t => (t.coords, t.bins))
 
 ## Tiling with Map/Reduce
 
-This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the spark master.
+This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the Spark master.
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection._
@@ -91,12 +90,11 @@ import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGener
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 // source DataFrame
 // NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
-val frame = sqlContext.sql("select pickup_time, distance from taxi_micro")
+val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
 frame.cache
 
 // create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
@@ -133,7 +131,7 @@ Mosaic currently supports three projections:
 
 ## Aggregators
 
-Mosaic includes six sample aggregators:
+Mosaic includes seven sample aggregators:
 
  * CountAggregator
  * MaxAggregator
@@ -141,6 +139,7 @@ Mosaic includes six sample aggregators:
  * MaxMinAggregator (for tile-level analytics)
  * MeanAggregator
  * SumAggregator
+ * TopElementsAggregator
 
 Additional aggregators can be implemented on-the-fly within your script as you see fit.
 

@@ -7,7 +7,8 @@ import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.{Row, DataFrame}
+import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -34,8 +35,8 @@ abstract class LazyTileGenerator[TC, T, U: ClassTag, V, W, X](
   tileAggregator: Aggregator[V, W, X]) {
 
   /**
-   * @param dataFrame the DataFrame containing source data
+   * @param data the RDD containing source data
    * @param request tiles requested for generation
    */
-  def generate(dataFrame: DataFrame, request: TileRequest[TC]): RDD[TileData[TC, V, X]]
+  def generate(data: RDD[Row], request: TileRequest[TC]): RDD[TileData[TC, V, X]]
 }

@@ -13,10 +13,6 @@ import org.apache.spark.sql.Row
 
 //define tests here so that scalatest stuff isn't serialized into spark closures
 object AccumulatorTileGeneratorSpecClosure {
-  case class Element(x: Double)
-
-  val sqlContext = new org.apache.spark.sql.SQLContext(Spark.sc)
-  import sqlContext.implicits._
 
   def testClosure(
     data: Array[Double],
@@ -25,7 +21,7 @@ object AccumulatorTileGeneratorSpecClosure {
     extractor: ValueExtractor[Double]
   ): Seq[TileData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]] = {
     //generate some random data
-    var frame = Spark.sc.parallelize(data).map(i => Element(i)).toDF()
+    var frame = Spark.sc.parallelize(data.map(a => Row(a)))
 
     //create generator
     val gen = new AccumulatorTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, extractor, CountAggregator, MaxMinAggregator)
