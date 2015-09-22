@@ -1,6 +1,7 @@
 package com.unchartedsoftware.mosaic.core.generation.accumulator
 
-import com.unchartedsoftware.mosaic.core.analytic.{Aggregator, ValueExtractor}
+import com.unchartedsoftware.mosaic.core.analytic.Aggregator
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import scala.reflect.ClassTag
 import org.apache.spark.broadcast.Broadcast

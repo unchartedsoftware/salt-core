@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.analytic
+package com.unchartedsoftware.mosaic.core.util
 
 import org.apache.spark.sql.Row
 
