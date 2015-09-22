@@ -1,6 +1,6 @@
 package com.unchartedsoftware.mosaic.core.projection
 
-import com.unchartedsoftware.mosaic.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.core.analytic.ValueExtractor
 import org.apache.spark.sql.Row
 
 class MercatorProjection(
@@ -8,17 +8,14 @@ class MercatorProjection(
   val yBins: Int,
   minZoom: Int,
   maxZoom: Int,
-  val xCol: Int,
-  val maxX: Double,
-  val minX: Double,
-  val yCol: Int,
-  val maxY: Double,
-  val minY: Double) extends Projection[(Int, Int, Int)](xBins*yBins, minZoom, maxZoom) {
+  val source: ValueExtractor[(Double, Double)],
+  val min: (Double, Double),
+  val max: (Double, Double)) extends Projection[(Int, Int, Int)](xBins*yBins, minZoom, maxZoom) {
 
-  val _internalMaxX = Math.min(maxX, 180);
-  val _internalMinX = Math.max(minX, -180);
-  val _internalMaxY = Math.min(maxY, 85.05112878);
-  val _internalMinY = Math.max(minY, -85.05112878);
+  val _internalMaxX = Math.min(max._1, 180);
+  val _internalMinX = Math.max(min._1, -180);
+  val _internalMaxY = Math.min(max._2, 85.05112878);
+  val _internalMinY = Math.max(min._2, -85.05112878);
 
   //Precompute some stuff we'll use frequently
   val piOver180 = Math.PI / 180;
@@ -39,14 +36,17 @@ class MercatorProjection(
     } else {
       //with help from https://developer.here.com/rest-apis/documentation/traffic/topics/mercator-projection.html
 
-      //convert value to a double
-      val lon = DataFrameUtil.getDouble(xCol, r)
-      val lat = DataFrameUtil.getDouble(yCol, r)
+      //retrieve values from row
+      val dCoords = source.rowToValue(r)
 
-      //make sure that we always stay INSIDE the range
-      if (lon >= maxX || lon <= minX || lat >= maxY || lat <= minY) {
+      if (!dCoords.isDefined) {
+        None
+      } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {
+        //make sure that we always stay INSIDE the range
         None
       } else {
+        var lon = dCoords.get._1
+        var lat = dCoords.get._2
         val latRad = (-lat) * piOver180;
         val n = tileCounts(z);
         val howFarX = n * ((lon + 180) / 360);

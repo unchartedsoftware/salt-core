@@ -78,7 +78,6 @@ class TopElementsAggregatorSpec extends FunSpec {
         intermediate.put("f", 1)
         val finished = aggregator.finish(intermediate)
         assert(finished.length === 5)
-        println(finished)
         assert(finished(0) === ("e", 12))
         assert(finished(1) === ("a", 10))
         assert(finished(2) === ("d", 9))

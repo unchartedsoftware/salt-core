@@ -8,7 +8,6 @@ import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.util.DataFrameUtil
 import org.apache.spark.sql.Row
 
 //define tests here so that scalatest stuff isn't serialized into spark closures
@@ -18,13 +17,13 @@ object AccumulatorTileGeneratorSpecClosure {
     data: Array[Double],
     projection: Projection[(Int, Int)],
     request: TileSeqRequest[(Int, Int)],
-    extractor: ValueExtractor[Double]
+    vExtractor: ValueExtractor[Double]
   ): Seq[TileData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]] = {
     //generate some random data
     var frame = Spark.sc.parallelize(data.map(a => Row(a)))
 
     //create generator
-    val gen = new AccumulatorTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, extractor, CountAggregator, MaxMinAggregator)
+    val gen = new AccumulatorTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, vExtractor, CountAggregator, MaxMinAggregator)
 
     //kickoff generation
     gen.generate(frame, request)
@@ -42,16 +41,21 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         //manually bin
         val manualBins = data.groupBy(a => a > 0.5).map(a => (a._1, a._2.length))
 
-        //create projection, request, extractor
-        val projection = new SeriesProjection(2, 0, 1, 0, 1D, 0D)
+        //create projection, request, extractors
+        val dataSpaceExtractor = new ValueExtractor[Double] {
+          override def rowToValue(r: Row): Option[Double] = {
+            return Some(r.getDouble(0))
+          }
+        }
+        val projection = new SeriesProjection(2, 0, 1, dataSpaceExtractor, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), projection)
-        val extractor = new ValueExtractor[Double] {
+        val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
             return None
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -76,16 +80,21 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         //manually bin
         val manualBins = data.filter(a => a <= 0.5).groupBy(a => a > 0.25).map(a => (a._1, a._2.length))
 
-        //create projection, request, extractor
-        val projection = new SeriesProjection(2, 0, 1, 0, 0.5D, 0D)
+        //create projection, request, extractors
+        val dataSpaceExtractor = new ValueExtractor[Double] {
+          override def rowToValue(r: Row): Option[Double] = {
+            return Some(r.getDouble(0))
+          }
+        }
+        val projection = new SeriesProjection(2, 0, 1, dataSpaceExtractor, 0D, 0.5D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), projection)
-        val extractor = new ValueExtractor[Double] {
+        val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
             return None
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -108,16 +117,21 @@ class AccumulatorTileGeneratorSpec extends FunSpec {
         //generate some random data
         val data = Array.fill(10)(0D).map(a => Math.random)
 
-        //create projection, request, extractor
-        val projection = new SeriesProjection(10, 0, 1, 0, 1D, 0D)
+        //create projection, request, extractors
+        val dataSpaceExtractor = new ValueExtractor[Double] {
+          override def rowToValue(r: Row): Option[Double] = {
+            return Some(r.getDouble(0))
+          }
+        }
+        val projection = new SeriesProjection(10, 0, 1, dataSpaceExtractor, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)), projection)
-        val extractor = new ValueExtractor[Double] {
+        val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
             return None
           }
         }
 
-        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, extractor)
+        val tiles = AccumulatorTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
         assert(tiles.length === 3) //did we generate tiles?
 
         //map the result so that it's easier to work with

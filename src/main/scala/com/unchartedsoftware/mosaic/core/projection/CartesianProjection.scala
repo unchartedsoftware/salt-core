@@ -1,6 +1,6 @@
 package com.unchartedsoftware.mosaic.core.projection
 
-import com.unchartedsoftware.mosaic.util.DataFrameUtil
+import com.unchartedsoftware.mosaic.core.analytic.ValueExtractor
 import org.apache.spark.sql.Row
 
 class CartesianProjection(
@@ -8,16 +8,13 @@ class CartesianProjection(
   val yBins: Int,
   minZoom: Int,
   maxZoom: Int,
-  val xCol: Int,
-  val maxX: Double,
-  val minX: Double,
-  val yCol: Int,
-  val maxY: Double,
-  val minY: Double) extends Projection[(Int, Int, Int)](xBins*yBins, minZoom, maxZoom) {
+  val source: ValueExtractor[(Double, Double)],
+  val min: (Double, Double),
+  val max: (Double, Double)) extends Projection[(Int, Int, Int)](xBins*yBins, minZoom, maxZoom) {
 
   //Precompute some stuff we'll use frequently
-  val _xRange = maxX - minX
-  val _yRange = maxY - minY
+  val _xRange = max._1 - min._1
+  val _yRange = max._2 - min._2
   //number of tiles at each zoom level
   val tileCounts = new Array[Int](maxZoom+1)
   for (i <- minZoom until maxZoom+1) {
@@ -35,16 +32,17 @@ class CartesianProjection(
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
-      //convert value to a double
-      val doubleX = DataFrameUtil.getDouble(xCol, r)
-      val doubleY = DataFrameUtil.getDouble(yCol, r)
+      //retrieve values from row
+      val dCoords = source.rowToValue(r)
 
-      //make sure that we always stay INSIDE the range
-      if (doubleX >= maxX || doubleX <= minX || doubleY >= maxY || doubleY <= minY) {
+      if (!dCoords.isDefined) {
+        None
+      } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {
+        //make sure that we always stay INSIDE the range
         None
       } else {
-        val translatedDataX = doubleX - minX
-        val translatedDataY = doubleY - minY
+        val translatedDataX = dCoords.get._1 - min._1
+        val translatedDataY = dCoords.get._2 - min._2
         //scale it to [0,1)
         val scaledDataX = translatedDataX / _xRange
         val scaledDataY = translatedDataY / _yRange
