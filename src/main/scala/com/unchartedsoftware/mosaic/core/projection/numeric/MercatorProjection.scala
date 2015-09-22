@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.projection
+package com.unchartedsoftware.mosaic.core.projection.numeric
 
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
@@ -8,9 +8,9 @@ class MercatorProjection(
   val yBins: Int,
   minZoom: Int,
   maxZoom: Int,
-  val source: ValueExtractor[(Double, Double)],
-  val min: (Double, Double),
-  val max: (Double, Double)) extends Projection[(Int, Int, Int)](xBins*yBins, minZoom, maxZoom) {
+  source: ValueExtractor[(Double, Double)],
+  min: (Double, Double),
+  max: (Double, Double)) extends NumericProjection[(Int, Int, Int), (Double, Double)](xBins*yBins, minZoom, maxZoom, source, min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
   val _internalMinX = Math.max(min._1, -180);

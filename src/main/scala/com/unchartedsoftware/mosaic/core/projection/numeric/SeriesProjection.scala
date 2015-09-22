@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.projection
+package com.unchartedsoftware.mosaic.core.projection.numeric
 
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
@@ -7,9 +7,9 @@ class SeriesProjection(
   bins: Int,
   minZoom: Int,
   maxZoom: Int,
-  val source: ValueExtractor[Double],
-  val min: Double,
-  val max: Double) extends Projection[(Int, Int)](bins, minZoom, maxZoom) {
+  source: ValueExtractor[Double],
+  min: Double,
+  max: Double) extends NumericProjection[(Int, Int), Double](bins, minZoom, maxZoom, source, min, max) {
 
   //Precompute some stuff we'll use frequently
   val _range = max - min

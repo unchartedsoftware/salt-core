@@ -1,4 +1,4 @@
-package com.unchartedsoftware.mosaic.core.projection
+package com.unchartedsoftware.mosaic.core.projection.numeric
 
 import org.scalatest._
 import com.unchartedsoftware.mosaic.core.projection._

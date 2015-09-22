@@ -2,7 +2,8 @@ package com.unchartedsoftware.mosaic.core.analytic.numeric
 
 import org.scalatest._
 import com.unchartedsoftware.mosaic.Spark
-import com.unchartedsoftware.mosaic.core.projection._
+import com.unchartedsoftware.mosaic.core.projection.Projection
+import com.unchartedsoftware.mosaic.core.projection.numeric._
 import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._

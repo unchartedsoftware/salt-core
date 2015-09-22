@@ -45,7 +45,7 @@ res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,String
 We can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
 
 ```scala
-import com.unchartedsoftware.mosaic.core.projection._
+import com.unchartedsoftware.mosaic.core.projection.numeric._
 import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
@@ -100,7 +100,7 @@ result.map(t => (t.coords, t.bins))
 This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the Spark master.
 
 ```scala
-import com.unchartedsoftware.mosaic.core.projection._
+import com.unchartedsoftware.mosaic.core.projection.numeric._
 import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
