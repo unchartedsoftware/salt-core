@@ -50,6 +50,8 @@ import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileG
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
+import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
 // source DataFrame
@@ -57,21 +59,34 @@ import org.apache.spark.sql.Row
 val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
 frame.cache
 
-// create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
-val proj = new CartesianProjection(256, 256, 0, 1, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+// create a projection into 2D space using column 0 (pickup_time)
+// and column 1 (distance), and appropriate max/min bounds for both.
+// We use a ValueExtractor to retrieve these columns from rows
+val cExtractor = new ValueExtractor[(Double, Double)] {
+  override def rowToValue(r: Row): Option[(Double, Double)] = {
+    if (r.isNullAt(0) || r.isNullAt(1)) {
+      None
+    } else {
+      Some((r.get(0).asInstanceOf[Timestamp].getTime.toDouble, r.getDouble(1)))
+    }
+  }
+}
+val proj = new CartesianProjection(256, 256, 0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
 
-// our value extractor does nothing, since we're just counting records
-val extractor = new ValueExtractor[Double] {
+// since we're just counting records, we don't need to extract a third column value
+// if we were using a different aggregation function (such as mean()), we would
+// extract the value to average here.
+val vExtractor = new ValueExtractor[Double] {
   override def rowToValue(r: Row): Option[Double] = {
     return None
   }
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-val gen = new AccumulatorTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
+val gen = new AccumulatorTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, request)
@@ -90,6 +105,8 @@ import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGener
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
+import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
 // source DataFrame
@@ -97,8 +114,19 @@ import org.apache.spark.sql.Row
 val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
 frame.cache
 
-// create a projection into 2D space using column 0 (pickup_time) and column 1 (distance), and appropriate max/min bounds for both.
-val proj = new CartesianProjection(256, 256, 0, 1, 0, 1358725677000D, 1356998880000D, 1, 95.85D, 0)
+// create a projection into 2D space using column 0 (pickup_time)
+// and column 1 (distance), and appropriate max/min bounds for both.
+// We use a ValueExtractor to retrieve these columns from rows
+val cExtractor = new ValueExtractor[(Double, Double)] {
+  override def rowToValue(r: Row): Option[(Double, Double)] = {
+    if (r.isNullAt(0) || r.isNullAt(1)) {
+      None
+    } else {
+      Some((r.get(0).asInstanceOf[Timestamp].getTime.toDouble, r.getDouble(1)))
+    }
+  }
+}
+val proj = new CartesianProjection(256, 256, 0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
@@ -111,7 +139,7 @@ val extractor = new ValueExtractor[Double] {
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-@transient val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, extractor, CountAggregator, MaxMinAggregator)
+@transient val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, request)
