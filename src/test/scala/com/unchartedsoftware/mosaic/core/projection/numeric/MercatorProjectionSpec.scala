@@ -2,7 +2,6 @@ package com.unchartedsoftware.mosaic.core.projection.numeric
 
 import org.scalatest._
 import com.unchartedsoftware.mosaic.core.projection._
-import com.unchartedsoftware.mosaic.util._
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 

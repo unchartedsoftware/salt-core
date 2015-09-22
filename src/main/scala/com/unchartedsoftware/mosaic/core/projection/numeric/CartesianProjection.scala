@@ -3,6 +3,17 @@ package com.unchartedsoftware.mosaic.core.projection.numeric
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
+/**
+ * A projection into 2D cartesian (x,y) space
+ *
+ * @param xBins The width of a 2D tile in bins
+ * @param yBins The height of a 2D tile in bins
+ * @param minZoom the minimum zoom level which will be passed into rowToCoords()
+ * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
+ * @param source the ValueExtractor which will extract numeric data-space coordinate values (x,y) from a Row
+ * @param min the minimum value of a data-space coordinate (minX, minY)
+ * @param max the maximum value of a data-space coordinate (maxX, maxY)
+ */
 class CartesianProjection(
   val xBins: Int,
   val yBins: Int,

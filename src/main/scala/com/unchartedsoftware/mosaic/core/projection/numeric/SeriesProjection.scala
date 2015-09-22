@@ -3,6 +3,16 @@ package com.unchartedsoftware.mosaic.core.projection.numeric
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
+/**
+ * A projection into 1D (x) space
+ *
+ * @param bins The width of a 1D tile in bins
+ * @param minZoom the minimum zoom level which will be passed into rowToCoords()
+ * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
+ * @param source the ValueExtractor which will extract numeric data-space coordinate values (x) from a Row
+ * @param min the minimum value of a data-space coordinate (minX)
+ * @param max the maximum value of a data-space coordinate (maxX)
+ */
 class SeriesProjection(
   bins: Int,
   minZoom: Int,
