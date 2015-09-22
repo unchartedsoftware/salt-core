@@ -1,6 +1,6 @@
 package com.unchartedsoftware.mosaic.core.projection
 
-import com.unchartedsoftware.mosaic.core.analytic.ValueExtractor
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
 class MercatorProjection(

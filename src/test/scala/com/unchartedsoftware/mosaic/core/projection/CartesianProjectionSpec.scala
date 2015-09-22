@@ -2,7 +2,7 @@ package com.unchartedsoftware.mosaic.core.projection
 
 import org.scalatest._
 import com.unchartedsoftware.mosaic.core.projection._
-import com.unchartedsoftware.mosaic.core.analytic.ValueExtractor
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
 class CartesianProjectionSpec extends FunSpec {

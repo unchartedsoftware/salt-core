@@ -8,6 +8,7 @@ import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
 //define tests here so that scalatest stuff isn't serialized into spark closures

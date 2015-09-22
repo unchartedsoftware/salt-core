@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.projection
 import org.scalatest._
 import com.unchartedsoftware.mosaic.core.projection._
 import com.unchartedsoftware.mosaic.util._
-import com.unchartedsoftware.mosaic.core.analytic.ValueExtractor
+import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
 class MercatorProjectionSpec extends FunSpec {
@@ -89,8 +89,8 @@ class MercatorProjectionSpec extends FunSpec {
           assert(projection.getZoomLevel(coords.get._1) === 0, "check zoom level")
 
           //compute coordinates and bin for lat/lon manually
-          val lon = DataFrameUtil.getDouble(0, row)
-          val lat = DataFrameUtil.getDouble(1, row)
+          val lon = row.getDouble(0)
+          val lat = row.getDouble(1)
           val latRad = (-lat) * (Math.PI / 180);
           val n = 1 << 0;
           val howFarX = n * ((lon + 180) / 360);
@@ -128,8 +128,8 @@ class MercatorProjectionSpec extends FunSpec {
           assert(projection.getZoomLevel(coords.get._1) === 1, "check zoom level")
 
           //compute coordinates and bin for lat/lon manually
-          val lon = DataFrameUtil.getDouble(0, row)
-          val lat = DataFrameUtil.getDouble(1, row)
+          val lon = row.getDouble(0)
+          val lat = row.getDouble(1)
           val latRad = (-lat) * (Math.PI / 180);
           val n = 1 << 1;
           val howFarX = n * ((lon + 180) / 360);
