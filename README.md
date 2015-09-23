@@ -79,14 +79,14 @@ val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
 // since we're just counting records, we don't need to extract a third column value
 // if we were using a different aggregation function (such as mean()), we would
 // extract the value to average here.
-val vExtractor = new ValueExtractor[Double] {
-  override def rowToValue(r: Row): Option[Double] = {
+val vExtractor = new ValueExtractor[Any] {
+  override def rowToValue(r: Row): Option[Any] = {
     return None
   }
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-val gen = new AccumulatorTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
+val gen = new AccumulatorTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, request)
@@ -132,14 +132,14 @@ val proj = new CartesianProjection(256, 256, 0, 1, cExtractor, (1356998880000D, 
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
 
 // our value extractor does nothing, since we're just counting records
-val extractor = new ValueExtractor[Double] {
-  override def rowToValue(r: Row): Option[Double] = {
+val vExtractor = new ValueExtractor[Any] {
+  override def rowToValue(r: Row): Option[Any] = {
     return None
   }
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-@transient val gen = new MapReduceTileGenerator[(Int, Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
+@transient val gen = new MapReduceTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, request)
