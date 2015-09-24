@@ -30,6 +30,8 @@ This will mount the code directory into the container as a volume, allowing you 
 
 # Tiling
 
+## Data
+
 We need something to tile. Let's start with a small sample of the [NYC Taxi Dataset](http://www.andresmh.com/nyctaxitrips/), which can be [downloaded from here](http://assets.oculusinfo.com/pantera/taxi_micro.csv).
 
 Create a temp table called "taxi_micro" with the following schema:
@@ -40,64 +42,7 @@ scala> sqlContext.sql("select * from taxi_micro").schema
 res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,StringType,true), StructField(license,StringType,true), StructField(code,StringType,true), StructField(flag,IntegerType,true), StructField(type,StringType,true), StructField(pickup_time,TimestampType,true), StructField(dropoff_time,TimestampType,true), StructField(passengers,IntegerType,true), StructField(duration,IntegerType,true), StructField(distance,DoubleType,true), StructField(pickup_lon,DoubleType,true), StructField(pickup_lat,DoubleType,true), StructField(dropoff_lon,DoubleType,true), StructField(dropoff_lat,DoubleType,true))
 ```
 
-## Tiling with Accumulators
-
-We can generate 2D, non-geo tiles for count() at pickup_time x distance as follows:
-
-```scala
-import com.unchartedsoftware.mosaic.core.projection.numeric._
-import com.unchartedsoftware.mosaic.core.generation.accumulator.AccumulatorTileGenerator
-import com.unchartedsoftware.mosaic.core.analytic._
-import com.unchartedsoftware.mosaic.core.generation.request._
-import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.util.ValueExtractor
-import java.sql.Timestamp
-import org.apache.spark.sql.Row
-
-// source DataFrame
-// NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
-val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
-frame.cache
-
-// create a projection into 2D space using column 0 (pickup_time)
-// and column 1 (distance), and appropriate max/min bounds for both.
-// We use a ValueExtractor to retrieve these columns from rows
-val cExtractor = new ValueExtractor[(Double, Double)] {
-  override def rowToValue(r: Row): Option[(Double, Double)] = {
-    if (r.isNullAt(0) || r.isNullAt(1)) {
-      None
-    } else {
-      Some((r.get(0).asInstanceOf[Timestamp].getTime.toDouble, r.getDouble(1)))
-    }
-  }
-}
-val proj = new CartesianProjection(256, 256, 0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
-
-// which tiles are we generating?
-val request = new TileSeqRequest(Seq((0,0,0), (1,0,1)), proj)
-
-// since we're just counting records, we don't need to extract a third column value
-// if we were using a different aggregation function (such as mean()), we would
-// extract the value to average here.
-val vExtractor = new ValueExtractor[Any] {
-  override def rowToValue(r: Row): Option[Any] = {
-    return None
-  }
-}
-
-// Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-val gen = new AccumulatorTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
-
-// Flip the switch
-val result = gen.generate(frame, request)
-
-// Try to read some values from bins
-result.map(t => (t.coords, t.bins))
-```
-
-## Tiling with Map/Reduce
-
-This process is almost identical to accumulator tile generation, but with a slightly different final step since the generated tiles are distributed in an RDD instead of being shipped back to the Spark master.
+## Tile Generation
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection.numeric._
@@ -126,7 +71,7 @@ val cExtractor = new ValueExtractor[(Double, Double)] {
     }
   }
 }
-val proj = new CartesianProjection(256, 256, 0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
+val proj = new CartesianProjection(0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
@@ -142,7 +87,7 @@ val vExtractor = new ValueExtractor[Any] {
 @transient val gen = new MapReduceTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
-val result = gen.generate(frame, request)
+val result = gen.generate(frame, request, (256, 256))
 
 // Try to read some values from bins
 result.map(t => (t.coords, t.bins)).collect
@@ -177,14 +122,6 @@ Mosaic allows tile batches to be phrased in several ways:
 
  * TileSeqRequest (built from a Seq[TC] of tile coordinates, requesting specific tiles)
  * TileLevelRequest (built from a Seq[Int] of levels, requesting all tiles at those levels)
-
-## Generation
-
-Mosaic supports two strategies for tile generation:
-
- * **ActiveTileGenerator**: Produces a Seq[TileData]. In contrast with LazyTileGenerator, these tiles actually exist when generate() returns, since they have been pulled back to the Spark driver generate() returns (possibly because the driver needed to manipulate them somehow in a non-distributed fashion).
-
- * **LazyTileGenerator**: Produces an RDD[TileData] which only materializes when an operation pulls some or all of those tiles back to the Spark driver
 
 ## Serialization
 

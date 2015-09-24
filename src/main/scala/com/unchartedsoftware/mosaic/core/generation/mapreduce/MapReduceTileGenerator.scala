@@ -4,7 +4,7 @@ import com.unchartedsoftware.mosaic.core.analytic.Aggregator
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
-import com.unchartedsoftware.mosaic.core.generation.LazyTileGenerator
+import com.unchartedsoftware.mosaic.core.generation.TileGenerator
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
@@ -21,19 +21,21 @@ import scala.util.Try
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
+ * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
+ *            constructor and should be something that can be represented in 1 dimension.
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class MapReduceTileGenerator[TC: ClassTag, T, U: ClassTag, V, W, X](
+class MapReduceTileGenerator[TC: ClassTag, BC, T, U: ClassTag, V, W, X](
   sc: SparkContext,
-  projection: Projection[TC],
+  projection: Projection[TC, BC],
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
-extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
+extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
@@ -41,7 +43,8 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
    */
   private def transformData(
     data: RDD[Row],
-    bProjection: Broadcast[Projection[TC]],
+    tileSize: BC,
+    bProjection: Broadcast[Projection[TC, BC]],
     bExtractor: Broadcast[ValueExtractor[T]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Option[T]))] = {
     data.flatMap(r => {
@@ -50,12 +53,13 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
       //extract value for this row
       val value = bExtractor.value.rowToValue(r)
 
-      //map all input data to an RDD of (TC, (bin, Option[value]))
+      //map all input data to an RDD of (TC, (1Dbin, Option[value]))
       request.levels
       .flatMap(l => {
-        val coords = bProjection.value.rowToCoords(r, l)
+        val projection = bProjection.value
+        val coords = projection.rowToCoords(r, l, tileSize)
         if (coords.isDefined && request.inRequest(coords.get._1)) {
-          Seq((coords.get._1, (coords.get._2, value)))
+          Seq((coords.get._1, (projection.binTo1D(coords.get._2, tileSize), value)))
         } else {
           Seq()
         }
@@ -63,7 +67,7 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
     })
   }
 
-  def generate(data: RDD[Row], request: TileRequest[TC]): RDD[TileData[TC, V, X]] = {
+  def generate(data: RDD[Row], tileSize: BC, request: TileRequest[TC]): RDD[TileData[TC, V, X]] = {
     data.cache //ensure data is cached
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
@@ -74,11 +78,11 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD(TC, (bin, Option[value]))
-    val transformedData = transformData(data, bProjection, bExtractor, bRequest)
+    val transformedData = transformData(data, tileSize, bProjection, bExtractor, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.
-    val combiner = new MapReduceTileGeneratorCombiner[TC, T, U, V](bProjection, bExtractor, bBinAggregator)
+    val combiner = new MapReduceTileGeneratorCombiner[TC, BC, T, U, V](tileSize, bProjection, bExtractor, bBinAggregator)
 
     //do the work in a closure which is sanitized of all non-serializable things
     val result = _sanitizedClosureGenerate(
@@ -100,8 +104,8 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
 
   def _sanitizedClosureGenerate(
     transformedData: RDD[(TC, (Int, Option[T]))],
-    combiner: MapReduceTileGeneratorCombiner[TC, T, U, V],
-    bProjection: Broadcast[Projection[TC]],
+    combiner: MapReduceTileGeneratorCombiner[TC, BC, T, U, V],
+    bProjection: Broadcast[Projection[TC, BC]],
     bExtractor: Broadcast[ValueExtractor[T]],
     bBinAggregator: Broadcast[Aggregator[T, U, V]],
     bTileAggregator: Broadcast[Aggregator[V, W, X]]
@@ -132,10 +136,13 @@ extends LazyTileGenerator[TC, T, U, V, W, X](sc, projection, extractor, binAggre
   }
 }
 
-private class MapReduceTileGeneratorCombiner[TC, T, U: ClassTag, V](
-  bProjection: Broadcast[Projection[TC]],
+private class MapReduceTileGeneratorCombiner[TC, BC, T, U: ClassTag, V](
+  tileSize: BC,
+  bProjection: Broadcast[Projection[TC, BC]],
   bExtractor: Broadcast[ValueExtractor[T]],
   bBinAggregator: Broadcast[Aggregator[T, U, V]]) extends Serializable {
+
+  val maxBins = bProjection.value.binTo1D(tileSize, tileSize)
 
   //will store intermediate values for the bin analytic
   private def makeBins [A:ClassTag] (length: Int, default: A): Array[A] = {
@@ -145,7 +152,7 @@ private class MapReduceTileGeneratorCombiner[TC, T, U: ClassTag, V](
   //create a new combiner, with a fresh set of bins
   def createCombiner(firstValue: (Int, Option[T])): Array[U] = {
     val binAggregator = bBinAggregator.value
-    val bins: Array[U] = makeBins(bProjection.value.bins, binAggregator.default)
+    val bins: Array[U] = makeBins(maxBins, binAggregator.default)
     bins(firstValue._1) = binAggregator.add(binAggregator.default, firstValue._2)
     bins
   }
@@ -159,9 +166,8 @@ private class MapReduceTileGeneratorCombiner[TC, T, U: ClassTag, V](
 
   //how to merge combiners
   def mergeCombiners(r1: Array[U], r2: Array[U]): Array[U] = {
-    val limit = bProjection.value.bins
     val binAggregator = bBinAggregator.value
-    for (i <- 0 until limit) {
+    for (i <- 0 until maxBins) {
       r1(i) = binAggregator.merge(r1(i), r2(i))
     }
     r1

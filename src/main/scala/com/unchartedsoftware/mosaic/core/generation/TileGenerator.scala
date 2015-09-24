@@ -22,22 +22,25 @@ import scala.util.Try
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
+ * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
+ *            constructor and should be something that can be represented in 1 dimension.
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-abstract class LazyTileGenerator[TC, T, U: ClassTag, V, W, X](
+abstract class TileGenerator[TC, BC, T, U: ClassTag, V, W, X](
   sc: SparkContext,
-  projection: Projection[TC],
+  projection: Projection[TC,BC],
   extractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X]) {
 
   /**
    * @param data the RDD containing source data
+   * @param tileSize the size of the tiles in bins, expressed using type BC
    * @param request tiles requested for generation
    */
-  def generate(data: RDD[Row], request: TileRequest[TC]): RDD[TileData[TC, V, X]]
+  def generate(data: RDD[Row], tileSize: BC, request: TileRequest[TC]): RDD[TileData[TC, V, X]]
 }

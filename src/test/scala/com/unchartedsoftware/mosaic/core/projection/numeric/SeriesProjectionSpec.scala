@@ -14,7 +14,7 @@ class SeriesProjectionSpec extends FunSpec {
             return None
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0, 100)
+        val projection = new SeriesProjection(0, 1, extractor, 0, 100)
         val coord = (Math.round(Math.random*100).toInt, 0)
         assert(projection.getZoomLevel(coord) === coord._1)
       }
@@ -27,10 +27,10 @@ class SeriesProjectionSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0, 100)
+        val projection = new SeriesProjection(0, 1, extractor, 0, 100)
         val row = Row(12D)
         intercept[Exception] {
-          projection.rowToCoords(row, 2)
+          projection.rowToCoords(row, 2, 100)
         }
       }
 
@@ -40,8 +40,8 @@ class SeriesProjectionSpec extends FunSpec {
             return None
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0, 1)
-        assert(projection.rowToCoords(Row(Math.random), 0) === None)
+        val projection = new SeriesProjection(0, 1, extractor, 0, 1)
+        assert(projection.rowToCoords(Row(Math.random), 0, 100) === None)
       }
 
       it("should return None when a row's xCol is outside of the defined bounds") {
@@ -50,11 +50,11 @@ class SeriesProjectionSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0D, 1D)
-        assert(projection.rowToCoords(Row(projection.max+1), 0) === None)
-        assert(projection.rowToCoords(Row(projection.min-1), 0) === None)
-        assert(projection.rowToCoords(Row(projection.max), 0) === None)
-        assert(projection.rowToCoords(Row(projection.min), 0) === None)
+        val projection = new SeriesProjection(0, 1, extractor, 0D, 1D)
+        assert(projection.rowToCoords(Row(projection.max+1), 0, 100) === None)
+        assert(projection.rowToCoords(Row(projection.min-1), 0, 100) === None)
+        assert(projection.rowToCoords(Row(projection.max), 0, 100) === None)
+        assert(projection.rowToCoords(Row(projection.min), 0, 100) === None)
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
@@ -63,11 +63,11 @@ class SeriesProjectionSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0D, 1D)
+        val projection = new SeriesProjection(0, 1, extractor, 0D, 1D)
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Row(Math.random)
-          val coords = projection.rowToCoords(row, 0)
+          val coords = projection.rowToCoords(row, 0, 100)
           assert(coords.isDefined)
 
           //check zoom level
@@ -87,11 +87,11 @@ class SeriesProjectionSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(100, 0, 1, extractor, 0D, 1D)
+        val projection = new SeriesProjection(0, 1, extractor, 0D, 1D)
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Row(Math.random)
-          val coords = projection.rowToCoords(row, 1)
+          val coords = projection.rowToCoords(row, 1, 100)
           assert(coords.isDefined)
 
           //check zoom level
@@ -103,6 +103,22 @@ class SeriesProjectionSpec extends FunSpec {
           //check bin
           val bin = ( (row.getDouble(0)*200) % 100).toInt
           assert(coords.get._2 === bin, "check bin index")
+        }
+      }
+    }
+
+    describe("#binTo1D()") {
+      it("should be a no-op, returning the xBin passed in") {
+        val extractor = new ValueExtractor[Double] {
+          override def rowToValue(r: Row): Option[Double] = {
+            return None
+          }
+        }
+        val projection = new SeriesProjection(0, 1, extractor, 0D, 1D)
+        //fuzz inputs
+        for (i <- 0 until 100) {
+          val bin = Math.round(Math.random*99).toInt
+          assert(projection.binTo1D(bin, 100) === bin)
         }
       }
     }

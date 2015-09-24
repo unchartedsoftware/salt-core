@@ -6,8 +6,6 @@ import org.apache.spark.sql.Row
 /**
  * A projection into 2D cartesian (x,y) space
  *
- * @param xBins The width of a 2D tile in bins
- * @param yBins The height of a 2D tile in bins
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
  * @param source the ValueExtractor which will extract numeric data-space coordinate values (x,y) from a Row
@@ -15,13 +13,11 @@ import org.apache.spark.sql.Row
  * @param max the maximum value of a data-space coordinate (maxX, maxY)
  */
 class CartesianProjection(
-  val xBins: Int,
-  val yBins: Int,
   minZoom: Int,
   maxZoom: Int,
   source: ValueExtractor[(Double, Double)],
   min: (Double, Double),
-  max: (Double, Double)) extends NumericProjection[(Int, Int, Int), (Double, Double)](xBins*yBins, minZoom, maxZoom, source, min, max) {
+  max: (Double, Double)) extends NumericProjection[(Int, Int, Int), (Int, Int), (Double, Double)](minZoom, maxZoom, source, min, max) {
 
   //Precompute some stuff we'll use frequently
   val _xRange = max._1 - min._1
@@ -39,7 +35,7 @@ class CartesianProjection(
     c._1
   }
 
-  override def rowToCoords (r: Row, z: Int): Option[((Int, Int, Int), Int)] = {
+  override def rowToCoords (r: Row, z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
@@ -63,10 +59,14 @@ class CartesianProjection(
         var howFarY = scaledDataY * tileCounts(z)
         var x = howFarX.toInt
         var y = howFarY.toInt
-        var xBin = ((howFarX - x)*xBins).toInt
-        var yBin = (yBins-1) - ((howFarY - y)*yBins).toInt
-        Some(((z, x, y), xBin + yBin*xBins))
+        var xBin = ((howFarX - x)*maxBin._1).toInt
+        var yBin = (maxBin._2-1) - ((howFarY - y)*maxBin._2).toInt
+        Some(((z, x, y), (xBin, yBin)))
       }
     }
+  }
+
+  override def binTo1D(bin: (Int, Int), maxBin: (Int, Int)): Int = {
+    bin._1 + bin._2*maxBin._1
   }
 }

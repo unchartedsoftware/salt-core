@@ -6,7 +6,6 @@ import org.apache.spark.sql.Row
 /**
  * A projection into 1D (x) space
  *
- * @param bins The width of a 1D tile in bins
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
  * @param source the ValueExtractor which will extract numeric data-space coordinate values (x) from a Row
@@ -14,12 +13,11 @@ import org.apache.spark.sql.Row
  * @param max the maximum value of a data-space coordinate (maxX)
  */
 class SeriesProjection(
-  bins: Int,
   minZoom: Int,
   maxZoom: Int,
   source: ValueExtractor[Double],
   min: Double,
-  max: Double) extends NumericProjection[(Int, Int), Double](bins, minZoom, maxZoom, source, min, max) {
+  max: Double) extends NumericProjection[(Int, Int), Int, Double](minZoom, maxZoom, source, min, max) {
 
   //Precompute some stuff we'll use frequently
   val _range = max - min
@@ -35,7 +33,7 @@ class SeriesProjection(
     c._1
   }
 
-  override def rowToCoords (r: Row, z: Int): Option[((Int, Int), Int)] = {
+  override def rowToCoords (r: Row, z: Int, maxBin: Int): Option[((Int, Int), Int)] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
@@ -53,9 +51,13 @@ class SeriesProjection(
         //compute all tile/bin coordinates (z, x, y, bX, bY)
         var howFarX = scaledDataX * tileCounts(z)
         var x = howFarX.toInt
-        var xBin = ((howFarX - x)*bins).toInt
+        var xBin = ((howFarX - x)*maxBin).toInt
         Some(((z, x), xBin))
       }
     }
+  }
+
+  override def binTo1D(bin: Int, maxBin: Int): Int = {
+    bin
   }
 }
