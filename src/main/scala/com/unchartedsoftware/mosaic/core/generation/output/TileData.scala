@@ -19,7 +19,7 @@ class TileData[TC, V, X](
   val binsTouched: Int,
   val defaultBinValue: V,
   val tileMeta: X,
-  val projection: Projection[TC,_]) extends Serializable {
+  val projection: Projection[_,TC,_]) extends Serializable {
 
   def getBin(bin: Int): V = {
     return bins(bin)

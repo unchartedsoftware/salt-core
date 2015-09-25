@@ -16,26 +16,30 @@ import scala.util.Try
 /**
  * Tile Generator which utilizes a map/reduce approach to
  * generating large tile sets.
- * @param projection the  projection from data to some space (i.e. 2D or 1D)
- * @param extractor a mechanism for grabbing the "value" column from a source record
+ * @param sc a SparkContext
+ * @param cExtractor a mechanism for grabbing the data-space coordinates from a source record
+ * @param projection the projection from data to some space (i.e. 2D or 1D)
+ * @param vExtractor a mechanism for grabbing the "value" column from a source record
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
  *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam DC the abstract type representing a data-space coordinate
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class MapReduceTileGenerator[TC: ClassTag, BC, T, U: ClassTag, V, W, X](
+class MapReduceTileGenerator[DC, TC: ClassTag, BC, T, U: ClassTag, V, W, X](
   sc: SparkContext,
-  projection: Projection[TC, BC],
-  extractor: ValueExtractor[T],
+  cExtractor: ValueExtractor[DC],
+  projection: Projection[DC, TC, BC],
+  vExtractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X])(implicit tileCoordManifest: Manifest[TC])
-extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggregator, tileAggregator) {
+extends TileGenerator[DC, TC, BC, T, U, V, W, X](sc, cExtractor, projection, vExtractor, binAggregator, tileAggregator) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
@@ -44,20 +48,23 @@ extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggre
   private def transformData(
     data: RDD[Row],
     tileSize: BC,
-    bProjection: Broadcast[Projection[TC, BC]],
-    bExtractor: Broadcast[ValueExtractor[T]],
+    bCExtractor: Broadcast[ValueExtractor[DC]],
+    bProjection: Broadcast[Projection[DC, TC, BC]],
+    bVExtractor: Broadcast[ValueExtractor[T]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Option[T]))] = {
     data.flatMap(r => {
 
       val request = bRequest.value
+      //extract data-space coordinates for this row
+      val dCoords = bCExtractor.value.rowToValue(r)
       //extract value for this row
-      val value = bExtractor.value.rowToValue(r)
+      val value = bVExtractor.value.rowToValue(r)
 
       //map all input data to an RDD of (TC, (1Dbin, Option[value]))
       request.levels
       .flatMap(l => {
         val projection = bProjection.value
-        val coords = projection.rowToCoords(r, l, tileSize)
+        val coords = projection.project(dCoords, l, tileSize)
         if (coords.isDefined && request.inRequest(coords.get._1)) {
           Seq((coords.get._1, (projection.binTo1D(coords.get._2, tileSize), value)))
         } else {
@@ -72,30 +79,32 @@ extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggre
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
     val bProjection = sc.broadcast(projection)
-    val bExtractor = sc.broadcast(extractor)
+    val bCExtractor = sc.broadcast(cExtractor)
+    val bVExtractor = sc.broadcast(vExtractor)
     val bBinAggregator = sc.broadcast(binAggregator)
     val bTileAggregator = sc.broadcast(tileAggregator)
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD(TC, (bin, Option[value]))
-    val transformedData = transformData(data, tileSize, bProjection, bExtractor, bRequest)
+    val transformedData = transformData(data, tileSize, bCExtractor, bProjection, bVExtractor, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.
-    val combiner = new MapReduceTileGeneratorCombiner[TC, BC, T, U, V](tileSize, bProjection, bExtractor, bBinAggregator)
+    val combiner = new MapReduceTileGeneratorCombiner[DC, TC, BC, T, U, V](tileSize, bProjection, bVExtractor, bBinAggregator)
 
     //do the work in a closure which is sanitized of all non-serializable things
     val result = _sanitizedClosureGenerate(
                     transformedData,
                     combiner,
                     bProjection,
-                    bExtractor,
+                    bVExtractor,
                     bBinAggregator,
                     bTileAggregator)
 
     bRequest.unpersist
+    bCExtractor.unpersist
     bProjection.unpersist
-    bExtractor.unpersist
+    bVExtractor.unpersist
     bBinAggregator.unpersist
     bTileAggregator.unpersist
 
@@ -104,9 +113,9 @@ extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggre
 
   def _sanitizedClosureGenerate(
     transformedData: RDD[(TC, (Int, Option[T]))],
-    combiner: MapReduceTileGeneratorCombiner[TC, BC, T, U, V],
-    bProjection: Broadcast[Projection[TC, BC]],
-    bExtractor: Broadcast[ValueExtractor[T]],
+    combiner: MapReduceTileGeneratorCombiner[DC, TC, BC, T, U, V],
+    bProjection: Broadcast[Projection[DC, TC, BC]],
+    bVExtractor: Broadcast[ValueExtractor[T]],
     bBinAggregator: Broadcast[Aggregator[T, U, V]],
     bTileAggregator: Broadcast[Aggregator[V, W, X]]
   ): RDD[TileData[TC, V, X]] = {
@@ -136,10 +145,10 @@ extends TileGenerator[TC, BC, T, U, V, W, X](sc, projection, extractor, binAggre
   }
 }
 
-private class MapReduceTileGeneratorCombiner[TC, BC, T, U: ClassTag, V](
+private class MapReduceTileGeneratorCombiner[DC, TC, BC, T, U: ClassTag, V](
   tileSize: BC,
-  bProjection: Broadcast[Projection[TC, BC]],
-  bExtractor: Broadcast[ValueExtractor[T]],
+  bProjection: Broadcast[Projection[DC, TC, BC]],
+  bVExtractor: Broadcast[ValueExtractor[T]],
   bBinAggregator: Broadcast[Aggregator[T, U, V]]) extends Serializable {
 
   val maxBins = bProjection.value.binTo1D(tileSize, tileSize)

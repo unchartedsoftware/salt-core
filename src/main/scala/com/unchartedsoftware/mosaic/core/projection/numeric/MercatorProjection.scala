@@ -8,16 +8,14 @@ import org.apache.spark.sql.Row
  *
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
- * @param source the ValueExtractor which will extract numeric data-space coordinate values (lon,lat) from a Row
  * @param min the minimum value of a data-space coordinate (minLon, minLat)
  * @param max the maximum value of a data-space coordinate (maxLon, maxLat)
  */
 class MercatorProjection(
   minZoom: Int,
   maxZoom: Int,
-  source: ValueExtractor[(Double, Double)],
   min: (Double, Double),
-  max: (Double, Double)) extends NumericProjection[(Int, Int, Int), (Int, Int), (Double, Double)](minZoom, maxZoom, source, min, max) {
+  max: (Double, Double)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](minZoom, maxZoom, min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
   val _internalMinX = Math.max(min._1, -180);
@@ -37,14 +35,11 @@ class MercatorProjection(
     c._1
   }
 
-  override def rowToCoords (r: Row, z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
+  override def project (dCoords: Option[(Double, Double)], z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
       //with help from https://developer.here.com/rest-apis/documentation/traffic/topics/mercator-projection.html
-
-      //retrieve values from row
-      val dCoords = source.rowToValue(r)
 
       if (!dCoords.isDefined) {
         None

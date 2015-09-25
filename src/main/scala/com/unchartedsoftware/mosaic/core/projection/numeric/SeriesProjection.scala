@@ -8,16 +8,14 @@ import org.apache.spark.sql.Row
  *
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
- * @param source the ValueExtractor which will extract numeric data-space coordinate values (x) from a Row
  * @param min the minimum value of a data-space coordinate (minX)
  * @param max the maximum value of a data-space coordinate (maxX)
  */
 class SeriesProjection(
   minZoom: Int,
   maxZoom: Int,
-  source: ValueExtractor[Double],
   min: Double,
-  max: Double) extends NumericProjection[(Int, Int), Int, Double](minZoom, maxZoom, source, min, max) {
+  max: Double) extends NumericProjection[Double, (Int, Int), Int](minZoom, maxZoom, min, max) {
 
   //Precompute some stuff we'll use frequently
   val _range = max - min
@@ -33,12 +31,10 @@ class SeriesProjection(
     c._1
   }
 
-  override def rowToCoords (r: Row, z: Int, maxBin: Int): Option[((Int, Int), Int)] = {
+  override def project (xValue: Option[Double], z: Int, maxBin: Int): Option[((Int, Int), Int)] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
-      //retrieve value from row
-      val xValue = source.rowToValue(r)
       if (!xValue.isDefined) {
         None
       } else if (xValue.get >= max || xValue.get <= min) {

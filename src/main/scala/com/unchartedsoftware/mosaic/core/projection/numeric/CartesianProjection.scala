@@ -8,16 +8,14 @@ import org.apache.spark.sql.Row
  *
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
- * @param source the ValueExtractor which will extract numeric data-space coordinate values (x,y) from a Row
  * @param min the minimum value of a data-space coordinate (minX, minY)
  * @param max the maximum value of a data-space coordinate (maxX, maxY)
  */
 class CartesianProjection(
   minZoom: Int,
   maxZoom: Int,
-  source: ValueExtractor[(Double, Double)],
   min: (Double, Double),
-  max: (Double, Double)) extends NumericProjection[(Int, Int, Int), (Int, Int), (Double, Double)](minZoom, maxZoom, source, min, max) {
+  max: (Double, Double)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](minZoom, maxZoom, min, max) {
 
   //Precompute some stuff we'll use frequently
   val _xRange = max._1 - min._1
@@ -35,13 +33,10 @@ class CartesianProjection(
     c._1
   }
 
-  override def rowToCoords (r: Row, z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
+  override def project (dCoords: Option[(Double, Double)], z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
     } else {
-      //retrieve values from row
-      val dCoords = source.rowToValue(r)
-
       if (!dCoords.isDefined) {
         None
       } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {

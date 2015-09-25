@@ -17,8 +17,10 @@ import scala.util.Try
  * Produces an RDD[TileData] which only materializes when an operation pulls
  * some or all of those tiles back to the Spark driver
  *
+ * @param sc a SparkContext
+ * @param cExtractor a mechanism for grabbing the data-space coordinates from a source record
  * @param projection the  projection from data to some space (i.e. 2D or 1D)
- * @param extractor a mechanism for grabbing or synthesizing the "value" column from a source record
+ * @param vExtractor a mechanism for grabbing or synthesizing the "value" column from a source record
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
@@ -30,10 +32,11 @@ import scala.util.Try
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-abstract class TileGenerator[TC, BC, T, U: ClassTag, V, W, X](
+abstract class TileGenerator[DC, TC, BC, T, U: ClassTag, V, W, X](
   sc: SparkContext,
-  projection: Projection[TC,BC],
-  extractor: ValueExtractor[T],
+  cExtractor: ValueExtractor[DC],
+  projection: Projection[DC,TC,BC],
+  vExtractor: ValueExtractor[T],
   binAggregator: Aggregator[T, U, V],
   tileAggregator: Aggregator[V, W, X]) {
 

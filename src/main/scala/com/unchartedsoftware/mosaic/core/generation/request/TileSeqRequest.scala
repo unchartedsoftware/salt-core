@@ -5,7 +5,7 @@ import com.unchartedsoftware.mosaic.core.projection.Projection
 /**
  * A TileRequest which takes the form of a Seq of tile coordinates
  */
-class TileSeqRequest[TC](tiles: Seq[TC], projection: Projection[TC,_]) extends TileRequest[TC] {
+class TileSeqRequest[TC](tiles: Seq[TC], projection: Projection[_,TC,_]) extends TileRequest[TC] {
 
   private val _levels = tiles.map(c => projection.getZoomLevel(c)).distinct
   private val _tileMap = tiles.map(c => (c, true)).toMap

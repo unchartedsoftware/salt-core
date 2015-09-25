@@ -5,12 +5,13 @@ import org.apache.spark.sql.Row
 /**
  * @param minZoom the minimum zoom level which will be passed into rowToCoords()
  * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
+ * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a
  *            zero-arg constructor.
  * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
  *            constructor and should be something that can be represented in 1 dimension.
  */
-abstract class Projection[TC, BC](
+abstract class Projection[DC, TC, BC](
   val minZoom: Int,
   val maxZoom: Int
 ) extends Serializable {
@@ -23,12 +24,12 @@ abstract class Projection[TC, BC](
 
   /**
    * Project a data-space coordinate into the corresponding tile coordinate and bin coordinate
-   * @param r the Row to retrieve data from
+   * @param dc the data-space coordinate
    * @param z the zoom level
    * @param maxBin the size of a tile
    * @return Some[(TC, Int)] representing the tile coordinate and bin index if the given row is within the bounds of the viz. None otherwise.
    */
-  def rowToCoords(r: Row, z: Int, maxBin: BC): Option[(TC, BC)]
+  def project(dc: Option[DC], z: Int, maxBin: BC): Option[(TC, BC)]
 
   /**
    * Project a bin index BC into 1 dimension for easy storage of bin values in an array
