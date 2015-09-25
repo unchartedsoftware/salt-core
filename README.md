@@ -87,7 +87,7 @@ val vExtractor = new ValueExtractor[Any] {
 @transient val gen = new MapReduceTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
-val result = gen.generate(frame, request, (256, 256))
+val result = gen.generate(frame, (32, 32), request)
 
 // Try to read some values from bins
 result.map(t => (t.coords, t.bins)).collect
