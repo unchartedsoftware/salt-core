@@ -59,9 +59,8 @@ import org.apache.spark.sql.Row
 val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
 frame.cache
 
-// create a projection into 2D space using column 0 (pickup_time)
-// and column 1 (distance), and appropriate max/min bounds for both.
-// We use a ValueExtractor to retrieve these columns from rows
+// We use a ValueExtractor to retrieve data-space coordinates from rows
+// In this case, that's column 0 (pickup_time, converted to a double millisecond value) and column 1 (distance)
 val cExtractor = new ValueExtractor[(Double, Double)] {
   override def rowToValue(r: Row): Option[(Double, Double)] = {
     if (r.isNullAt(0) || r.isNullAt(1)) {
@@ -71,7 +70,9 @@ val cExtractor = new ValueExtractor[(Double, Double)] {
     }
   }
 }
-val proj = new CartesianProjection(0, 1, cExtractor, (1356998880000D, 0), (1358725677000D, 95.85D))
+
+// create a projection from data-space into 2D tile space
+val proj = new CartesianProjection(0, 1, (1356998880000D, 0), (1358725677000D, 95.85D))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
@@ -84,7 +85,7 @@ val vExtractor = new ValueExtractor[Any] {
 }
 
 // Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-@transient val gen = new MapReduceTileGenerator(sc, proj, vExtractor, CountAggregator, MaxMinAggregator)
+@transient val gen = new MapReduceTileGenerator(sc, cExtractor, proj, vExtractor, CountAggregator, MaxMinAggregator)
 
 // Flip the switch
 val result = gen.generate(frame, (32, 32), request)
