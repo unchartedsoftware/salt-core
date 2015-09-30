@@ -29,7 +29,7 @@ import scala.reflect.ClassTag
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-abstract class Series[DC, TC, BC, T, U, V, W, X](
+class Series[DC, TC, BC, T, U, V, W, X](
   val tileSize: BC,
   val cExtractor: ValueExtractor[DC],
   val projection: Projection[DC,TC,BC],

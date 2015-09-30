@@ -4,7 +4,7 @@ import com.unchartedsoftware.mosaic.core.analytic.Aggregator
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
-import com.unchartedsoftware.mosaic.core.generation.TileGenerator
+import com.unchartedsoftware.mosaic.core.generation.{Series, TileGenerator}
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
@@ -30,7 +30,7 @@ extends TileGenerator[TC](sc) {
    */
   private def transformData(
     data: RDD[Row],
-    bSeries: Broadcast[Seq[MapReduceSeries[_,TC,_,_,_,_,_,_]]],
+    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
 
     data.flatMap(r => {
@@ -55,11 +55,13 @@ extends TileGenerator[TC](sc) {
     })
   }
 
-  def generate(data: RDD[Row], series: Seq[MapReduceSeries[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
+  def generate(data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
     data.cache //ensure data is cached
 
+    val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
+
     //broadcast stuff we'll use on the workers throughout our tilegen process
-    val bSeries = sc.broadcast(series)
+    val bSeries = sc.broadcast(mSeries)
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD
@@ -84,7 +86,7 @@ extends TileGenerator[TC](sc) {
   def _sanitizedClosureGenerate(
     transformedData: RDD[(TC, (Int, (Int, Option[_])))],
     combiner: MapReduceTileGeneratorCombiner[TC],
-    bSeries: Broadcast[Seq[MapReduceSeries[_,TC,_,_,_,_,_,_]]]
+    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]]
   ): RDD[Seq[TileData[TC,_,_]]] = {
     //Do the actual combineByKey to produce finished bin data
     val tileData = transformedData.combineByKey(
@@ -98,15 +100,16 @@ extends TileGenerator[TC](sc) {
       val series = bSeries.value
       val buff = new ArrayBuffer[TileData[TC,_,_]](series.length)
       for(s <- 0 until series.length) {
-        buff.append(series(s).finish(t._2(s)))
+        buff.append(series(s).finish((t._1, t._2(s))))
       }
       buff.toSeq
     })
   }
 }
 
+//Just an easy way to define closures for combineByKey
 private class MapReduceTileGeneratorCombiner[TC](
-  bSeries: Broadcast[Seq[MapReduceSeries[_,TC,_,_,_,_,_,_]]]) extends Serializable {
+  bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]]) extends Serializable {
 
   //create a new combiner, with a fresh set of bins
   def createCombiner(firstValue: (Int, (Int, Option[_]))): Array[Array[_]] = {
@@ -135,5 +138,93 @@ private class MapReduceTileGeneratorCombiner[TC](
       series(s).merge(r1(s), r2(s))
     }
     r1
+  }
+}
+
+/**
+ * Isolates all type-aware stuff which operates on a Series into a single object
+ * Wrapper method allow the MapReduceTileGenerator to ignore the types within
+ * individual series.
+ */
+private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W, X](
+  series: Series[DC, TC, BC, T, U, V, W, X]) extends Serializable {
+
+  private val maxBins = series.projection.binTo1D(series.tileSize, series.tileSize)
+
+  /**
+   * Combines cExtractor with projection to produce an intermediate
+   * result for each Row which is useful to a TileGenerator
+   *
+   * @param row a Row to project and retrieve a value from for aggregation
+   * @param z the zoom level
+   * @return Option[(TC, (Int, Option[T]))] a tile coordinate along with the 1D bin index and the extracted value column
+   */
+  def projectAndTransform(row: Row, z: Int): Option[(TC, (Int, Option[T]))] = {
+    val coord = series.projection.project(series.cExtractor.rowToValue(row), z, series.tileSize)
+    if (coord.isDefined) {
+      Some(
+        (coord.get._1,
+          (series.projection.binTo1D(coord.get._2, series.tileSize),series.vExtractor.rowToValue(row))
+        )
+      )
+    } else {
+      None
+    }
+  }
+
+  /**
+   * @return A fresh buffer to store intermediate values for the bin analytic
+   */
+  def makeBins(): Array[U] = {
+    Array.fill[U](maxBins)(series.binAggregator.default)
+  }
+
+  /**
+   * Add a value to a buffer using the binAggregator
+   * @param buffer an existing buffer
+   * @param newValue a 1D bin coordinate and an extracted value to aggregate into that bin
+   * @return the existing buffer with newValue aggregated into the correct bin
+   */
+  def add(buffer: Array[_], newValue: (Int, Option[_])): Array[U] = {
+    val uBuffer = buffer.asInstanceOf[Array[U]]
+    uBuffer(newValue._1) = series.binAggregator.add(uBuffer(newValue._1), newValue._2.asInstanceOf[Option[T]])
+    uBuffer
+  }
+
+  /**
+   * Merge two buffers using the binAggregator
+   * @param r1 the first buffer
+   * @param r2 the second buffer
+   * @return a merged buffer. Neither r1 nor r2 should be used after this, since one is reused.
+   */
+  def merge(r1: Array[_], r2: Array[_]): Array[U] = {
+    val uR1 = r1.asInstanceOf[Array[U]]
+    val uR2 = r2.asInstanceOf[Array[U]]
+    for (i <- 0 until maxBins) {
+      uR1(i) = series.binAggregator.merge(uR1(i), uR2(i))
+    }
+    uR1
+  }
+
+  /**
+   * Converts a set of intermediate bin values into a finished
+   * TileData object by finish()ing the bins and applying the
+   * tileAggregator
+   *
+   * @param binData a tuple consisting of a tile coordinate and the intermediate bin values
+   * @return a finished TileData object
+   */
+  def finish(binData: (TC, Array[_])): TileData[TC, V, X] = {
+    var tile: W = series.tileAggregator.default
+    val key = binData._1
+    var binsTouched = 0
+
+    val finishedBins = binData._2.asInstanceOf[Array[U]].map(a => {
+      if (!a.equals(series.binAggregator.default)) binsTouched+=1
+      val bin = series.binAggregator.finish(a)
+      tile = series.tileAggregator.add(tile, Some(bin))
+      bin
+    })
+    new TileData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), series.tileAggregator.finish(tile), series.projection)
   }
 }
