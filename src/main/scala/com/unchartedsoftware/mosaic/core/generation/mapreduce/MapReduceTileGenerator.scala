@@ -115,13 +115,13 @@ private class MapReduceTileGeneratorCombiner[TC](
   def createCombiner(firstValue: (Int, (Int, Option[_]))): Array[Array[_]] = {
     val buff = new ArrayBuffer[Array[_]]
     val series = bSeries.value
+    //create empty bins with default values, for each series
     for (s <- 0 until series.length) {
       var b = series(s).makeBins
-      if (firstValue._1 == s) {
-        b = series(s).add(b, firstValue._2)
-      }
       buff.append(b)
     }
+    //add the first value to the appropriate set of bins
+    series(firstValue._1).add(buff(firstValue._1), firstValue._2)
     buff.toArray
   }
 

@@ -4,6 +4,7 @@ import org.scalatest._
 import com.unchartedsoftware.mosaic.Spark
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.projection.numeric._
+import com.unchartedsoftware.mosaic.core.generation.Series
 import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
@@ -27,10 +28,17 @@ object MapReduceTileGeneratorSpecClosure {
     var frame = Spark.sc.parallelize(data.map(a => Row(a)))
 
     //create generator
-    val gen = new MapReduceTileGenerator(Spark.sc, cExtractor, projection, vExtractor, CountAggregator, MaxMinAggregator)
+    val gen = new MapReduceTileGenerator[(Int, Int)](Spark.sc)
+
+    //create Series
+    val series = Seq(
+      new Series(bins, cExtractor, projection, vExtractor, CountAggregator, MaxMinAggregator)
+    )
 
     //kickoff generation
-    gen.generate(frame, bins, request).collect
+    gen.generate(frame, series, request).collect.map(s => {
+      s(0).asInstanceOf[TileData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+    })
   }
 }
 
@@ -152,6 +160,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
           j = j + 2
         }
       }
+
+      //TODO test multiple series
     }
   }
 }

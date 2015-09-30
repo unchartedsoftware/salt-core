@@ -20,6 +20,7 @@ import scala.reflect.ClassTag
  * @param vExtractor a mechanism for grabbing or synthesizing the "value" column from a source record
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy
+ * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
  *            constructor and should be something that can be represented in 1 dimension.
