@@ -25,7 +25,7 @@ class TileDataSpec extends FunSpec {
     describe("#getBin()") {
       it("should return the correct bin based on an index") {
         val bins = Seq(0,1,2,3)
-        val data = new TileData[(Int, Int), Int, Int]((0, 0), bins, 3, 2, 0, projection)
+        val data = new TileData[(Int, Int), Int, Int]((0, 0), bins, 3, 2, Some(0), projection)
         for (i <- 0 until bins.length) {
           assert(data.getBin(i).equals(bins(i)))
         }

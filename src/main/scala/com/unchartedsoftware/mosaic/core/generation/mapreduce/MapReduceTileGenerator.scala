@@ -143,12 +143,12 @@ private class MapReduceTileGeneratorCombiner[TC](
 
 /**
  * Isolates all type-aware stuff which operates on a Series into a single object
- * 
+ *
  * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
  * individual series.
  */
-private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W, X](
-  series: Series[DC, TC, BC, T, U, V, W, X]) extends Serializable {
+private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
+  series: Series[DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
 
   private val maxBins = series.projection.binTo1D(series.tileSize, series.tileSize)
 
@@ -163,9 +163,13 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W, X](
   def projectAndTransform(row: Row, z: Int): Option[(TC, (Int, Option[T]))] = {
     val coord = series.projection.project(series.cExtractor.rowToValue(row), z, series.tileSize)
     if (coord.isDefined) {
+      val value: Option[T] = series.vExtractor match {
+        case None => None
+        case _ => series.vExtractor.get.rowToValue(row)
+      }
       Some(
         (coord.get._1,
-          (series.projection.binTo1D(coord.get._2, series.tileSize),series.vExtractor.rowToValue(row))
+          (series.projection.binTo1D(coord.get._2, series.tileSize),value)
         )
       )
     } else {
@@ -216,16 +220,26 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W, X](
    * @return a finished TileData object
    */
   def finish(binData: (TC, Array[_])): TileData[TC, V, X] = {
-    var tile: W = series.tileAggregator.default
+    var tile: W = series.tileAggregator match {
+      case None => tileIntermediateManifest.runtimeClass.newInstance.asInstanceOf[W]
+      case _ => series.tileAggregator.get.default
+    }
     val key = binData._1
     var binsTouched = 0
 
     val finishedBins = binData._2.asInstanceOf[Array[U]].map(a => {
       if (!a.equals(series.binAggregator.default)) binsTouched+=1
       val bin = series.binAggregator.finish(a)
-      tile = series.tileAggregator.add(tile, Some(bin))
+      if (series.tileAggregator.isDefined) {
+        tile = series.tileAggregator.get.add(tile, Some(bin))
+      }
       bin
     })
-    new TileData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), series.tileAggregator.finish(tile), series.projection)
+
+    val finishedTile: Option[X] = series.tileAggregator match {
+      case None => None
+      case _ => Some(series.tileAggregator.get.finish(tile))
+    }
+    new TileData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile, series.projection)
   }
 }
