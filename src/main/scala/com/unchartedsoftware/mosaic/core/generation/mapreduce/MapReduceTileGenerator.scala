@@ -26,7 +26,7 @@ extends TileGenerator[TC](sc) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
-   * rows which contain a key(series id, tile coordinate), a bin and a value.
+   * rows which contain a key (tile coordinate), a series ID, and a (bin, value).
    */
   private def transformData(
     data: RDD[Row],
@@ -143,7 +143,8 @@ private class MapReduceTileGeneratorCombiner[TC](
 
 /**
  * Isolates all type-aware stuff which operates on a Series into a single object
- * Wrapper method allow the MapReduceTileGenerator to ignore the types within
+ * 
+ * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
  * individual series.
  */
 private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W, X](

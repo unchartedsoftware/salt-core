@@ -46,6 +46,7 @@ res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,String
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection.numeric._
+import com.unchartedsoftware.mosaic.core.generation.Series
 import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
@@ -53,11 +54,6 @@ import com.unchartedsoftware.mosaic.core.analytic.numeric._
 import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import java.sql.Timestamp
 import org.apache.spark.sql.Row
-
-// source DataFrame
-// NOTE: It is STRONGLY recommended that you filter your input DataFrame down to only the columns you need for tiling.
-val frame = sqlContext.sql("select pickup_time, distance from taxi_micro").rdd
-frame.cache
 
 // We use a ValueExtractor to retrieve data-space coordinates from rows
 // In this case, that's column 0 (pickup_time, converted to a double millisecond value) and column 1 (distance)
@@ -72,10 +68,7 @@ val cExtractor = new ValueExtractor[(Double, Double)] {
 }
 
 // create a projection from data-space into 2D tile space
-val proj = new CartesianProjection(0, 1, (1356998880000D, 0), (1358725677000D, 95.85D))
-
-// which tiles are we generating?
-val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), proj)
+val projection = new CartesianProjection(0, 1, (1356998880000D, 0), (1358725677000D, 95.85D))
 
 // our value extractor does nothing, since we're just counting records
 val vExtractor = new ValueExtractor[Any] {
@@ -84,14 +77,22 @@ val vExtractor = new ValueExtractor[Any] {
   }
 }
 
-// Tile Generator, with appropriate coord, input, intermediate and output types for bin and tile aggregators (CountAggregator and MaxMinAggregator, in this case)
-@transient val gen = new MapReduceTileGenerator(sc, cExtractor, proj, vExtractor, CountAggregator, MaxMinAggregator)
+// A series ties the value extractors, projection and bin/tile aggregators together.
+// We'll be tiling counts of records per bin, and max/min of the counts per tile
+// We'll also divide our tiles into 32x32 bins so that the output is readable.
+val series = new Series((32, 32), cExtractor, projection, vExtractor, CountAggregator, MaxMinAggregator)
 
-// Flip the switch
-val result = gen.generate(frame, (32, 32), request)
+// which tiles are we generating?
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), projection)
 
-// Try to read some values from bins
-result.map(t => (t.coords, t.bins)).collect
+// Tile Generator object, which houses the generation logic
+@transient val gen = new MapReduceTileGenerator[(Int, Int, Int)](sc)
+
+// Flip the switch by passing in the series and the request
+val result = gen.generate(rdd, Seq(series), request)
+
+// Try to read some values from bins, from the first (and only) series
+result.map(t => (t(0).coords, t(0).bins)).collect
 ```
 
 # Mosaic Library Contents
