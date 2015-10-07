@@ -220,9 +220,9 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag,
    * @return a finished TileData object
    */
   def finish(binData: (TC, Array[_])): TileData[TC, V, X] = {
-    var tile: W = series.tileAggregator.get.default match {
-      case a: Aggregator[V, W, X] => a.default
-      case _ => tileIntermediateManifest.runtimeClass.newInstance.asInstanceOf[W]
+    var tile: W = series.tileAggregator match {
+      case None => tileIntermediateManifest.runtimeClass.newInstance.asInstanceOf[W]
+      case _ => series.tileAggregator.get.default
     }
     val key = binData._1
     var binsTouched = 0
