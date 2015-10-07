@@ -4,6 +4,7 @@ import org.scalatest._
 import com.unchartedsoftware.mosaic.Spark
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.projection.numeric._
+import com.unchartedsoftware.mosaic.core.generation.Series
 import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
 import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
@@ -16,19 +17,28 @@ import org.apache.spark.sql.Row
 object MapReduceTileGeneratorSpecClosure {
 
   def testClosure(
+    bins: Int,
     data: Array[Double],
-    projection: Projection[(Int, Int)],
+    cExtractor: ValueExtractor[Double],
+    projection: Projection[Double, (Int, Int), Int],
     request: TileSeqRequest[(Int, Int)],
-    extractor: ValueExtractor[Double]
+    vExtractor: ValueExtractor[Double]
   ): Seq[TileData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]] = {
     //generate some random data
     var frame = Spark.sc.parallelize(data.map(a => Row(a)))
 
     //create generator
-    val gen = new MapReduceTileGenerator[(Int, Int), Double, Double, java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)](Spark.sc, projection, extractor, CountAggregator, MaxMinAggregator)
+    val gen = new MapReduceTileGenerator[(Int, Int)](Spark.sc)
+
+    //create Series
+    val series = Seq(
+      new Series(bins, cExtractor, projection, vExtractor, CountAggregator, MaxMinAggregator)
+    )
 
     //kickoff generation
-    gen.generate(frame, request).collect
+    gen.generate(frame, series, request).collect.map(s => {
+      s(0).asInstanceOf[TileData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+    })
   }
 }
 
@@ -49,7 +59,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(2, 0, 1, dataSpaceExtractor, 0D, 1D)
+        val projection = new SeriesProjection(0, 1, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), projection)
         val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
@@ -57,7 +67,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(2, data, dataSpaceExtractor, projection, request, vExtractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -88,7 +98,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(2, 0, 1, dataSpaceExtractor, 0D, 0.5D)
+        val projection = new SeriesProjection(0, 1, 0D, 0.5D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), projection)
         val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
@@ -96,7 +106,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(2, data, dataSpaceExtractor, projection, request, vExtractor)
         assert(tiles.length === 1) //did we generate a tile?
 
         //verify binning
@@ -125,7 +135,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
             return Some(r.getDouble(0))
           }
         }
-        val projection = new SeriesProjection(10, 0, 1, dataSpaceExtractor, 0D, 1D)
+        val projection = new SeriesProjection(0, 1, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)), projection)
         val vExtractor = new ValueExtractor[Double] {
           override def rowToValue(r: Row): Option[Double] = {
@@ -133,7 +143,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
           }
         }
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, projection, request, vExtractor)
+        val tiles = MapReduceTileGeneratorSpecClosure.testClosure(10, data, dataSpaceExtractor, projection, request, vExtractor)
         assert(tiles.length === 3) //did we generate tiles?
 
         //map the result so that it's easier to work with
@@ -150,6 +160,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
           j = j + 2
         }
       }
+
+      //TODO test multiple series
     }
   }
 }

@@ -8,11 +8,14 @@ import org.apache.spark.sql.Row
 class TileLevelRequestSpec extends FunSpec {
   val projection = new {
 
-  } with Projection[(Int, Int)](100, 0, 17) {
+  } with Projection[Double, (Int, Int), Int](0, 17) {
     override def getZoomLevel(c: (Int, Int)): Int = {
       c._1
     }
-    override def rowToCoords(r: Row, l: Int): Option[((Int, Int), Int)] = {
+    override def project(d: Option[Double], l: Int, maxBin: Int): Option[((Int, Int), Int)] = {
+      throw new UnsupportedOperationException
+    }
+    override def binTo1D(bin: Int, maxBin: Int): Int = {
       throw new UnsupportedOperationException
     }
   }
