@@ -44,6 +44,8 @@ res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,String
 
 ## Tile Generation
 
+Let's generate tiles which represent the mean number of passengers at each pickup location in the source dataset.
+
 ```scala
 import com.unchartedsoftware.mosaic.core.projection.numeric._
 import com.unchartedsoftware.mosaic.core.generation.Series
@@ -55,6 +57,11 @@ import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
+// source RDD
+// NOTE: It is STRONGLY recommended that you filter your input RDD down to only the columns you need for tiling.
+val rdd = sqlContext.sql("select pickup_lon, pickup_lat, passengers from taxi_micro").rdd
+rdd.cache
+
 // We use a ValueExtractor to retrieve data-space coordinates from rows
 // In this case, that's column 0 (pickup_time, converted to a double millisecond value) and column 1 (distance)
 val cExtractor = new ValueExtractor[(Double, Double)] {
@@ -62,25 +69,31 @@ val cExtractor = new ValueExtractor[(Double, Double)] {
     if (r.isNullAt(0) || r.isNullAt(1)) {
       None
     } else {
-      Some((r.get(0).asInstanceOf[Timestamp].getTime.toDouble, r.getDouble(1)))
+      Some(r.getDouble(0), r.getDouble(1)))
     }
   }
 }
 
-// create a projection from data-space into 2D tile space
-val projection = new CartesianProjection(0, 1, (1356998880000D, 0), (1358725677000D, 95.85D))
+// create a projection from data-space into mercator tile space, which is suitable for
+// display on top of a map using a mapping library such as leaflet.js
+val projection = new MercatorProjection(0, 1, (-180, -90), (180, 90))
 
-// our value extractor does nothing, since we're just counting records
-val vExtractor = new ValueExtractor[Any] {
-  override def rowToValue(r: Row): Option[Any] = {
-    return None
+// our value extractor grabs the number of passengers
+val vExtractor = new ValueExtractor[Double] {
+  override def rowToValue(r: Row): Option[Double] = {
+    if (r.isNullAt(2)) {
+      None
+    } else {
+      Some(r.getInt(2).toDouble)
+    }
   }
 }
 
 // A series ties the value extractors, projection and bin/tile aggregators together.
-// We'll be tiling counts of records per bin, and max/min of the counts per tile
-// We'll also divide our tiles into 32x32 bins so that the output is readable.
-val series = new Series((32, 32), cExtractor, projection, vExtractor, CountAggregator, MaxMinAggregator)
+// We'll be tiling average passengers per bin, and max/min of the bin averages per tile
+// We'll also divide our tiles into 32x32 bins so that the output is readable, but
+// feel free to generate tiles at any resolution
+val series = new Series((32, 32), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MaxMinAggregator))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), projection)
