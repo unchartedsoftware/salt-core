@@ -93,7 +93,7 @@ val vExtractor = new ValueExtractor[Double] {
 // We'll be tiling average passengers per bin, and max/min of the bin averages per tile
 // We'll also divide our tiles into 32x32 bins so that the output is readable, but
 // feel free to generate tiles at any resolution
-val series = new Series((32, 32), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MaxMinAggregator))
+val series = new Series((32, 32), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
 
 // which tiles are we generating?
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), projection)
@@ -124,7 +124,7 @@ Mosaic includes seven sample aggregators:
  * CountAggregator
  * MaxAggregator
  * MinAggregator
- * MaxMinAggregator (for tile-level analytics)
+ * MinMaxAggregator (for tile-level analytics)
  * MeanAggregator
  * SumAggregator
  * TopElementsAggregator

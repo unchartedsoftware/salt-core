@@ -3,7 +3,7 @@ package com.unchartedsoftware.mosaic.core.analytic.numeric
 import com.unchartedsoftware.mosaic.core.analytic.Aggregator
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
 
-object MaxMinAggregator extends Aggregator[java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)] {
+object MinMaxAggregator extends Aggregator[java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)] {
   def default(): (Double, Double) = {
     (MinAggregator.default, MaxAggregator.default)
   }
