@@ -54,7 +54,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create Series
         val series = Seq(
-          new Series(2, cExtractor, projection, None, CountAggregator, Some(MaxMinAggregator))
+          new Series(2, cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
         )
 
         val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, series, request)
@@ -102,7 +102,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create Series
         val series = Seq(
-          new Series(2, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MaxMinAggregator))
+          new Series(2, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
         )
 
         val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, series, request)
@@ -148,7 +148,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create Series
         val series = Seq(
-          new Series(10, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MaxMinAggregator))
+          new Series(10, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
         )
 
         val tiles = MapReduceTileGeneratorSpecClosure.testClosure(data, series, request)
