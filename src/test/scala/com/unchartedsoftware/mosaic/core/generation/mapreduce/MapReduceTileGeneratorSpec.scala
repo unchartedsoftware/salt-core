@@ -64,6 +64,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         assert(result.length === 1) //did we generate a tile?
 
         //verify binning
+        assert(result(0).bins.length === 2)
         assert(result(0).bins(0) === manualBins.get(false).getOrElse(0))
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
@@ -112,6 +113,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         assert(result.length === 1) //did we generate a tile?
 
         //verify binning
+        assert(result(0).bins.length === 2)
         assert(result(0).bins(0) === manualBins.get(false).getOrElse(0))
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
@@ -206,6 +208,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         assert(result.length === 1) //did we generate a tile?
 
         //verify binning
+        assert(result(0).bins.length === 2)
         assert(result(0).bins(0) === manualBins.get(false).getOrElse(0))
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
