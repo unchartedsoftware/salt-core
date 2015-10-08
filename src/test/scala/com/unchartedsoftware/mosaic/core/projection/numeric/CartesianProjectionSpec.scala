@@ -6,14 +6,6 @@ import org.apache.spark.sql.Row
 
 class CartesianProjectionSpec extends FunSpec {
   describe("CartesianProjection") {
-    describe("#getZoomLevel()") {
-      it("should return the first component of a tile coordinate as the zoom level") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
-        val coord = (Math.round(Math.random*100).toInt, 0, 0)
-        assert(projection.getZoomLevel(coord) === coord._1)
-      }
-    }
-
     describe("#project()") {
       it("should throw an exception for zoom levels outside of the bounds supplied as construction parameters") {
         val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
@@ -52,7 +44,7 @@ class CartesianProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 0, "check zoom level")
+          assert(coords.get._1._1 === 0, "check zoom level")
 
           //check coordinates
           assert(coords.get._1._2 === 0, "check coordinates")
@@ -76,7 +68,7 @@ class CartesianProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 1)
+          assert(coords.get._1._1 === 1)
 
           //check coordinates
           assert(coords.get._1._2 === Math.floor(row.get._1*2))

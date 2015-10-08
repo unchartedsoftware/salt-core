@@ -6,7 +6,7 @@ import com.unchartedsoftware.mosaic.core.projection.Projection
  * A TileRequest which takes the form of a Seq of zoom levels,
  * generating all tiles at those levels.
  */
-class TileLevelRequest[TC](inLevels: Seq[Int], projection: Projection[_,TC,_]) extends TileRequest[TC] {
+class TileLevelRequest[TC](inLevels: Seq[Int], getZoomLevel: TC => Int) extends TileRequest[TC] {
 
   private val _levelMap = inLevels.map(c => (c, true)).toMap
 
@@ -14,7 +14,7 @@ class TileLevelRequest[TC](inLevels: Seq[Int], projection: Projection[_,TC,_]) e
    * @return true, if the given tile coordinate is part of this request. false otherwise.
    */
   def inRequest(tile: TC): Boolean = {
-    _levelMap.contains(projection.getZoomLevel(tile))
+    _levelMap.contains(getZoomLevel(tile))
   }
 
   /**

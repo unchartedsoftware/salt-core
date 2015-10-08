@@ -6,14 +6,6 @@ import org.apache.spark.sql.Row
 
 class MercatorProjectionSpec extends FunSpec {
   describe("MercatorProjection") {
-    describe("#getZoomLevel()") {
-      it("should return the first component of a tile coordinate as the zoom level") {
-        val projection = new MercatorProjection(0, 1, (-180D, -85D), (180D, 85D))
-        val coord = (Math.round(Math.random*100).toInt, 0, 0)
-        assert(projection.getZoomLevel(coord) === coord._1)
-      }
-    }
-
     describe("#project()") {
       it("should throw an exception for zoom levels outside of the bounds supplied as construction parameters") {
         val projection = new MercatorProjection(0, 1, (-180D, -85D), (180D, 85D))
@@ -52,7 +44,7 @@ class MercatorProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 0, "check zoom level")
+          assert(coords.get._1._1 === 0, "check zoom level")
 
           //compute coordinates and bin for lat/lon manually
           val lon = row.get._1
@@ -88,7 +80,7 @@ class MercatorProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 1, "check zoom level")
+          assert(coords.get._1._1 === 1, "check zoom level")
 
           //compute coordinates and bin for lat/lon manually
           val lon = row.get._1

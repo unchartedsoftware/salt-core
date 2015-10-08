@@ -17,12 +17,6 @@ abstract class Projection[DC, TC, BC](
 ) extends Serializable {
 
   /**
-   * @param c a tile coordinate
-   * @return the zoom level of the coordinate
-   */
-  def getZoomLevel(c: TC): Int
-
-  /**
    * Project a data-space coordinate into the corresponding tile coordinate and bin coordinate
    * @param dc the data-space coordinate
    * @param z the zoom level
