@@ -9,8 +9,8 @@ import org.apache.spark.sql.Row
  * @param max the maximum value of a data-space coordinate (maxLon, maxLat)
  */
 class MercatorProjection(
-  min: (Double, Double),
-  max: (Double, Double)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
+  min: (Double, Double) = (-180, -85.05112878),
+  max: (Double, Double) = (180, 85.05112878)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
   val _internalMinX = Math.max(min._1, -180);
