@@ -25,7 +25,7 @@ apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
 
-group = 'com.unchartedsoftware.mosaic'
+group = 'com.unchartedsoftware.salt'
 version = '0.12.0'
 
 project.ext {
@@ -36,7 +36,7 @@ project.ext {
 }
 
 jar {
-  baseName = 'mosaic-core'
+  baseName = 'salt-core'
   version =  version
   dependsOn configurations.runtime
   from {
@@ -61,7 +61,7 @@ task testJar(type: Jar) {
 
 task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar]) {
   executable = 'spark-submit'
-  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/mosaic/build/libs/mosaic-core-${version}-scoverage.jar","--class","com.unchartedsoftware.mosaic.Main","build/libs/mosaic-core-${version}-tests.jar"]
+  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","com.unchartedsoftware.salt.Main","build/libs/salt-core-${version}-tests.jar"]
 }
 
 task coverage(overwrite: true, dependsOn: test) << {
@@ -111,7 +111,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.6'
+    gradleVersion = '2.7'
 }
 
 idea {

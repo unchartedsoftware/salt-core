@@ -1,5 +1,5 @@
-# Mosaic
-> Smaller tiles.
+# Salt
+> Need to visualize big data? Add a little salt.
 
 ## Usage
 
@@ -15,16 +15,16 @@ To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahe
 
 #### Using the Docker test container
 
-Since running Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
+Since running Salt requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
 
 Build and fire up the container with a shell:
 
 ```bash
-$ docker build -t docker.uncharted.software/mosaic-test .
-$ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
+$ docker build -t docker.uncharted.software/salt-test .
+$ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
 ```
 
-Now, inside the container, build and install Mosaic:
+Now, inside the container, build and install Salt:
 
 ```bash
 $ ./gradlew install
@@ -34,21 +34,21 @@ Keep the container running! We'll need it to try the following example.
 
 #### <a name="example-generation"></a>Generation
 
-Launch a spark-shell. We'll be using mosaic, and a popular csv->DataFrame library for this example:
+Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,com.unchartedsoftware.mosaic:mosaic-core:0.12.0"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,com.unchartedsoftware.salt:salt-core:0.12.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
 
 ```scala
-import com.unchartedsoftware.mosaic.core.projection.numeric._
-import com.unchartedsoftware.mosaic.core.generation.Series
-import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGenerator
-import com.unchartedsoftware.mosaic.core.analytic._
-import com.unchartedsoftware.mosaic.core.generation.request._
-import com.unchartedsoftware.mosaic.core.analytic.numeric._
+import com.unchartedsoftware.salt.core.projection.numeric._
+import com.unchartedsoftware.salt.core.generation.Series
+import com.unchartedsoftware.salt.core.generation.mapreduce.MapReduceTileGenerator
+import com.unchartedsoftware.salt.core.analytic._
+import com.unchartedsoftware.salt.core.generation.request._
+import com.unchartedsoftware.salt.core.analytic.numeric._
 import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
@@ -111,15 +111,15 @@ val result = gen.generate(rdd, Seq(series), request)
 result.map(t => (t(0).coords, t(0).bins)).collect
 ```
 
-## Mosaic Library Contents
+## Salt Library Contents
 
-Mosaic is made of some simple, but vital, components:
+Salt is made of some simple, but vital, components:
 
 ### Projections
 
 A projection maps from data space to the tile coordinate space.
 
-Mosaic currently supports three projections:
+Salt currently supports three projections:
  * CartesianProjection (x, y, v)
  * MercatorProjection (x, y, v)
  * SeriesProjection (x, v)
@@ -128,7 +128,7 @@ Mosaic currently supports three projections:
 
 Aggregators are used to aggregate values within a bin or a tile.
 
-Mosaic includes seven sample aggregators:
+Salt includes seven sample aggregators:
 
  * CountAggregator
  * MaxAggregator
@@ -142,7 +142,7 @@ Additional aggregators can be implemented on-the-fly within your script as you s
 
 ### Requests
 
-Mosaic allows tile batches to be phrased in several ways:
+Salt allows tile batches to be phrased in several ways:
 
  * TileSeqRequest (built from a Seq[TC] of tile coordinates, requesting specific tiles)
  * TileLevelRequest (built from a Seq[Int] of levels, requesting all tiles at those levels)
@@ -153,22 +153,22 @@ A Series pairs together a Projection with Aggregators. Multiple Series can be ge
 
 ### Serialization
 
-Mosaic currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas. This functionality is provided in a separate package called mosaic-avro-serializer.
+Salt currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas. This functionality is provided in a separate package called salt-avro-serializer.
 
 ## Testing
 
-Since testing Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Mosaic within that environment:
+Since testing Salt requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Salt within that environment:
 
 ```bash
-$ docker build -t docker.uncharted.software/mosaic-test .
-$ docker run --rm docker.uncharted.software/mosaic-test
+$ docker build -t docker.uncharted.software/salt-test .
+$ docker run --rm docker.uncharted.software/salt-test
 ```
 
-The above commands trigger a one-off build and test of Mosaic. If you want to interactively test Mosaic while developing (without having to re-run the container), use the following commands:
+The above commands trigger a one-off build and test of Salt. If you want to interactively test Salt while developing (without having to re-run the container), use the following commands:
 
 ```bash
-$ docker build -t docker.uncharted.software/mosaic-test .
-$ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
+$ docker build -t docker.uncharted.software/salt-test .
+$ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
 # then, inside the running container
 $ ./gradlew
 ```
