@@ -26,7 +26,7 @@ apply plugin: 'scoverage'
 apply plugin: 'idea'
 
 group = 'com.unchartedsoftware.salt'
-version = '0.12.0'
+version = '0.13.0'
 
 project.ext {
   scalaBinaryVersion = '2.10'
