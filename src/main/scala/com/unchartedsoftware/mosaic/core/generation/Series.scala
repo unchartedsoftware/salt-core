@@ -5,7 +5,6 @@ import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.Row
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 
@@ -20,6 +19,7 @@ import scala.reflect.ClassTag
  * @param vExtractor a mechanism for grabbing or synthesizing the "value" column from a source record (optional)
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy (optional)
+ * @tparam RT the source data record type (the source data is an RDD[RT])
  * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
@@ -30,11 +30,11 @@ import scala.reflect.ClassTag
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class Series[DC, TC, BC, T, U, V, W, X](
+class Series[RT, DC, TC, BC, T, U, V, W, X](
   val maxBin: BC,
-  val cExtractor: (Row) => Option[DC],
+  val cExtractor: (RT) => Option[DC],
   val projection: Projection[DC,TC,BC],
-  val vExtractor: Option[(Row) => Option[T]],
+  val vExtractor: Option[(RT) => Option[T]],
   val binAggregator: Aggregator[T, U, V],
   val tileAggregator: Option[Aggregator[V, W, X]]) extends Serializable {
 }

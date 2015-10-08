@@ -7,7 +7,6 @@ import com.unchartedsoftware.mosaic.core.generation.{Series, TileGenerator}
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.Row
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
@@ -25,9 +24,9 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
    * Converts raw input data into an RDD which contains only what we need:
    * rows which contain a key (tile coordinate), a series ID, and a (bin, value).
    */
-  private def transformData[TC: ClassTag](
-    data: RDD[Row],
-    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]],
+  private def transformData[RT,TC: ClassTag](
+    data: RDD[RT],
+    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
 
     data.flatMap(r => {
@@ -52,7 +51,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     })
   }
 
-  override def generate[TC: ClassTag](data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
+  override def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
     data.cache //ensure data is cached
 
     val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
@@ -62,14 +61,14 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD
-    val transformedData = transformData[TC](data, bSeries, bRequest)
+    val transformedData = transformData[RT,TC](data, bSeries, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.
-    val combiner = new MapReduceTileGeneratorCombiner[TC](bSeries)
+    val combiner = new MapReduceTileGeneratorCombiner[RT,TC](bSeries)
 
     //do the work in a closure which is sanitized of all non-serializable things
-    val result = _sanitizedClosureGenerate[TC](
+    val result = _sanitizedClosureGenerate[RT,TC](
                     transformedData,
                     combiner,
                     bSeries)
@@ -80,10 +79,10 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     result
   }
 
-  def _sanitizedClosureGenerate[TC: ClassTag](
+  def _sanitizedClosureGenerate[RT,TC: ClassTag](
     transformedData: RDD[(TC, (Int, (Int, Option[_])))],
-    combiner: MapReduceTileGeneratorCombiner[TC],
-    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]]
+    combiner: MapReduceTileGeneratorCombiner[RT,TC],
+    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
   ): RDD[Seq[TileData[TC,_,_]]] = {
     //Do the actual combineByKey to produce finished bin data
     val tileData = transformedData.combineByKey(
@@ -105,8 +104,8 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 }
 
 //Just an easy way to define closures for combineByKey
-private class MapReduceTileGeneratorCombiner[TC](
-  bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]]) extends Serializable {
+private class MapReduceTileGeneratorCombiner[RT,TC](
+  bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]) extends Serializable {
 
   //create a new combiner, with a fresh set of bins
   def createCombiner(firstValue: (Int, (Int, Option[_]))): Array[Array[_]] = {
@@ -144,8 +143,8 @@ private class MapReduceTileGeneratorCombiner[TC](
  * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
  * individual series.
  */
-private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
-  series: Series[DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
+private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
+  series: Series[RT, DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
 
   private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin)+1
 
@@ -153,11 +152,11 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag,
    * Combines cExtractor with projection to produce an intermediate
    * result for each Row which is useful to a TileGenerator
    *
-   * @param row a Row to project and retrieve a value from for aggregation
+   * @param row a record type to project and retrieve a value from for aggregation
    * @param z the zoom level
    * @return Option[(TC, (Int, Option[T]))] a tile coordinate along with the 1D bin index and the extracted value column
    */
-  def projectAndTransform(row: Row, z: Int): Option[(TC, (Int, Option[T]))] = {
+  def projectAndTransform(row: RT, z: Int): Option[(TC, (Int, Option[T]))] = {
     val coord = series.projection.project(series.cExtractor(row), z, series.maxBin)
     if (coord.isDefined) {
       val value: Option[T] = series.vExtractor match {
