@@ -24,7 +24,7 @@ object MapReduceTileGeneratorSpecClosure {
     var frame = Spark.sc.parallelize(data.map(a => Row(a)))
 
     //create generator
-    val gen = new MapReduceTileGenerator[(Int, Int)](Spark.sc)
+    val gen = new MapReduceTileGenerator(Spark.sc)
 
     //kickoff generation
     gen.generate(frame, series, request).collect
@@ -39,7 +39,7 @@ object MapReduceTileGeneratorSpecClosure {
     var frame = Spark.sc.parallelize(data.map(a => Row(a._1, a._2)))
 
     //create generator
-    val gen = new MapReduceTileGenerator[(Int, Int, Int)](Spark.sc)
+    val gen = new MapReduceTileGenerator(Spark.sc)
 
     //kickoff generation
     gen.generate(frame, series, request).collect

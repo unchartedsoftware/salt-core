@@ -19,15 +19,13 @@ import scala.util.Try
  * @param sc a SparkContext
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  */
-class MapReduceTileGenerator[TC: ClassTag]
-  (sc: SparkContext)(implicit tileCoordManifest: Manifest[TC])
-extends TileGenerator[TC](sc) {
+class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
    * rows which contain a key (tile coordinate), a series ID, and a (bin, value).
    */
-  private def transformData(
+  private def transformData[TC: ClassTag](
     data: RDD[Row],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
@@ -54,7 +52,7 @@ extends TileGenerator[TC](sc) {
     })
   }
 
-  def generate(data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
+  override def generate[TC: ClassTag](data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
     data.cache //ensure data is cached
 
     val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
@@ -64,14 +62,14 @@ extends TileGenerator[TC](sc) {
     val bRequest = sc.broadcast(request)
 
     //Start by transforming the raw input data into a distributed RDD
-    val transformedData = transformData(data, bSeries, bRequest)
+    val transformedData = transformData[TC](data, bSeries, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
     //defined in MapReduceTileGeneratorCombiner first.
     val combiner = new MapReduceTileGeneratorCombiner[TC](bSeries)
 
     //do the work in a closure which is sanitized of all non-serializable things
-    val result = _sanitizedClosureGenerate(
+    val result = _sanitizedClosureGenerate[TC](
                     transformedData,
                     combiner,
                     bSeries)
@@ -82,7 +80,7 @@ extends TileGenerator[TC](sc) {
     result
   }
 
-  def _sanitizedClosureGenerate(
+  def _sanitizedClosureGenerate[TC: ClassTag](
     transformedData: RDD[(TC, (Int, (Int, Option[_])))],
     combiner: MapReduceTileGeneratorCombiner[TC],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[_,TC,_,_,_,_,_,_]]]
