@@ -73,7 +73,7 @@ val cExtractor = (r: Row) => {
 
 // create a projection from data-space into mercator tile space, which is suitable for
 // display on top of a map using a mapping library such as leaflet.js
-val projection = new MercatorProjection(0, 1, (-180, -90), (180, 90))
+val projection = new MercatorProjection((-180, -90), (180, 90))
 
 // a value extractor function to grab the number of passengers from a Row
 val vExtractor = (r: Row) => {
