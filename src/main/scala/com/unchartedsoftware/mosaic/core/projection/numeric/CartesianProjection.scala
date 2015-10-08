@@ -5,54 +5,39 @@ import org.apache.spark.sql.Row
 /**
  * A projection into 2D cartesian (x,y) space
  *
- * @param minZoom the minimum zoom level which will be passed into rowToCoords()
- * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
  * @param min the minimum value of a data-space coordinate (minX, minY)
  * @param max the maximum value of a data-space coordinate (maxX, maxY)
  */
 class CartesianProjection(
-  minZoom: Int,
-  maxZoom: Int,
   min: (Double, Double),
-  max: (Double, Double)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](minZoom, maxZoom, min, max) {
+  max: (Double, Double)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   //Precompute some stuff we'll use frequently
   val _xRange = max._1 - min._1
   val _yRange = max._2 - min._2
-  //number of tiles at each zoom level
-  val tileCounts = new Array[Int](maxZoom+1)
-  for (i <- minZoom until maxZoom+1) {
-    tileCounts(i) = 1 << i //Math.pow(2, i).toInt
-  }
-  //width of a tile in data space at each zoom level
-  val tileWidths = tileCounts.map(a => _xRange/a)
-  val tileHeights = tileCounts.map(a => _yRange/a)
 
   override def project (dCoords: Option[(Double, Double)], z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
-    if (z > maxZoom || z < minZoom) {
-      throw new Exception("Requested zoom level is outside this projection's zoom bounds.")
+    if (!dCoords.isDefined) {
+      None
+    } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {
+      //make sure that we always stay INSIDE the range
+      None
     } else {
-      if (!dCoords.isDefined) {
-        None
-      } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {
-        //make sure that we always stay INSIDE the range
-        None
-      } else {
-        val translatedDataX = dCoords.get._1 - min._1
-        val translatedDataY = dCoords.get._2 - min._2
-        //scale it to [0,1)
-        val scaledDataX = translatedDataX / _xRange
-        val scaledDataY = translatedDataY / _yRange
+      val translatedDataX = dCoords.get._1 - min._1
+      val translatedDataY = dCoords.get._2 - min._2
+      //scale it to [0,1)
+      val scaledDataX = translatedDataX / _xRange
+      val scaledDataY = translatedDataY / _yRange
 
-        //compute tile/bin coordinates (z, x, y, bX, bY)
-        var howFarX = scaledDataX * tileCounts(z)
-        var howFarY = scaledDataY * tileCounts(z)
-        var x = howFarX.toInt
-        var y = howFarY.toInt
-        var xBin = ((howFarX - x)*(maxBin._1+1)).toInt
-        var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2+1)).toInt
-        Some(((z, x, y), (xBin, yBin)))
-      }
+      //compute tile/bin coordinates (z, x, y, bX, bY)
+      val n = Math.pow(2, z).toInt;
+      var howFarX = scaledDataX * n
+      var howFarY = scaledDataY * n
+      var x = howFarX.toInt
+      var y = howFarY.toInt
+      var xBin = ((howFarX - x)*(maxBin._1+1)).toInt
+      var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2+1)).toInt
+      Some(((z, x, y), (xBin, yBin)))
     }
   }
 

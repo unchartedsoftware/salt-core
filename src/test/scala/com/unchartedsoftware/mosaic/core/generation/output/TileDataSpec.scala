@@ -8,7 +8,7 @@ import org.apache.spark.sql.Row
 class TileDataSpec extends FunSpec {
   val projection = new {
 
-  } with Projection[Double, (Int, Int), Int](0, 17) {
+  } with Projection[Double, (Int, Int), Int]() {
     override def project(dc: Option[Double], l: Int, maxBin: Int): Option[((Int, Int), Int)] = {
       throw new UnsupportedOperationException
     }
