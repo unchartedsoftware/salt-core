@@ -29,10 +29,6 @@ class CartesianProjection(
   val tileWidths = tileCounts.map(a => _xRange/a)
   val tileHeights = tileCounts.map(a => _yRange/a)
 
-  override def getZoomLevel(c: (Int, Int, Int)): Int = {
-    c._1
-  }
-
   override def project (dCoords: Option[(Double, Double)], z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")

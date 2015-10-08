@@ -7,14 +7,6 @@ import org.apache.spark.sql.Row
 
 class SeriesProjectionSpec extends FunSpec {
   describe("SeriesProjection") {
-    describe("#getZoomLevel()") {
-      it("should return the first component of a tile coordinate as the zoom level") {
-        val projection = new SeriesProjection(0, 1, 0, 100)
-        val coord = (Math.round(Math.random*100).toInt, 0)
-        assert(projection.getZoomLevel(coord) === coord._1)
-      }
-    }
-
     describe("#project()") {
       it("should throw an exception for zoom levels outside of the bounds supplied as construction parameters") {
         val projection = new SeriesProjection(0, 1, 0, 100)
@@ -45,7 +37,7 @@ class SeriesProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 0, "check zoom level")
+          assert(coords.get._1._1 === 0, "check zoom level")
 
           //check coordinates
           assert(coords.get._1._2 === 0, "check coordinates")
@@ -64,7 +56,7 @@ class SeriesProjectionSpec extends FunSpec {
           assert(coords.isDefined)
 
           //check zoom level
-          assert(projection.getZoomLevel(coords.get._1) === 1, "check zoom level")
+          assert(coords.get._1._1 === 1, "check zoom level")
 
           //check coordinates
           assert(coords.get._1._2 === Math.floor(row.get*2), "check coordinates")

@@ -27,10 +27,6 @@ class SeriesProjection(
   //width of a tile in data space at each zoom level
   val tileWidths = tileCounts.map(a => _range/a)
 
-  override def getZoomLevel(c: (Int, Int)): Int = {
-    c._1
-  }
-
   override def project (xValue: Option[Double], z: Int, maxBin: Int): Option[((Int, Int), Int)] = {
     if (z > maxZoom || z < minZoom) {
       throw new Exception("Requested zoom level is outside this projection's zoom bounds.")

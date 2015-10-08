@@ -9,9 +9,6 @@ class TileDataSpec extends FunSpec {
   val projection = new {
 
   } with Projection[Double, (Int, Int), Int](0, 17) {
-    override def getZoomLevel(c: (Int, Int)): Int = {
-      throw new UnsupportedOperationException
-    }
     override def project(dc: Option[Double], l: Int, maxBin: Int): Option[((Int, Int), Int)] = {
       throw new UnsupportedOperationException
     }

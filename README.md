@@ -95,8 +95,11 @@ val vExtractor = new ValueExtractor[Double] {
 // this using the maximum possible bin index, which is (31,31)
 val series = new Series((31, 31), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
 
-// which tiles are we generating?
-val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), projection)
+// which tiles are we generating? In this case, we'll use a TileSeqRequest
+// which allows us to specify a list of tiles we're interested in, by coordinate.
+// We also have to supply this particular request type with a mechanism for
+// extracting zoom levels from a tile coordinate, as the second construction parameter.
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), (t: (Int, Int, Int)) => t._1)
 
 // Tile Generator object, which houses the generation logic
 @transient val gen = new MapReduceTileGenerator[(Int, Int, Int)](sc)
