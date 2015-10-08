@@ -22,6 +22,6 @@ class TileData[TC, V, X](
   val projection: Projection[_,TC,_]) extends Serializable {
 
   def getBin(bin: Int): V = {
-    return bins(bin)
+    bins(bin)
   }
 }
