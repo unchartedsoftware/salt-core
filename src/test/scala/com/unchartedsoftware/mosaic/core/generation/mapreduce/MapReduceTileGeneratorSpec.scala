@@ -10,7 +10,6 @@ import com.unchartedsoftware.mosaic.core.generation.output._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import org.apache.spark.sql.Row
 
 //define tests here so that scalatest stuff isn't serialized into spark closures
@@ -59,11 +58,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val manualBins = data.groupBy(a => a > 0.5).map(a => (a._1, a._2.length))
 
         //create projection, request, extractors
-        val cExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return Some(r.getDouble(0))
-          }
-        }
+        val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(0, 1, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
 
@@ -101,11 +96,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val data = Array.fill(10)(0D).map(a => (Math.random, Math.random))
 
         //create projection, request, extractors
-        val cExtractor = new ValueExtractor[(Double, Double)] {
-          override def rowToValue(r: Row): Option[(Double, Double)] = {
-            return Some((r.getDouble(0), r.getDouble(1)))
-          }
-        }
+        val cExtractor = (r: Row) => Some((r.getDouble(0), r.getDouble(1)))
         val projection = new CartesianProjection(0, 2, (0D, 0D), (1D, 1D))
         val request = new TileSeqRequest[(Int, Int, Int)](Seq((1,0,0)), (t: (Int, Int, Int)) => t._1)
 
@@ -134,18 +125,10 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val manualBins = data.filter(a => a <= 0.5).groupBy(a => a > 0.25).map(a => (a._1, a._2.length))
 
         //create projection, request, extractors
-        val cExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return Some(r.getDouble(0))
-          }
-        }
+        val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(0, 1, 0D, 0.5D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
-        val vExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return None
-          }
-        }
+        val vExtractor = (r: Row) => None
 
         //create Series
         val series = Seq(
@@ -181,18 +164,10 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val data = Array.fill(10)(0D).map(a => Math.random)
 
         //create projection, request, extractors
-        val cExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return Some(r.getDouble(0))
-          }
-        }
+        val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(0, 1, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)), (t: (Int, Int)) => t._1)
-        val vExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return None
-          }
-        }
+        val vExtractor = (r: Row) => None
 
         //create Series
         val series = Seq(
@@ -229,18 +204,10 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val manualBins = data.groupBy(a => a > 0.5).map(a => (a._1, a._2.length))
 
         //create projection, request, extractors
-        val cExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return Some(r.getDouble(0))
-          }
-        }
+        val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(0, 1, 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
-        val vExtractor = new ValueExtractor[Double] {
-          override def rowToValue(r: Row): Option[Double] = {
-            return None
-          }
-        }
+        val vExtractor = (r: Row) => None
 
         //create Series
         val series = Seq(

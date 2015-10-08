@@ -53,7 +53,6 @@ import com.unchartedsoftware.mosaic.core.generation.mapreduce.MapReduceTileGener
 import com.unchartedsoftware.mosaic.core.analytic._
 import com.unchartedsoftware.mosaic.core.generation.request._
 import com.unchartedsoftware.mosaic.core.analytic.numeric._
-import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
@@ -62,15 +61,13 @@ import org.apache.spark.sql.Row
 val rdd = sqlContext.sql("select pickup_lon, pickup_lat, passengers from taxi_micro").rdd
 rdd.cache
 
-// We use a ValueExtractor to retrieve data-space coordinates from rows
+// We use a value extractor function to retrieve data-space coordinates from rows
 // In this case, that's column 0 (pickup_time, converted to a double millisecond value) and column 1 (distance)
-val cExtractor = new ValueExtractor[(Double, Double)] {
-  override def rowToValue(r: Row): Option[(Double, Double)] = {
-    if (r.isNullAt(0) || r.isNullAt(1)) {
-      None
-    } else {
-      Some(r.getDouble(0), r.getDouble(1)))
-    }
+val cExtractor = (r: Row) => {
+  if (r.isNullAt(0) || r.isNullAt(1)) {
+    None
+  } else {
+    Some(r.getDouble(0), r.getDouble(1)))
   }
 }
 
@@ -78,14 +75,12 @@ val cExtractor = new ValueExtractor[(Double, Double)] {
 // display on top of a map using a mapping library such as leaflet.js
 val projection = new MercatorProjection(0, 1, (-180, -90), (180, 90))
 
-// our value extractor grabs the number of passengers
-val vExtractor = new ValueExtractor[Double] {
-  override def rowToValue(r: Row): Option[Double] = {
-    if (r.isNullAt(2)) {
-      None
-    } else {
-      Some(r.getInt(2).toDouble)
-    }
+// a value extractor function to grab the number of passengers from a Row
+val vExtractor = (r: Row) => {
+  if (r.isNullAt(2)) {
+    None
+  } else {
+    Some(r.getInt(2).toDouble)
   }
 }
 
