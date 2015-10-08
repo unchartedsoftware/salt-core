@@ -14,9 +14,8 @@ import scala.reflect.ClassTag
  * some or all of those tiles back to the Spark driver
  *
  * @param sc a SparkContext
- * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  */
-abstract class TileGenerator[TC](sc: SparkContext) {
+abstract class TileGenerator(sc: SparkContext) {
 
   /**
    * @param data the RDD containing source data
@@ -26,6 +25,7 @@ abstract class TileGenerator[TC](sc: SparkContext) {
    *               aggregation functions). All Series will be generated simultaneously via
    *               a single pass over the source data.
    * @param request tiles requested for generation
+   * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
    */
-  def generate(data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC, _, _]]]
+  def generate[TC: ClassTag](data: RDD[Row], series: Seq[Series[_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC, _, _]]]
 }
