@@ -19,7 +19,7 @@ object MapReduceTileGeneratorSpecClosure {
   def testSeriesClosure(
     data: Array[Double],
     series: Seq[Series[_,(Int, Int),_,_,_,_,_,_]],
-    request: TileSeqRequest[(Int, Int)]
+    request: TileRequest[(Int, Int)]
   ): Seq[Seq[TileData[(Int, Int), _, _]]] = {
     //generate some random data
     var frame = Spark.sc.parallelize(data.map(a => Row(a)))
@@ -34,7 +34,7 @@ object MapReduceTileGeneratorSpecClosure {
   def testCartesianClosure(
     data: Array[(Double, Double)],
     series: Seq[Series[_,(Int, Int, Int),_,_,_,_,_,_]],
-    request: TileSeqRequest[(Int, Int, Int)]
+    request: TileRequest[(Int, Int, Int)]
   ): Seq[Seq[TileData[(Int, Int, Int), _, _]]] = {
     //generate some random data
     var frame = Spark.sc.parallelize(data.map(a => Row(a._1, a._2)))
@@ -106,8 +106,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
             return Some((r.getDouble(0), r.getDouble(1)))
           }
         }
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
-        val request = new TileSeqRequest[(Int, Int, Int)](Seq((0,0,0)), projection)
+        val projection = new CartesianProjection(0, 2, (0D, 0D), (1D, 1D))
+        val request = new TileLevelRequest[(Int, Int, Int)](Seq(0), projection)
 
         //create Series
         val series = Seq(
@@ -118,10 +118,12 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val result = tiles.map(s => {
           s(0).asInstanceOf[TileData[(Int, Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
-        assert(result.length === 1) //did we generate a tile?
+        assert(result.length === 1) //did we generate the right number of tiles?
 
         //verify binning
-        assert(result(0).bins.length === 4)
+        for (i <- 0 until result.length) {
+          assert(result(i).bins.length === 4)
+        }
       }
 
       it("should ignore rows which are outside the bounds of the projection") {
