@@ -7,20 +7,13 @@ import org.apache.spark.sql.Row
 class CartesianProjectionSpec extends FunSpec {
   describe("CartesianProjection") {
     describe("#project()") {
-      it("should throw an exception for zoom levels outside of the bounds supplied as construction parameters") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
-        intercept[Exception] {
-          projection.project(Some((Math.random, Math.random)), 2, (100, 100))
-        }
-      }
-
       it("should return None when the data-space coordinate is None") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
         assert(projection.project(None, 0, (100, 100)) === None)
       }
 
       it("should return None when a row's xCol is outside of the defined bounds") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
         assert(projection.project(Some((projection.max._1+1, Math.random)), 0, (100, 100)) === None)
         assert(projection.project(Some((projection.min._1-1, Math.random)), 0, (100, 100)) === None)
         assert(projection.project(Some((projection.max._1, Math.random)), 0, (100, 100)) === None)
@@ -28,7 +21,7 @@ class CartesianProjectionSpec extends FunSpec {
       }
 
       it("should return None when a row's yCol is outside of the defined bounds") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
         assert(projection.project(Some((Math.random, projection.max._2+1)), 0, (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.min._2-1)), 0, (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.max._2)), 0, (100, 100)) === None)
@@ -36,7 +29,7 @@ class CartesianProjectionSpec extends FunSpec {
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random, Math.random))
@@ -60,7 +53,7 @@ class CartesianProjectionSpec extends FunSpec {
       }
 
       it("should assign Rows to the correct tile and bin based on the given zoom level") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random, Math.random))
@@ -86,7 +79,7 @@ class CartesianProjectionSpec extends FunSpec {
 
     describe("#binTo1D()") {
       it("should convert a 2D bin coordinate into row-major order") {
-        val projection = new CartesianProjection(0, 1, (0D, 0D), (1D, 1D))
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
 
         //fuzz inputs
         for (i <- 0 until 100) {

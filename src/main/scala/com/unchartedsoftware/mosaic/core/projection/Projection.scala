@@ -3,18 +3,13 @@ package com.unchartedsoftware.mosaic.core.projection
 import org.apache.spark.sql.Row
 
 /**
- * @param minZoom the minimum zoom level which will be passed into rowToCoords()
- * @param maxZoom the maximum zoom level which will be passed into rowToCoords()
  * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a
  *            zero-arg constructor.
  * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
  *            constructor and should be something that can be represented in 1 dimension.
  */
-abstract class Projection[DC, TC, BC](
-  val minZoom: Int,
-  val maxZoom: Int
-) extends Serializable {
+abstract class Projection[DC, TC, BC]() extends Serializable {
 
   /**
    * Project a data-space coordinate into the corresponding tile coordinate and bin coordinate
