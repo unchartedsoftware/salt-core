@@ -17,7 +17,7 @@ object MapReduceTileGeneratorSpecClosure {
 
   def testSeriesClosure(
     data: Array[Double],
-    series: Seq[Series[_,(Int, Int),_,_,_,_,_,_]],
+    series: Seq[Series[Row,_,(Int, Int),_,_,_,_,_,_]],
     request: TileRequest[(Int, Int)]
   ): Seq[Seq[TileData[(Int, Int), _, _]]] = {
     //generate some random data
@@ -32,7 +32,7 @@ object MapReduceTileGeneratorSpecClosure {
 
   def testCartesianClosure(
     data: Array[(Double, Double)],
-    series: Seq[Series[_,(Int, Int, Int),_,_,_,_,_,_]],
+    series: Seq[Series[Row,_,(Int, Int, Int),_,_,_,_,_,_]],
     request: TileRequest[(Int, Int, Int)]
   ): Seq[Seq[TileData[(Int, Int, Int), _, _]]] = {
     //generate some random data
