@@ -47,7 +47,7 @@ class SeriesProjection(
         //compute all tile/bin coordinates (z, x, y, bX, bY)
         var howFarX = scaledDataX * tileCounts(z)
         var x = howFarX.toInt
-        var xBin = ((howFarX - x)*maxBin).toInt
+        var xBin = ((howFarX - x)*(maxBin+1)).toInt
         Some(((z, x), xBin))
       }
     }

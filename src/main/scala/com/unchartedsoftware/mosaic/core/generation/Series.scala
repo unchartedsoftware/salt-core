@@ -15,6 +15,7 @@ import scala.reflect.ClassTag
  *                            ValueExtractor --------^
  * Multiple series are meant to be tiled by a TileGenerator simultaneously
  *
+ * @param maxBin The maximum possible bin index (i.e. if your tile is 256x256, this would be (255,255))
  * @param cExtractor a mechanism for grabbing the data-space coordinates from a source record
  * @param projection the  projection from data to some space (i.e. 2D or 1D)
  * @param vExtractor a mechanism for grabbing or synthesizing the "value" column from a source record (optional)
@@ -31,7 +32,7 @@ import scala.reflect.ClassTag
  * @tparam X Output data type for tile aggregators
  */
 class Series[DC, TC, BC, T, U, V, W, X](
-  val tileSize: BC,
+  val maxBin: BC,
   val cExtractor: ValueExtractor[DC],
   val projection: Projection[DC,TC,BC],
   val vExtractor: Option[ValueExtractor[T]],

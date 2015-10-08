@@ -48,7 +48,7 @@ class CartesianProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random, Math.random))
-          val coords = projection.project(row, 0, (100, 100))
+          val coords = projection.project(row, 0, (99, 99))
           assert(coords.isDefined)
 
           //check zoom level
@@ -60,9 +60,10 @@ class CartesianProjectionSpec extends FunSpec {
 
           //check bin
           val xBin = (row.get._1*100).toInt;
-          val yBin = (100-1) - (row.get._2*100).toInt;
+          val yBin = (99) - (row.get._2*100).toInt;
           assert(coords.get._2._1 === xBin, "check x bin index for " + row.toString)
           assert(coords.get._2._2 === yBin, "check y bin index for " + row.toString)
+          assert(coords.get._2._1*coords.get._2._2 < 100*100)
         }
       }
 
@@ -71,7 +72,7 @@ class CartesianProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random, Math.random))
-          val coords = projection.project(row, 1, (100, 100))
+          val coords = projection.project(row, 1, (99, 99))
           assert(coords.isDefined)
 
           //check zoom level
@@ -83,9 +84,10 @@ class CartesianProjectionSpec extends FunSpec {
 
           //check bin
           val xBin = ((row.get._1*200) % 100).toInt
-          val yBin = (100 - 1) - ((row.get._2*200) % 100).toInt
+          val yBin = (99) - ((row.get._2*200) % 100).toInt
           assert(coords.get._2._1 === xBin, "check x bin index for " + row.toString)
           assert(coords.get._2._2 === yBin, "check y bin index for " + row.toString)
+          assert(coords.get._2._1*coords.get._2._2 < 100*100)
         }
       }
     }
@@ -97,7 +99,9 @@ class CartesianProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val bin = (Math.round(Math.random*99).toInt, Math.round(Math.random*99).toInt)
-          assert(projection.binTo1D(bin, (100,100)) === bin._1 + bin._2*100)
+          val unidim = projection.binTo1D(bin, (99,99))
+          assert(unidim <= 100*100)
+          assert(unidim === bin._1 + bin._2*100)
         }
       }
     }

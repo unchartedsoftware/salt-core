@@ -41,7 +41,7 @@ class SeriesProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
-          val coords = projection.project(row, 0, 100)
+          val coords = projection.project(row, 0, 99)
           assert(coords.isDefined)
 
           //check zoom level
@@ -60,7 +60,7 @@ class SeriesProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
-          val coords = projection.project(row, 1, 100)
+          val coords = projection.project(row, 1, 99)
           assert(coords.isDefined)
 
           //check zoom level
@@ -82,7 +82,7 @@ class SeriesProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val bin = Math.round(Math.random*99).toInt
-          assert(projection.binTo1D(bin, 100) === bin)
+          assert(projection.binTo1D(bin, 99) === bin)
         }
       }
     }
