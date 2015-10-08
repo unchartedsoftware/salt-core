@@ -43,7 +43,7 @@ extends TileGenerator[TC](sc) {
         val buff = new ArrayBuffer[(TC, (Int, (Int, Option[_])))](series.length)
         for (s <- 0 until series.length) {
           val transformedData = series(s).projectAndTransform(r, l)
-          if (transformedData.isDefined) {
+          if (transformedData.isDefined && request.inRequest(transformedData.get._1)) {
             buff.append(
               //mix in series id as a part of the value
               (transformedData.get._1, (s, transformedData.get._2))
