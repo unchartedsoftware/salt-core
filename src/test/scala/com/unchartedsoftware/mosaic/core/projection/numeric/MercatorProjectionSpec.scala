@@ -48,7 +48,7 @@ class MercatorProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random*360-180, Math.random*170-85))
-          val coords = projection.project(row, 0, (100, 100))
+          val coords = projection.project(row, 0, (99, 99))
           assert(coords.isDefined)
 
           //check zoom level
@@ -66,7 +66,7 @@ class MercatorProjectionSpec extends FunSpec {
           val y = howFarY.toInt
 
           var xBin = ((howFarX - x)*100).toInt
-          var yBin = (100-1) - ((howFarY - y)*100).toInt
+          var yBin = (99) - ((howFarY - y)*100).toInt
 
           //check coordinates
           assert(coords.get._1._2 === x, "check coordinates")
@@ -75,6 +75,7 @@ class MercatorProjectionSpec extends FunSpec {
           //check bin
           assert(coords.get._2._1 === xBin, "check x bin index for " + row.toString)
           assert(coords.get._2._2 === yBin, "check y bin index for " + row.toString)
+          assert(coords.get._2._1*coords.get._2._2 < 100*100)
         }
       }
 
@@ -83,7 +84,7 @@ class MercatorProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random*360-180, Math.random*170-85))
-          val coords = projection.project(row, 1, (100, 100))
+          val coords = projection.project(row, 1, (99, 99))
           assert(coords.isDefined)
 
           //check zoom level
@@ -101,7 +102,7 @@ class MercatorProjectionSpec extends FunSpec {
           val y = howFarY.toInt
 
           var xBin = ((howFarX - x)*100).toInt
-          var yBin = (100-1) - ((howFarY - y)*100).toInt
+          var yBin = (99) - ((howFarY - y)*100).toInt
 
           //check coordinates
           assert(coords.get._1._2 === x, "check coordinates")
@@ -110,6 +111,7 @@ class MercatorProjectionSpec extends FunSpec {
           //check bin
           assert(coords.get._2._1 === xBin, "check x bin index for " + row.toString)
           assert(coords.get._2._2 === yBin, "check y bin index for " + row.toString)
+          assert(coords.get._2._1*coords.get._2._2 < 100*100)
         }
       }
     }
@@ -121,7 +123,9 @@ class MercatorProjectionSpec extends FunSpec {
         //fuzz inputs
         for (i <- 0 until 100) {
           val bin = (Math.round(Math.random*99).toInt, Math.round(Math.random*99).toInt)
-          assert(projection.binTo1D(bin, (100,100)) === bin._1 + bin._2*100)
+          val unidim = projection.binTo1D(bin, (99,99))
+          assert(unidim <= 100*100)
+          assert(unidim === bin._1 + bin._2*100)
         }
       }
     }

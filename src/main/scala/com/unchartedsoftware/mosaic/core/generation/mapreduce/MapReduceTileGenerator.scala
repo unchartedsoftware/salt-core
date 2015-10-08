@@ -150,7 +150,7 @@ private class MapReduceTileGeneratorCombiner[TC](
 private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
   series: Series[DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
 
-  private val maxBins = series.projection.binTo1D(series.tileSize, series.tileSize)
+  private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin)+1
 
   /**
    * Combines cExtractor with projection to produce an intermediate
@@ -161,7 +161,7 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag,
    * @return Option[(TC, (Int, Option[T]))] a tile coordinate along with the 1D bin index and the extracted value column
    */
   def projectAndTransform(row: Row, z: Int): Option[(TC, (Int, Option[T]))] = {
-    val coord = series.projection.project(series.cExtractor.rowToValue(row), z, series.tileSize)
+    val coord = series.projection.project(series.cExtractor.rowToValue(row), z, series.maxBin)
     if (coord.isDefined) {
       val value: Option[T] = series.vExtractor match {
         case None => None
@@ -169,7 +169,7 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag,
       }
       Some(
         (coord.get._1,
-          (series.projection.binTo1D(coord.get._2, series.tileSize),value)
+          (series.projection.binTo1D(coord.get._2, series.maxBin),value)
         )
       )
     } else {
