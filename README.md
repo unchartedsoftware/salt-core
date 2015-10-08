@@ -1,50 +1,46 @@
 # Mosaic
 > Smaller tiles.
 
-# Building/Installing
+## Usage
 
-```
-$ ./gradlew jar
-$ ./gradlew install
-```
+### Source data
 
-# Testing
+We need something to tile. Let's start with a small sample of the [NYC Taxi Dataset](http://www.andresmh.com/nyctaxitrips/), which can be [downloaded from here](http://assets.oculusinfo.com/pantera/taxi_micro.csv).
 
-Since testing Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Mosaic within that environment:
+### Tile generation, made easy!
 
-```bash
-$ docker build -t docker.uncharted.software/mosaic-test .
-$ docker run --rm docker.uncharted.software/mosaic-test
-```
+Let's generate tiles which represent the mean number of passengers at each pickup location in the source dataset.
 
-The above commands trigger a one-off build and test of Mosaic. If you want to interactively test Mosaic while developing (without having to re-run the container), use the following commands:
+To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahead to [Generation](#example-generation). Otherwise, continue to the next step to fire up a small Spark test cluster via [Docker](https://www.docker.com/). You'll want at least 4GB of free RAM on your machine to use this latter method.
+
+#### Using the Docker test container
+
+Since running Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
+
+Build and fire up the container with a shell:
 
 ```bash
 $ docker build -t docker.uncharted.software/mosaic-test .
 $ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
-# then, inside the running container
-$ ./gradlew
 ```
 
-This will mount the code directory into the container as a volume, allowing you to make code changes on your host machine and test them on-the-fly.
+Now, inside the container, build and install Mosaic:
 
-# Tiling
-
-## Data
-
-We need something to tile. Let's start with a small sample of the [NYC Taxi Dataset](http://www.andresmh.com/nyctaxitrips/), which can be [downloaded from here](http://assets.oculusinfo.com/pantera/taxi_micro.csv).
-
-Create a temp table called "taxi_micro" with the following schema:
-
-```scala
-scala> sqlContext.sql("select * from taxi_micro").schema
-
-res5: org.apache.spark.sql.types.StructType = StructType(StructField(hack,StringType,true), StructField(license,StringType,true), StructField(code,StringType,true), StructField(flag,IntegerType,true), StructField(type,StringType,true), StructField(pickup_time,TimestampType,true), StructField(dropoff_time,TimestampType,true), StructField(passengers,IntegerType,true), StructField(duration,IntegerType,true), StructField(distance,DoubleType,true), StructField(pickup_lon,DoubleType,true), StructField(pickup_lat,DoubleType,true), StructField(dropoff_lon,DoubleType,true), StructField(dropoff_lat,DoubleType,true))
+```bash
+$ ./gradlew install
 ```
 
-## Tile Generation
+Keep the container running! We'll need it to try the following example.
 
-Let's generate tiles which represent the mean number of passengers at each pickup location in the source dataset.
+#### <a name="example-generation"></a>Generation
+
+Launch a spark-shell. We'll be using mosaic, and a popular csv->DataFrame library for this example:
+
+```bash
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,com.unchartedsoftware.mosaic:mosaic-core:0.11.0"
+```
+
+Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
 
 ```scala
 import com.unchartedsoftware.mosaic.core.projection.numeric._
@@ -57,8 +53,17 @@ import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
 // source RDD
-// NOTE: It is STRONGLY recommended that you filter your input RDD down to only the columns you need for tiling.
-val rdd = sqlContext.sql("select pickup_lon, pickup_lat, passengers from taxi_micro").rdd
+// It is STRONGLY recommended that you filter your input RDD
+// down to only the columns you need for tiling.
+val rdd = sqlContext.read.format("com.databricks.spark.csv")
+  .option("header", "true")
+  .option("inferSchema", "true")
+  .load("file:///taxi_micro.csv") // be sure to update the file path to reflect
+                                  // the download location of taxi_micro.csv
+  .select("pickup_lon", "pickup_lat", "passengers")
+  .rdd
+
+// cache the RDD to make things a bit faster
 rdd.cache
 
 // We use a value extractor function to retrieve data-space coordinates from rows
@@ -67,7 +72,7 @@ val cExtractor = (r: Row) => {
   if (r.isNullAt(0) || r.isNullAt(1)) {
     None
   } else {
-    Some(r.getDouble(0), r.getDouble(1)))
+    Some((r.getDouble(0), r.getDouble(1)))
   }
 }
 
@@ -106,16 +111,22 @@ val result = gen.generate(rdd, Seq(series), request)
 result.map(t => (t(0).coords, t(0).bins)).collect
 ```
 
-# Mosaic Library Contents
+## Mosaic Library Contents
 
-## Projections
+Mosaic is made of some simple, but vital, components:
+
+### Projections
+
+A projection maps from data space to the tile coordinate space.
 
 Mosaic currently supports three projections:
  * CartesianProjection (x, y, v)
  * MercatorProjection (x, y, v)
  * SeriesProjection (x, v)
 
-## Aggregators
+### Aggregators
+
+Aggregators are used to aggregate values within a bin or a tile.
 
 Mosaic includes seven sample aggregators:
 
@@ -129,13 +140,37 @@ Mosaic includes seven sample aggregators:
 
 Additional aggregators can be implemented on-the-fly within your script as you see fit.
 
-## Requests
+### Requests
 
 Mosaic allows tile batches to be phrased in several ways:
 
  * TileSeqRequest (built from a Seq[TC] of tile coordinates, requesting specific tiles)
  * TileLevelRequest (built from a Seq[Int] of levels, requesting all tiles at those levels)
 
-## Serialization
+### Series
+
+A Series pairs together a Projection with Aggregators. Multiple Series can be generated simultaneously, each operating on the source data in tandem.
+
+### Serialization
 
 Mosaic currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas. This functionality is provided in a separate package called mosaic-avro-serializer.
+
+## Testing
+
+Since testing Mosaic requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Mosaic within that environment:
+
+```bash
+$ docker build -t docker.uncharted.software/mosaic-test .
+$ docker run --rm docker.uncharted.software/mosaic-test
+```
+
+The above commands trigger a one-off build and test of Mosaic. If you want to interactively test Mosaic while developing (without having to re-run the container), use the following commands:
+
+```bash
+$ docker build -t docker.uncharted.software/mosaic-test .
+$ docker run -v $(pwd):/opt/mosaic -it docker.uncharted.software/mosaic-test bash
+# then, inside the running container
+$ ./gradlew
+```
+
+This will mount the code directory into the container as a volume, allowing you to make code changes on your host machine and test them on-the-fly.
