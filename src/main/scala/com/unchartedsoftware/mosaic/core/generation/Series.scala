@@ -1,7 +1,6 @@
 package com.unchartedsoftware.mosaic.core.generation
 
 import com.unchartedsoftware.mosaic.core.analytic.Aggregator
-import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.request.TileRequest
@@ -33,9 +32,9 @@ import scala.reflect.ClassTag
  */
 class Series[DC, TC, BC, T, U, V, W, X](
   val maxBin: BC,
-  val cExtractor: ValueExtractor[DC],
+  val cExtractor: (Row) => Option[DC],
   val projection: Projection[DC,TC,BC],
-  val vExtractor: Option[ValueExtractor[T]],
+  val vExtractor: Option[(Row) => Option[T]],
   val binAggregator: Aggregator[T, U, V],
   val tileAggregator: Option[Aggregator[V, W, X]]) extends Serializable {
 }

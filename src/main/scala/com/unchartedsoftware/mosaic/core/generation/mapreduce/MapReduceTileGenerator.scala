@@ -1,7 +1,6 @@
 package com.unchartedsoftware.mosaic.core.generation.mapreduce
 
 import com.unchartedsoftware.mosaic.core.analytic.Aggregator
-import com.unchartedsoftware.mosaic.core.util.ValueExtractor
 import com.unchartedsoftware.mosaic.core.projection.Projection
 import com.unchartedsoftware.mosaic.core.generation.output.TileData
 import com.unchartedsoftware.mosaic.core.generation.{Series, TileGenerator}
@@ -161,11 +160,11 @@ private class MapReduceSeriesWrapper[DC, TC, BC, T, U: ClassTag, V, W: ClassTag,
    * @return Option[(TC, (Int, Option[T]))] a tile coordinate along with the 1D bin index and the extracted value column
    */
   def projectAndTransform(row: Row, z: Int): Option[(TC, (Int, Option[T]))] = {
-    val coord = series.projection.project(series.cExtractor.rowToValue(row), z, series.maxBin)
+    val coord = series.projection.project(series.cExtractor(row), z, series.maxBin)
     if (coord.isDefined) {
       val value: Option[T] = series.vExtractor match {
         case None => None
-        case _ => series.vExtractor.get.rowToValue(row)
+        case _ => series.vExtractor.get(row)
       }
       Some(
         (coord.get._1,
