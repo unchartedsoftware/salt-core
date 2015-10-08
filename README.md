@@ -97,7 +97,7 @@ val series = new Series((31, 31), cExtractor, projection, Some(vExtractor), Mean
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), (t: (Int, Int, Int)) => t._1)
 
 // Tile Generator object, which houses the generation logic
-@transient val gen = new MapReduceTileGenerator[(Int, Int, Int)](sc)
+@transient val gen = new MapReduceTileGenerator(sc)
 
 // Flip the switch by passing in the series and the request
 val result = gen.generate(rdd, Seq(series), request)
