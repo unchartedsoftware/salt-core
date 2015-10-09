@@ -30,6 +30,8 @@ Now, inside the container, build and install Salt:
 $ ./gradlew install
 ```
 
+Be sure to download taxi_micro.csv to the root directory within the container.
+
 Keep the container running! We'll need it to try the following example.
 
 #### <a name="example-generation"></a>Generation
@@ -91,9 +93,9 @@ val vExtractor = (r: Row) => {
 
 // A series ties the value extractors, projection and bin/tile aggregators together.
 // We'll be tiling average passengers per bin, and max/min of the bin averages per tile
-// We'll also divide our tiles into 32x32 bins so that the output is readable. We specify
-// this using the maximum possible bin index, which is (31,31)
-val series = new Series((31, 31), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
+// We'll also divide our tiles into 8x8 bins so that the output is readable. We specify
+// this using the maximum possible bin index, which is (7,7)
+val series = new Series((7, 7), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
 
 // which tiles are we generating? In this case, we'll use a TileSeqRequest
 // which allows us to specify a list of tiles we're interested in, by coordinate.
@@ -108,7 +110,7 @@ val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), (t: (Int, Int, Int)) => 
 val result = gen.generate(rdd, Seq(series), request)
 
 // Try to read some values from bins, from the first (and only) series
-result.map(t => (t(0).coords, t(0).bins)).collect
+println(result.map(t => (t(0).coords, t(0).bins)).collect.deep.mkString("\n"))
 ```
 
 ## Salt Library Contents
