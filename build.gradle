@@ -25,7 +25,7 @@ apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
 
-group = 'com.unchartedsoftware.salt'
+group = 'software.uncharted.salt'
 version = '0.13.0'
 
 project.ext {
@@ -61,7 +61,7 @@ task testJar(type: Jar) {
 
 task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar]) {
   executable = 'spark-submit'
-  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","com.unchartedsoftware.salt.Main","build/libs/salt-core-${version}-tests.jar"]
+  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/salt-core-${version}-tests.jar"]
 }
 
 task coverage(overwrite: true, dependsOn: test) << {

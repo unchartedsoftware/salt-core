@@ -37,18 +37,18 @@ Keep the container running! We'll need it to try the following example.
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,com.unchartedsoftware.salt:salt-core:0.13.0"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:0.13.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
 
 ```scala
-import com.unchartedsoftware.salt.core.projection.numeric._
-import com.unchartedsoftware.salt.core.generation.Series
-import com.unchartedsoftware.salt.core.generation.mapreduce.MapReduceTileGenerator
-import com.unchartedsoftware.salt.core.analytic._
-import com.unchartedsoftware.salt.core.generation.request._
-import com.unchartedsoftware.salt.core.analytic.numeric._
+import software.uncharted.salt.core.projection.numeric._
+import software.uncharted.salt.core.generation.Series
+import software.uncharted.salt.core.generation.mapreduce.MapReduceTileGenerator
+import software.uncharted.salt.core.analytic._
+import software.uncharted.salt.core.generation.request._
+import software.uncharted.salt.core.analytic.numeric._
 import java.sql.Timestamp
 import org.apache.spark.sql.Row
 
