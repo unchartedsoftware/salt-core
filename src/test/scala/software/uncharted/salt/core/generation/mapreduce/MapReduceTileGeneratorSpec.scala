@@ -250,6 +250,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
       }
 
       //TODO test multiple series
+
+      //TODO test multiple series where not every series has data at a certain tile coordinate
     }
   }
 }
