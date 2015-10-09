@@ -1,5 +1,5 @@
 # Salt
-> Need to visualize big data? Add a little salt.
+> Looking at big data? Add a little salt.
 
 ## Usage
 
