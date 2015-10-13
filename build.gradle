@@ -3,6 +3,10 @@
  * The default task will build the project and run the test suite inside
  * your local spark environment (spark-submit must be on the PATH).
  *
+ * To build and install library, run ./gradlew jar install
+ *
+ * To generate documentation and docs JAR, run ./gradlew docsJar
+ *
  * A coverage report will be present at build/reports/scoverage/index.html
  *
  * TODO integrate https://github.com/kt3k/coveralls-gradle-plugin
@@ -48,6 +52,15 @@ jar {
     exclude "META-INF/*.DSA"
     exclude "META-INF/*.RSA"
   }
+}
+
+task docs(type: ScalaDoc) {
+  source = sourceSets.main.allScala
+}
+
+task docsJar(type: Jar, dependsOn: docs) {
+    classifier = 'scaladoc'
+    from docs.destinationDir
 }
 
 checkScoverage {
