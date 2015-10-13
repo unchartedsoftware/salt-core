@@ -1,0 +1,13 @@
+sudo: required
+
+language: scala
+
+services:
+  - docker
+
+before_install:
+  - docker build -t docker.uncharted.software/salt-test .
+  - docker run --rm docker.uncharted.software/salt-test
+
+script:
+  - echo "All Done!"
