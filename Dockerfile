@@ -1,6 +1,6 @@
 #
 # Salt Test Container
-# Apache Spark 1.4.0
+# Apache Spark 1.5.1
 #
 # Runs the Salt test suite in a container
 #
@@ -16,7 +16,7 @@
 # the build directory from inside the docker container, since the container
 # happens to assign root permissions to all the files in the /build directory
 
-FROM sequenceiq/spark:1.4.0
+FROM uncharted/sparklet:1.5.1
 MAINTAINER Sean McIntyre <smcintyre@uncharted.software>
 
 ADD . /opt/salt
