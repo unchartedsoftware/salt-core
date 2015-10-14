@@ -72,7 +72,7 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar]) {
+task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar]) {
   executable = 'spark-submit'
   args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/salt-core-${version}-tests.jar"]
 }
