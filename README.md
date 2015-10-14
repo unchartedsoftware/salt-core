@@ -1,4 +1,4 @@
-# Salt
+# Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt.svg?branch=master)](https://travis-ci.org/unchartedsoftware/salt) [![Coverage Status](https://coveralls.io/repos/unchartedsoftware/salt/badge.svg?branch=master)](https://coveralls.io/r/unchartedsoftware/salt?branch=master)
 > Looking at big data? Add a little salt.
 
 ## Usage
