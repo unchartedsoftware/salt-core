@@ -46,7 +46,7 @@ configurations {
 }
 
 group = 'software.uncharted.salt'
-version = '0.14.0'
+version = '0.15.0'
 
 project.ext {
   scalaBinaryVersion = '2.10'
