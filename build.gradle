@@ -18,7 +18,9 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.github.maiflai:gradle-scalatest:0.9', 'org.scoverage:gradle-scoverage:1.0.9'
+    classpath 'com.github.maiflai:gradle-scalatest:0.9'
+    classpath 'org.scoverage:gradle-scoverage:1.0.9'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
   }
 }
 
@@ -28,6 +30,7 @@ apply plugin: 'maven'
 apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
+apply plugin: 'com.github.kt3k.coveralls'
 
 group = 'software.uncharted.salt'
 version = '0.14.0'
