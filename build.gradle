@@ -85,6 +85,10 @@ task coverage(overwrite: true, dependsOn: test) << {
   checkScoverage.execute()
 }
 
+coveralls {
+  coberturaReportPath = "${buildDir}/reports/scoverage/cobertura.xml"
+}
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
