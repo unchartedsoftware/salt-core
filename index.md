@@ -23,16 +23,16 @@ Since running Salt requires a Spark cluster, a containerized test environment is
 
 Build and fire up the container with a shell:
 
-```bash
+{% highlight bash %}
 $ docker build -t docker.uncharted.software/salt-test .
 $ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
-```
+{% endhighlight %}
 
 Now, inside the container, build and install Salt:
 
-```bash
+{% highlight bash %}
 $ ./gradlew install
-```
+{% endhighlight %}
 
 Be sure to download taxi_micro.csv to the root directory within the container.
 
@@ -42,14 +42,14 @@ Keep the container running! We'll need it to try the following example.
 
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
-```bash
+{% highlight bash %}
 $ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:0.14.0"
-```
+{% endhighlight %}
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
 
 
-```scala
+{% highlight scala %}
 import software.uncharted.salt.core.projection.numeric._
 import software.uncharted.salt.core.generation.Series
 import software.uncharted.salt.core.generation.mapreduce.MapReduceTileGenerator
@@ -116,7 +116,7 @@ val result = gen.generate(rdd, Seq(series), request)
 
 // Try to read some values from bins, from the first (and only) series
 println(result.map(t => (t(0).coords, t(0).bins)).collect.deep.mkString("\n"))
-```
+{% endhighlight %}
 
 ## Salt Library Contents
 
@@ -166,18 +166,18 @@ Salt currently supports serializing tiles consisting of basic type values to Apa
 
 Since testing Salt requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Salt within that environment:
 
-```bash
+{% highlight bash %}
 $ docker build -t docker.uncharted.software/salt-test .
 $ docker run --rm docker.uncharted.software/salt-test
-```
+{% endhighlight %}
 
 The above commands trigger a one-off build and test of Salt. If you want to interactively test Salt while developing (without having to re-run the container), use the following commands:
 
-```bash
+{% highlight bash %}
 $ docker build -t docker.uncharted.software/salt-test .
 $ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
 # then, inside the running container
 $ ./gradlew
-```
+{% endhighlight %}
 
 This will mount the code directory into the container as a volume, allowing you to make code changes on your host machine and test them on-the-fly.
