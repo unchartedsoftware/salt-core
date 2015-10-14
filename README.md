@@ -20,8 +20,8 @@ Since running Salt requires a Spark cluster, a containerized test environment is
 Build and fire up the container with a shell:
 
 ```bash
-$ docker build -t docker.uncharted.software/salt-test .
-$ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
+$ docker build -t uncharted/salt-test .
+$ docker run -v $(pwd):/opt/salt -it uncharted/salt-test bash
 ```
 
 Now, inside the container, build and install Salt:
@@ -162,15 +162,15 @@ Salt currently supports serializing tiles consisting of basic type values to Apa
 Since testing Salt requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Salt within that environment:
 
 ```bash
-$ docker build -t docker.uncharted.software/salt-test .
-$ docker run --rm docker.uncharted.software/salt-test
+$ docker build -t uncharted/salt-test .
+$ docker run --rm uncharted/salt-test
 ```
 
 The above commands trigger a one-off build and test of Salt. If you want to interactively test Salt while developing (without having to re-run the container), use the following commands:
 
 ```bash
-$ docker build -t docker.uncharted.software/salt-test .
-$ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
+$ docker build -t uncharted/salt-test .
+$ docker run -v $(pwd):/opt/salt -it uncharted/salt-test bash
 # then, inside the running container
 $ ./gradlew
 ```

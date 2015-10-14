@@ -16,7 +16,7 @@ before_install:
   - echo "DEBIAN_FRONTEND=noninteractive" >> travis.env
   - echo "HAS_JOSH_K_SEAL_OF_APPROVAL" >> travis.env
   # build and run test container
-  - docker build -t docker.uncharted.software/salt-test .
-  - docker run --env-file travis.env --rm docker.uncharted.software/salt-test coverage coveralls
+  - docker build -t uncharted/salt-test .
+  - docker run --env-file travis.env --rm uncharted/salt-test coverage coveralls
 
 script: echo "All Done!"
