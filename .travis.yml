@@ -6,7 +6,17 @@ services:
   - docker
 
 before_install:
+  # generate environment file so we can give the travis environment to our test container
+  - env | grep TRAVIS_ > travis.env
+  - echo "GRADLE_OPTS=-Dorg.gradle.daemon=false" >> travis.env
+  - echo "CI_NAME=travis_ci" >> travis.env
+  - echo "CI=true" >> travis.env
+  - echo "TRAVIS=true" >> travis.env
+  - echo "CONTINUOUS_INTEGRATION=true" >> travis.env
+  - echo "DEBIAN_FRONTEND=noninteractive" >> travis.env
+  - echo "HAS_JOSH_K_SEAL_OF_APPROVAL" >> travis.env
+  # build and run test container
   - docker build -t docker.uncharted.software/salt-test .
-  - docker run -e "GRADLE_OPTS=-Dorg.gradle.daemon=false" -e "CI_NAME=travis_ci" --rm docker.uncharted.software/salt-test coverage coveralls
+  - docker run --env-file travis.env --rm docker.uncharted.software/salt-test coverage coveralls
 
 script: echo "All Done!"
