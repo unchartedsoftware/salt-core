@@ -5,11 +5,11 @@
 # Runs the Salt test suite in a container
 #
 # One-time usage (such as on travis):
-# $ docker build -t docker.uncharted.software/salt-test .
-# $ docker run --rm docker.uncharted.software/salt-test
+# $ docker build -t uncharted/salt-test .
+# $ docker run --rm uncharted/salt-test
 #
 # Dev environment usage:
-# $ docker run -v $(pwd):/opt/salt -it --entrypoint=/bin/bash docker.uncharted.software/salt-test
+# $ docker run -v $(pwd):/opt/salt -it --entrypoint=/bin/bash uncharted/salt-test
 # container$ ./gradlew
 #
 # If you need to install the jars to your local m2 repository, be sure to clean

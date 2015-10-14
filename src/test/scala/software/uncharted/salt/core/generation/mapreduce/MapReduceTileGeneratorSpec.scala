@@ -114,7 +114,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some((r.getDouble(0), r.getDouble(1)))
         val projection = new CartesianProjection((0D, 0D), (1D, 1D))
-        val request = new TileSeqRequest[(Int, Int, Int)](Seq((1,0,0)), (t: (Int, Int, Int)) => t._1)
+        val request = new TileSeqRequest[(Int, Int, Int)](Seq((0,0,0)), (t: (Int, Int, Int)) => t._1)
 
         //create Series
         val series = Seq(
