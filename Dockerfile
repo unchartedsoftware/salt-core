@@ -9,7 +9,7 @@
 # $ docker run --rm docker.uncharted.software/salt-test
 #
 # Dev environment usage:
-# $ docker run -v $(pwd):/opt/salt -it docker.uncharted.software/salt-test bash
+# $ docker run -v $(pwd):/opt/salt -it --entrypoint=/bin/bash docker.uncharted.software/salt-test
 # container$ ./gradlew
 #
 # If you need to install the jars to your local m2 repository, be sure to clean
@@ -36,4 +36,6 @@ RUN curl http://central.maven.org/maven2/org/scalatest/scalatest_2.10/2.2.5/scal
 # download scoverage
 RUN curl https://repo1.maven.org/maven2/org/scoverage/scalac-scoverage-runtime_2.10/1.1.1/scalac-scoverage-runtime_2.10-1.1.1.jar > /opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar
 
-CMD ["./gradlew"]
+ENTRYPOINT ["./gradlew"]
+
+CMD ["coverage"]
