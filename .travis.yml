@@ -7,6 +7,6 @@ services:
 
 before_install:
   - docker build -t docker.uncharted.software/salt-test .
-  - docker run -e "GRADLE_OPTS=-Dorg.gradle.daemon=false" --rm docker.uncharted.software/salt-test
+  - docker run -e "GRADLE_OPTS=-Dorg.gradle.daemon=false" --rm docker.uncharted.software/salt-test coverage coveralls
 
 script: echo "All Done!"
