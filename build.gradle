@@ -104,6 +104,9 @@ coveralls {
   coberturaReportPath = "${buildDir}/reports/scoverage/cobertura.xml"
 }
 
+//////////////////////////////////////
+//BEGIN nexus oss
+//////////////////////////////////////
 task createPom << {
   pom {
     project {
@@ -127,8 +130,25 @@ task createPom << {
         }
       }
     }
-  }.writeTo("build/libs/${artifactName}-${version}.pom")
+  }.writeTo("${buildDir}/libs/${artifactName}-${version}.pom")
 }
+
+signing {
+  sign configurations.archives
+  sign testJar
+  sign docsJar
+}
+task signPom(dependsOn: createPom) << {
+  signing.sign(file("${buildDir}/libs/${artifactName}-${version}.pom"))
+}
+task nexus(type: Jar, dependsOn: [signArchives, signTestJar, signDocsJar, signPom]) {
+  baseName "${artifactName}-nexus-bundle"
+  from "${buildDir}/libs"
+  destinationDir file("${buildDir}/nexus")
+}
+//////////////////////////////////////
+//END nexus oss
+//////////////////////////////////////
 
 sourceSets {
   main { compileClasspath += configurations.provided }
