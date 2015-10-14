@@ -3,10 +3,8 @@ title: Salt
 email: info@uncharted.software
 description: > # this means to ignore newlines until "baseurl:"
   Looking at big data? Add a little salt.
-baseurl: "/salt/" # the subpath of your site, e.g. /blog/
-url: "http://unchartedsoftware.github.io" # the base hostname & protocol for your site
-#twitter_username: pantera_io
-github_username:  unchartedsoftware
+# baseurl: "/salt/" # the subpath of your site, e.g. /blog/
+# url: "http://unchartedsoftware.github.io" # the base hostname & protocol for your site
 
 # Build settings
 markdown: kramdown
