@@ -5,13 +5,17 @@
 
   <body>
 
-    {% include header.html %}
+    <div class="wrapper">
+      {% include header.html %}
 
-    <section>
-      {{ content }}
-    </section>
+      <section>
+        {{ content }}
+      </section>
 
-    {% include footer.html %}
+      {% include footer.html %}
+    </div>
+
+    <script src="js/scale.fix.js"></script>
 
   </body>
 
