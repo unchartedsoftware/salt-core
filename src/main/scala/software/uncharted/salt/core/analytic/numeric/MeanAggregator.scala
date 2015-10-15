@@ -17,7 +17,6 @@
 package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
-import software.uncharted.salt.core.analytic.numeric._
 
 //Track sums and counts separately, then finish by dividing
 object MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Double] {

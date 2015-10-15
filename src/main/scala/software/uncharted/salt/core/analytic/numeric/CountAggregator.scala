@@ -28,7 +28,7 @@ object CountAggregator extends Aggregator[Any, Double, java.lang.Double] {
     current + 1
   }
   override def merge(left: Double, right: Double): Double = {
-    left+right
+    left + right
   }
 
   def finish(intermediate: Double): java.lang.Double = {

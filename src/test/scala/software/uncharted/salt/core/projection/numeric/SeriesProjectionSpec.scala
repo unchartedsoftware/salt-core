@@ -30,8 +30,8 @@ class SeriesProjectionSpec extends FunSpec {
 
       it("should return None when a row's xCol is outside of the defined bounds") {
         val projection = new SeriesProjection(0D, 1D)
-        assert(projection.project(Some(projection.max+1), 0, 100) === None)
-        assert(projection.project(Some(projection.min-1), 0, 100) === None)
+        assert(projection.project(Some(projection.max + 1), 0, 100) === None)
+        assert(projection.project(Some(projection.min - 1), 0, 100) === None)
         assert(projection.project(Some(projection.max), 0, 100) === None)
         assert(projection.project(Some(projection.min), 0, 100) === None)
       }

@@ -17,7 +17,6 @@
 package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
-import software.uncharted.salt.core.analytic.numeric._
 
 object MinMaxAggregator extends Aggregator[java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)] {
   def default(): (Double, Double) = {

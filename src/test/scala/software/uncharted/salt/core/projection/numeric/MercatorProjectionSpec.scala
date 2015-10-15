@@ -30,16 +30,16 @@ class MercatorProjectionSpec extends FunSpec {
 
       it("should return None when a row's xCol is outside of the defined bounds") {
         val projection = new MercatorProjection((-180D, -85D), (180D, 85D))
-        assert(projection.project(Some((projection.max._1+1, Math.random)), 0, (100, 100)) === None)
-        assert(projection.project(Some((projection.min._1-1, Math.random)), 0, (100, 100)) === None)
+        assert(projection.project(Some((projection.max._1 + 1, Math.random)), 0, (100, 100)) === None)
+        assert(projection.project(Some((projection.min._1 - 1, Math.random)), 0, (100, 100)) === None)
         assert(projection.project(Some((projection.max._1, Math.random)), 0, (100, 100)) === None)
         assert(projection.project(Some((projection.min._1, Math.random)), 0, (100, 100)) === None)
       }
 
       it("should return None when a row's yCol is outside of the defined bounds") {
         val projection = new MercatorProjection((-180D, -85D), (180D, 85D))
-        assert(projection.project(Some((Math.random, projection.max._2+1)), 0, (100, 100)) === None)
-        assert(projection.project(Some((Math.random, projection.min._2-1)), 0, (100, 100)) === None)
+        assert(projection.project(Some((Math.random, projection.max._2 + 1)), 0, (100, 100)) === None)
+        assert(projection.project(Some((Math.random, projection.min._2 - 1)), 0, (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.max._2)), 0, (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.min._2)), 0, (100, 100)) === None)
       }

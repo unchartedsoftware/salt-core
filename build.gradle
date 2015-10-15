@@ -16,11 +16,13 @@ buildscript {
   repositories {
     mavenLocal()
     mavenCentral()
+    jcenter()
   }
   dependencies {
     classpath 'com.github.maiflai:gradle-scalatest:0.9'
     classpath 'org.scoverage:gradle-scoverage:1.0.9'
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
+    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.7.2'
   }
 }
 
@@ -32,6 +34,7 @@ apply plugin: 'com.github.maiflai.scalatest'
 apply plugin: 'scoverage'
 apply plugin: 'idea'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'scalaStyle'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -77,8 +80,8 @@ task docs(type: ScalaDoc) {
 }
 
 task docsJar(type: Jar, dependsOn: docs) {
-    classifier = 'scaladoc'
-    from docs.destinationDir
+  classifier = 'scaladoc'
+  from docs.destinationDir
 }
 
 checkScoverage {
@@ -90,7 +93,7 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar]) {
+task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
   args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/salt-core-${version}-tests.jar"]
 }
@@ -149,6 +152,14 @@ task nexus(type: Jar, dependsOn: [signArchives, signTestJar, signDocsJar, signPo
 //////////////////////////////////////
 //END nexus oss
 //////////////////////////////////////
+
+scalaStyle {
+  configLocation = "scalastyle_config.xml"
+  includeTestSourceDirectory = true
+  source = sourceSets.main.allScala
+  testSource = sourceSets.test.allScala
+  failOnWarning = true
+}
 
 sourceSets {
   main { compileClasspath += configurations.provided }

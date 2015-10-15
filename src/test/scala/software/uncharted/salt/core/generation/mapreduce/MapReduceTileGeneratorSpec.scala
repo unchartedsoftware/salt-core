@@ -206,7 +206,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         var j = 0
         for (i <- 0 until 10) {
           val zeroBin = tilesMap.get((0,0)).get.bins(i)
-          assert(zeroBin === combinedOneBins(j) + combinedOneBins(j+1))
+          assert(zeroBin === combinedOneBins(j) + combinedOneBins(j + 1))
           j = j + 2
         }
       }

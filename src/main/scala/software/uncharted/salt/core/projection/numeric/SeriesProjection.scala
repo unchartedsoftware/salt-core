@@ -45,7 +45,7 @@ class SeriesProjection(
       val n = Math.pow(2, z).toInt;
       var howFarX = scaledDataX * n
       var x = howFarX.toInt
-      var xBin = ((howFarX - x)*(maxBin+1)).toInt
+      var xBin = ((howFarX - x)*(maxBin + 1)).toInt
       Some(((z, x), xBin))
     }
   }
