@@ -93,7 +93,7 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar]) {
+task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
   args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/salt-core-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/salt-core-${version}-tests.jar"]
 }
@@ -158,7 +158,8 @@ scalaStyle {
   includeTestSourceDirectory = true
   source = sourceSets.main.allScala
   testSource = sourceSets.test.allScala
- }
+  failOnWarning = true
+}
 
 sourceSets {
   main { compileClasspath += configurations.provided }

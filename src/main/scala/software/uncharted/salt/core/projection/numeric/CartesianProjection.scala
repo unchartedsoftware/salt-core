@@ -51,13 +51,13 @@ class CartesianProjection(
       var howFarY = scaledDataY * n
       var x = howFarX.toInt
       var y = howFarY.toInt
-      var xBin = ((howFarX - x)*(maxBin._1+1)).toInt
-      var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2+1)).toInt
+      var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
+      var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2 + 1)).toInt
       Some(((z, x, y), (xBin, yBin)))
     }
   }
 
   override def binTo1D(bin: (Int, Int), maxBin: (Int, Int)): Int = {
-    bin._1 + bin._2*(maxBin._1+1)
+    bin._1 + bin._2*(maxBin._1 + 1)
   }
 }

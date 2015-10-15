@@ -84,7 +84,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     val combiner = new MapReduceTileGeneratorCombiner[RT,TC](bSeries)
 
     //do the work in a closure which is sanitized of all non-serializable things
-    val result = _sanitizedClosureGenerate[RT,TC](
+    val result = sanitizedClosureGenerate[RT,TC](
                     transformedData,
                     combiner,
                     bSeries)
@@ -95,7 +95,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     result
   }
 
-  def _sanitizedClosureGenerate[RT,TC: ClassTag](
+  private def sanitizedClosureGenerate[RT,TC: ClassTag](
     transformedData: RDD[(TC, (Int, (Int, Option[_])))],
     combiner: MapReduceTileGeneratorCombiner[RT,TC],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
@@ -162,7 +162,7 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
 private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
   series: Series[RT, DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
 
-  private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin)+1
+  private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin) + 1
 
   /**
    * Combines cExtractor with projection to produce an intermediate

@@ -31,4 +31,4 @@ import org.apache.spark.sql.Row
 abstract class NumericProjection[DC, TC, BC](
   val min: DC,
   val max: DC
-) extends Projection[DC, TC, BC]() {}
+) extends Projection[DC, TC, BC]()
