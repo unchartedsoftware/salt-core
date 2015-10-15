@@ -9,3 +9,4 @@ target/
 metastore_db/
 *.log
 gradle.properties
+.DS_Store
