@@ -37,7 +37,7 @@ object MapReduceTileGeneratorSpecClosure {
     request: TileRequest[(Int, Int)]
   ): Seq[Seq[TileData[(Int, Int), _, _]]] = {
     //generate some random data
-    var frame = Spark.sc.parallelize(data.map(a => Row(a)))
+    var frame = Spark.sc.parallelize(data.map(a => Row(a)), 4)
 
     //create generator
     val gen = new MapReduceTileGenerator(Spark.sc)
