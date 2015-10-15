@@ -141,6 +141,15 @@ signing {
   sign testJar
   sign docsJar
 }
+//make sure install doesn't depend on signing
+gradle.taskGraph.whenReady { taskGraph ->
+  def tasks = taskGraph.getAllTasks()
+  if (tasks.find {it.name == 'install'}) {
+    tasks.findAll {it.name == 'signArchives' || it.name == 'signDocsJar' || it.name == 'signTestJar'}.each { task ->
+      task.enabled = false
+    }
+  }
+}
 task signPom(dependsOn: createPom) << {
   signing.sign(file("${buildDir}/libs/${artifactName}-${version}.pom"))
 }
