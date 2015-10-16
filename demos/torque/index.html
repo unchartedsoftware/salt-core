@@ -1,0 +1,133 @@
+---
+# Force Jekyll to process to ensure content isn't stale during dev
+---
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Salt Torque Example</title>
+    <meta name="description" content="Example application using Salt to generate Torque TileJSON">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+
+    <style>
+      #map, html, body {
+        width: 100%; height: 100%; padding: 0; margin: 0;
+      }
+      #current-time {
+        position: absolute;
+        bottom: 20px;
+        right: 10px;
+        color: white;
+        font-size: 2em;
+      }
+    </style>
+
+    <style id="pickup-style" type="text">
+      Map {
+        -torque-time-attribute: "date";
+        -torque-frame-count: 288;
+        -torque-animation-duration: 15;
+        -torque-resolution: 4
+      }
+      #layer {
+        marker-width: 2;
+        marker-fill-opacity: 0.5;
+        marker-fill: #d7301f;
+        comp-op: "screen";
+        [value > 2] { marker-fill: #d7301f; }
+        [value > 3] { marker-fill: #993404; }
+        [value > 4] { marker-fill: #ef6548; }
+        [value > 5] { marker-fill: #fc8d59; }
+        [value > 6] { marker-fill: #fdbb84; }
+        [value > 7] { marker-fill: #fdd49e; }
+        [frame-offset = 1] { marker-width: 5; marker-fill-opacity: 0.08;}
+        [frame-offset = 2] { marker-width: 10; marker-fill-opacity: 0.05;}
+        [frame-offset = 3] { marker-width: 15; marker-fill-opacity: 0.02;}
+      }
+    </style>
+
+    <style id="dropoff-style" type="text">
+      Map {
+        -torque-time-attribute: "date";
+        -torque-frame-count: 288;
+        -torque-animation-duration: 15;
+        -torque-resolution: 4
+      }
+      #layer {
+        marker-width: 2;
+        marker-fill-opacity: 0.8;
+        marker-fill: #225ea8;
+        comp-op: "screen";
+        [value > 2] { marker-fill: #225ea8; }
+        [value > 3] { marker-fill: #1d91c0; }
+        [value > 4] { marker-fill: #41b6c4; }
+        [value > 5] { marker-fill: #7fcdbb; }
+        [value > 6] { marker-fill: #c7e9b4; }
+        [value > 7] { marker-fill: #ffffcc; }
+        [frame-offset = 1] { marker-width: 5; marker-fill-opacity: 0.08;}
+        [frame-offset = 2] { marker-width: 10; marker-fill-opacity: 0.05;}
+        [frame-offset = 3] { marker-width: 15; marker-fill-opacity: 0.02;}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div id="current-time"></div>
+  </body>
+
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+  <script src="js/torque.full.js"></script>
+
+  <script>
+    // Map control
+    var map = new L.Map('map', {
+      zoomControl: true,
+      center: [40.7, -73.9],
+      zoom: 11,
+      maxZoom: 14
+    });
+
+    // Base map
+    var baseMap = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: 'CartoDB'
+    })
+    baseMap.addTo(map);
+
+    var dropoffsLayer = new L.TorqueLayer({
+      'tileJSON': './dropoffs.json',
+      cartocss: document.getElementById('dropoff-style').innerHTML,
+      zIndex: 10
+    });
+    dropoffsLayer.addTo(map);
+    dropoffsLayer.play();
+
+    // Torque layer defined by tiles.json
+    var pickupsLayer = new L.TorqueLayer({
+      'tileJSON': './pickups.json',
+      cartocss: document.getElementById('pickup-style').innerHTML,
+      zIndex: 100
+    });
+    pickupsLayer.addTo(map);
+    pickupsLayer.play();
+
+    L.control.layers({}, {
+      "Drop offs": dropoffsLayer,
+      "Pick ups": pickupsLayer
+    },{
+      collapsed: false
+    }).addTo(map);
+
+    // Current time display
+    var currentTime = document.getElementById('current-time');
+    setInterval(function() {
+      var date = pickupsLayer.getTime();
+      var minutes = date.getMinutes();
+      currentTime.innerHTML = date.getHours() + ':' + (minutes < 10 ? '0': '') + minutes;
+    }, 100);
+
+  </script>
+</html>
