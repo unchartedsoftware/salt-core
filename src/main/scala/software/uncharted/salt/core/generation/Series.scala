@@ -30,6 +30,8 @@ import scala.collection.mutable.Map
  *                            ValueExtractor --------^
  * Multiple series are meant to be tiled by a TileGenerator simultaneously
  *
+ * Also used to extract its own SeriesData from a Tile
+ *
  * @param maxBin The maximum possible bin index (i.e. if your tile is 256x256, this would be (255,255))
  * @param cExtractor a mechanism for grabbing the data-space coordinates from a source record
  * @param projection the  projection from data to some space (i.e. 2D or 1D)

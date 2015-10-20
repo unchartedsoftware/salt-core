@@ -19,7 +19,8 @@ package software.uncharted.salt.core.generation.output
 import software.uncharted.salt.core.projection.Projection
 
 /**
- * A thin wrapper class for the output of a tile generation
+ * A thin wrapper class for the output of a tile generation,
+ * for a single Series
  *
  * @param coords the tile coordinates for this aggregator
  * @param bins the output values of bin aggregators
