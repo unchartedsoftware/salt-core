@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package software.uncharted.salt.serialization
+package software.uncharted.salt.core.generation.output
 
-import software.uncharted.salt.core.generation.output.SeriesData
+import scala.collection.mutable.Map
+import software.uncharted.salt.core.generation.Series
 
-trait Serializer[V, X] {
-  def serialize(SeriesData: SeriesData[_, V, X]): Array[Byte]
+class Tile[TC](seriesData: Map[String,SeriesData[TC,_,_]]) extends Serializable {
+  def apply(series: Series[_, _, TC, _, _, _, _, _, _]): SeriesData[TC,_,_] = {
+    seriesData.get(series.id).get
+  }
 }

@@ -29,15 +29,10 @@ import software.uncharted.salt.core.projection.Projection
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam X Output data type for tile aggregators
  */
-class TileData[TC, V, X](
+class SeriesData[TC, V, X](
   val coords: TC,
   val bins: Seq[V],
   val binsTouched: Int,
   val defaultBinValue: V,
   val tileMeta: Option[X],
-  val projection: Projection[_,TC,_]) extends Serializable {
-
-  def getBin(bin: Int): V = {
-    bins(bin)
-  }
-}
+  val projection: Projection[_,TC,_]) extends Serializable

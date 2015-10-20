@@ -18,7 +18,6 @@ package software.uncharted.salt.core.generation
 
 import software.uncharted.salt.core.analytic.Aggregator
 import software.uncharted.salt.core.projection.Projection
-import software.uncharted.salt.core.generation.output.TileData
 import software.uncharted.salt.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -52,4 +51,7 @@ class Series[RT, DC, TC, BC, T, U, V, W, X](
   val projection: Projection[DC,TC,BC],
   val vExtractor: Option[(RT) => Option[T]],
   val binAggregator: Aggregator[T, U, V],
-  val tileAggregator: Option[Aggregator[V, W, X]]) extends Serializable
+  val tileAggregator: Option[Aggregator[V, W, X]]) extends Serializable {
+
+  private[salt] val id: String = java.util.UUID.randomUUID.toString
+}

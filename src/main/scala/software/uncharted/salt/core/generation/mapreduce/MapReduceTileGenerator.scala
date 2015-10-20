@@ -18,14 +18,14 @@ package software.uncharted.salt.core.generation.mapreduce
 
 import software.uncharted.salt.core.analytic.Aggregator
 import software.uncharted.salt.core.projection.Projection
-import software.uncharted.salt.core.generation.output.TileData
+import software.uncharted.salt.core.generation.output.{SeriesData,Tile}
 import software.uncharted.salt.core.generation.{Series, TileGenerator}
 import software.uncharted.salt.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer,HashMap}
 import scala.util.Try
 
 /**
@@ -67,7 +67,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     })
   }
 
-  override def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC,_,_]]] = {
+  override def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]] = {
     data.cache //ensure data is cached
 
     val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
@@ -99,22 +99,22 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     transformedData: RDD[(TC, (Int, (Int, Option[_])))],
     combiner: MapReduceTileGeneratorCombiner[RT,TC],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
-  ): RDD[Seq[TileData[TC,_,_]]] = {
+  ): RDD[Tile[TC]] = {
     //Do the actual combineByKey to produce finished bin data
-    val tileData = transformedData.combineByKey(
+    val SeriesData = transformedData.combineByKey(
       combiner.createCombiner,
       combiner.mergeValue,
       combiner.mergeCombiners
     )
 
     //finish tiles by finishing bins, and applying tile aggregators to bin data
-    tileData.map(t => {
+    SeriesData.map(t => {
       val series = bSeries.value
-      val buff = new ArrayBuffer[TileData[TC,_,_]](series.length)
+      val buff = new HashMap[String, SeriesData[TC,_,_]]
       for(s <- 0 until series.length) {
-        buff.append(series(s).finish((t._1, t._2(s))))
+        buff += (series(s).id -> series(s).finish((t._1, t._2(s))))
       }
-      buff.toSeq
+      new Tile(buff)
     })
   }
 }
@@ -161,6 +161,10 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
  */
 private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
   series: Series[RT, DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
+
+  private[salt] def id: String = {
+    series.id
+  }
 
   private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin) + 1
 
@@ -225,13 +229,13 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
 
   /**
    * Converts a set of intermediate bin values into a finished
-   * TileData object by finish()ing the bins and applying the
+   * SeriesData object by finish()ing the bins and applying the
    * tileAggregator
    *
    * @param binData a tuple consisting of a tile coordinate and the intermediate bin values
-   * @return a finished TileData object
+   * @return a finished SeriesData object
    */
-  def finish(binData: (TC, Array[_])): TileData[TC, V, X] = {
+  def finish(binData: (TC, Array[_])): SeriesData[TC, V, X] = {
     var tile: W = series.tileAggregator match {
       case None => tileIntermediateManifest.runtimeClass.newInstance.asInstanceOf[W]
       case _ => series.tileAggregator.get.default
@@ -252,6 +256,6 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
       case None => None
       case _ => Some(series.tileAggregator.get.finish(tile))
     }
-    new TileData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile, series.projection)
+    new SeriesData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile, series.projection)
   }
 }
