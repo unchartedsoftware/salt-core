@@ -83,7 +83,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
         val result = tiles.map(s => {
-          s.apply(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+          s(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
         assert(result.length === 1) //did we generate a tile?
 
@@ -119,7 +119,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         val tiles = MapReduceTileGeneratorSpecClosure.testCartesianClosure(data, Seq(series), request)
         val result = tiles.map(s => {
-          s.apply(series).asInstanceOf[SeriesData[(Int, Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+          s(series).asInstanceOf[SeriesData[(Int, Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
         assert(result.length === 1) //did we generate the right number of tiles?
 
@@ -147,7 +147,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
         val result = tiles.map(s => {
-          s.apply(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+          s(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
         assert(result.length === 1) //did we generate a tile?
 
@@ -184,7 +184,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
         val result = tiles.map(s => {
-          s.apply(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+          s(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
         assert(result.length === 3) //did we generate tiles?
 
@@ -222,7 +222,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
         val result = tiles.map(s => {
-          s.apply(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
+          s(series).asInstanceOf[SeriesData[(Int, Int), java.lang.Double, (java.lang.Double, java.lang.Double)]]
         })
         assert(result.length === 1) //did we generate a tile?
 
