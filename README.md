@@ -39,7 +39,7 @@ Keep the container running! We'll need it to try the following example.
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:0.15.0"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:1.0.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
@@ -95,7 +95,7 @@ val vExtractor = (r: Row) => {
 // We'll be tiling average passengers per bin, and max/min of the bin averages per tile
 // We'll also divide our tiles into 8x8 bins so that the output is readable. We specify
 // this using the maximum possible bin index, which is (7,7)
-val series = new Series((7, 7), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
+val avgPassengers = new Series((7, 7), cExtractor, projection, Some(vExtractor), MeanAggregator, Some(MinMaxAggregator))
 
 // which tiles are we generating? In this case, we'll use a TileSeqRequest
 // which allows us to specify a list of tiles we're interested in, by coordinate.
@@ -107,10 +107,13 @@ val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), (t: (Int, Int, Int)) => 
 @transient val gen = new MapReduceTileGenerator(sc)
 
 // Flip the switch by passing in the series and the request
-val result = gen.generate(rdd, Seq(series), request)
+// Note: Multiple series can be run against the source data
+// at the same time, so a Seq[Series] is also supported as
+// the second argument to generate()
+val result = gen.generate(rdd, avgPassengers, request)
 
 // Try to read some values from bins, from the first (and only) series
-println(result.map(t => (t(0).coords, t(0).bins)).collect.deep.mkString("\n"))
+println(result.map(t => (avgPassengers(t).coords, avgPassengers(t).bins)).collect.deep.mkString("\n"))
 ```
 
 ## Salt Library Contents
