@@ -19,4 +19,7 @@ package software.uncharted.salt.core.generation.output
 import scala.collection.mutable.Map
 import software.uncharted.salt.core.generation.Series
 
-class Tile[TC](private[salt] val seriesData: Map[String,SeriesData[TC,_,_]]) extends Serializable
+class Tile[TC](
+  val coords: TC,
+  private[salt] val seriesData: Map[String,SeriesData[TC,_,_]]
+) extends Serializable

@@ -101,20 +101,20 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
   ): RDD[Tile[TC]] = {
     //Do the actual combineByKey to produce finished bin data
-    val SeriesData = transformedData.combineByKey(
+    val tileData = transformedData.combineByKey(
       combiner.createCombiner,
       combiner.mergeValue,
       combiner.mergeCombiners
     )
 
     //finish tiles by finishing bins, and applying tile aggregators to bin data
-    SeriesData.map(t => {
+    tileData.map(t => {
       val series = bSeries.value
       val buff = new HashMap[String, SeriesData[TC,_,_]]
       for(s <- 0 until series.length) {
         buff += (series(s).id -> series(s).finish((t._1, t._2(s))))
       }
-      new Tile(buff)
+      new Tile(t._1, buff)
     })
   }
 }
