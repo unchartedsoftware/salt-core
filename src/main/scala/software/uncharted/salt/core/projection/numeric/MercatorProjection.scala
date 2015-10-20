@@ -26,7 +26,8 @@ import org.apache.spark.sql.Row
  */
 class MercatorProjection(
   min: (Double, Double) = (-180, -85.05112878),
-  max: (Double, Double) = (180, 85.05112878)) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
+  max: (Double, Double) = (180, 85.05112878),
+  tms: Boolean = true) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
   val _internalMinX = Math.max(min._1, -180);
@@ -48,16 +49,19 @@ class MercatorProjection(
       var lat = dCoords.get._2
       val latRad = (-lat) * piOver180;
       val n = Math.pow(2, z).toInt;
+
       val howFarX = n * ((lon + 180) / 360);
-      val howFarY = n * (1-(Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI)) / 2
+      val howFarY = n * (1 + (Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI)) / 2
 
       val x = howFarX.toInt
       val y = howFarY.toInt
 
       var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
-      var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2 + 1)).toInt
+      var yBin = ((howFarY - y)*(maxBin._2 + 1)).toInt
 
-      Some(((z, x, y), (xBin, yBin)))
+      // If TMS system, flip y axis
+      val yCoord = if (tms) n - 1 - y else y
+      Some(((z, x, yCoord), (xBin, yBin)))
     }
   }
 
