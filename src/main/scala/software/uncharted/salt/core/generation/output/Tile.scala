@@ -19,8 +19,4 @@ package software.uncharted.salt.core.generation.output
 import scala.collection.mutable.Map
 import software.uncharted.salt.core.generation.Series
 
-class Tile[TC](seriesData: Map[String,SeriesData[TC,_,_]]) extends Serializable {
-  def apply(series: Series[_, _, TC, _, _, _, _, _, _]): SeriesData[TC,_,_] = {
-    seriesData.get(series.id).get
-  }
-}
+class Tile[TC](private[salt] val seriesData: Map[String,SeriesData[TC,_,_]]) extends Serializable
