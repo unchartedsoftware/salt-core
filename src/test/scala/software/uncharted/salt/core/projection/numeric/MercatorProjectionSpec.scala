@@ -121,16 +121,19 @@ class MercatorProjectionSpec extends FunSpec {
         val stdProjection = new MercatorProjection((-180D, -85D), (180D, 85D), false)
 
         val zoom = 10
-        val n = 1 << zoom
+        val n = Math.pow(2, zoom).toInt - 1
         for (i <- -50D until 50D by 10D) {
-          val row = Some(i,i)
+          val row = Some((i,i))
 
-          val tms = tmsProjection.project(row, zoom, (0,0))
-          val std = stdProjection.project(row, zoom, (0,0))
+          val tms = tmsProjection.project(row, zoom, (99,99))
+          val std = stdProjection.project(row, zoom, (99,99))
 
           assert(tms.get._1._1 === std.get._1._1, "zoom level doesn't match between TMS and standard mercator projection")
           assert(tms.get._1._2 === std.get._1._2, "x-coord doesn't match between TMS and standard mercator projection")
           assert(tms.get._1._3 === (n - std.get._1._3), "y-coord of TMS is not flipped value of standard mercator projection")
+
+          assert(tms.get._2._1 === std.get._2._1, "x-bin doesn't match between TMS and standard mercator projection")
+          assert(tms.get._2._2 === std.get._2._2, "y-bin doesn't match between TMS and standard mercator projection")
         }
       }
     }
