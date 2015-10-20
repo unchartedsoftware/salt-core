@@ -33,6 +33,13 @@ import scala.reflect.ClassTag
 abstract class TileGenerator(sc: SparkContext) {
 
   /**
+   * Same as generate(RDD[], Seq[Series], TileRequest), but offers a shortcut for a single Series
+   */
+  final def generate[RT,TC: ClassTag](data: RDD[RT], series: Series[RT,_,TC,_,_,_,_,_,_], request: TileRequest[TC]): RDD[Tile[TC]] = {
+    generate(data, Seq(series), request)
+  }
+
+  /**
    * @param data the RDD containing source data
    * @param series a Seq of matching sets of ValueExtractors+Projection+Aggregators, which
    *               represent different aggregations of identical data within a tile (into

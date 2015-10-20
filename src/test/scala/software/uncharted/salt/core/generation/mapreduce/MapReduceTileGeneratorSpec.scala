@@ -33,7 +33,7 @@ object MapReduceTileGeneratorSpecClosure {
 
   def testSeriesClosure(
     data: Array[Double],
-    series: Seq[Series[Row,_,(Int, Int),_,_,_,_,_,_]],
+    series: Series[Row,_,(Int, Int),_,_,_,_,_,_],
     request: TileRequest[(Int, Int)]
   ): Seq[Tile[(Int, Int)]] = {
     //generate some random data
@@ -81,7 +81,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create Series
         val series = new Series(1, cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
+        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(s => {
           series(s)
         })
@@ -145,7 +145,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create Series
         val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
+        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(s => {
           series(s)
         })
@@ -182,7 +182,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create Series
         val series = new Series(9, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
+        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(s => {
           series(s)
         })
@@ -220,7 +220,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create Series
         val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator, None)
 
-        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, Seq(series), request)
+        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(s => {
           series(s)
         })
