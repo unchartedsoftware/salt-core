@@ -18,19 +18,26 @@ package software.uncharted.salt.core.generation
 
 import software.uncharted.salt.core.analytic.Aggregator
 import software.uncharted.salt.core.projection.Projection
-import software.uncharted.salt.core.generation.output.TileData
+import software.uncharted.salt.core.generation.output.{SeriesData,Tile}
 import software.uncharted.salt.core.generation.request.TileRequest
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 
 /**
- * Produces an RDD[TileData] which only materializes when an operation pulls
+ * Produces an RDD[SeriesData] which only materializes when an operation pulls
  * some or all of those tiles back to the Spark driver
  *
  * @param sc a SparkContext
  */
 abstract class TileGenerator(sc: SparkContext) {
+
+  /**
+   * Same as generate(RDD[], Seq[Series], TileRequest), but offers a shortcut for a single Series
+   */
+  final def generate[RT,TC: ClassTag](data: RDD[RT], series: Series[RT,_,TC,_,_,_,_,_,_], request: TileRequest[TC]): RDD[Tile[TC]] = {
+    generate(data, Seq(series), request)
+  }
 
   /**
    * @param data the RDD containing source data
@@ -43,5 +50,5 @@ abstract class TileGenerator(sc: SparkContext) {
    * @tparam RT the source data record type (the source data is an RDD[RT])
    * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
    */
-  def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Seq[TileData[TC, _, _]]]
+  def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]]
 }
