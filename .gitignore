@@ -1,2 +1,15 @@
 _site
 .sass-cache
+
+*.class
+.gradle
+build/
+classes/
+target/
+.idea/
+*.iml
+.vagrant
+metastore_db/
+*.log
+gradle.properties
+.DS_Store
