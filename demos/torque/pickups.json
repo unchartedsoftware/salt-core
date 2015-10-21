@@ -1,0 +1,7 @@
+{
+  "start": 1371009600000,
+  "end":   1371096000000,
+  "resolution": 4,
+  "data_steps": 288,
+  "tiles": ["http://embed.pantera.io/saltdemos/torque/pickups/{z}/{x}/{y}.json"]
+}
