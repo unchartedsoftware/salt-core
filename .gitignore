@@ -1,3 +1,6 @@
+.sass-cache/
+_site/
+
 *.class
 .gradle
 build/
