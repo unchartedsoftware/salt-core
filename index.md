@@ -7,7 +7,7 @@ layout: default
 
 Displaying a massive dataset is challenging. Your visualization must summarize all the data at a high level and still be able to reveal localized trends among billions of data points. But structuring your data to meet one of these requirements often precludes the ability to fulfill the other. And in either case, processing the data can consume significant time and resources.
 
-Salt leverages a cluster-computing framework to create hierarchical, tile-based projections of big datasets. Salt projections start from an aggregate global view of the data and span increasingly detailed views until reaching a "street-level" depiction of individual data points. The generation of each view is distributed across machine resources to optimize processing times. The resulting hierarchical data projections support high-fidelity, interactive visualizations at that enable analyses at every scale.
+Salt leverages a cluster-computing framework to create hierarchical, tile-based projections of big datasets. Salt projections start from an aggregate global view of the data and span increasingly detailed views until reaching a "street-level" depiction of individual data points. The generation of each view is distributed across machine resources to optimize processing times. The resulting hierarchical data projections support high-fidelity, interactive visualizations that enable analyses at every scale.
 
 ## Usage
 
