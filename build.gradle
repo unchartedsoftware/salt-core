@@ -9,7 +9,6 @@
  *
  * A coverage report will be present at build/reports/scoverage/index.html
  *
- * TODO integrate https://github.com/kt3k/coveralls-gradle-plugin
  */
 
 buildscript {
@@ -193,10 +192,6 @@ dependencies {
     //spark
     provided "org.apache.spark:spark-core_${scalaBinaryVersion}:${sparkVersion}"
     provided "org.apache.spark:spark-sql_${scalaBinaryVersion}:${sparkVersion}"
-    //provided "org.apache.spark:spark-streaming_${scalaBinaryVersion}:${sparkVersion}"
-    //provided "org.apache.spark:spark-graphx_${scalaBinaryVersion}:${sparkVersion}"
-    //provided "org.apache.spark:spark-mllib_${scalaBinaryVersion}:${sparkVersion}"
-    provided "org.scala-lang:scala-library:$scalaBinaryVersion"
 
     //scalatest
     testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:2+"
