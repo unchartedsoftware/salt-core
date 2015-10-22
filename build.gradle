@@ -57,6 +57,7 @@ project.ext {
   sparkVersion = '1.4.0'
   scoverageVersion = '1.1.1'
   artifactName = 'salt-core'
+  description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
   inceptionYear = '2015'
 }
 
@@ -116,6 +117,8 @@ task createPom << {
       groupId = group
       version = version
       artifactId = artifactName
+      description = description
+      url = 'https://github.com/unchartedsoftware/salt'
 
       inceptionYear = inceptionYear
       licenses {
@@ -131,6 +134,11 @@ task createPom << {
           name = 'Sean McIntyre'
           email = 'smcintyre@uncharted.software'
         }
+      }
+      scm {
+        url 'https://github.com/unchartedsoftware/salt'
+        connection 'scm:git:git://github.com/unchartedsoftware/salt.git'
+        developerConnection 'scm:git:git@github.com:unchartedsoftware/salt.git'
       }
     }
   }.writeTo("${buildDir}/libs/${artifactName}-${version}.pom")
