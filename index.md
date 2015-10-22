@@ -2,9 +2,6 @@
 layout: default
 ---
 
-# Salt
-> Looking at big data? Add a little salt.
-
 <figure>
 	<iframe width="100%" height="281px" src="{{site.url}}{{site.baseurl}}demos/torque/"></iframe>
 	<figcaption>A geographic heatmap illustrates taxi pickup and dropoff locations in New York City according to time of day</figcaption>
