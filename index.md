@@ -15,7 +15,7 @@ Salt is a library for creating interactive visualizations to explore big data. S
 Salt is optimized to distribute data processing across machine resources, ensuring efficient use of both time and memory.
 
 <figure>
-	<iframe width="100%" height="281px" src="{{site.url}}{{site.baseurl}}demos/twitter-taxi/"></iframe>
+	<iframe width="100%" height="281px" src="{{site.url}}{{site.baseurl}}demos/taxi-twitter/"></iframe>
 	<figcaption>On top of a static heatmap of taxi pickup and dropoff locations, tile-based analytics summarize the top Twitter hashtags in the underlying regions</figcaption>
 </figure>
 
