@@ -4,6 +4,66 @@
 @charset "utf-8";
 
 @import
-  "minimal",
   "syntax-highlighting"
 ;
+
+.readable {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+body {
+  padding-top: 50px;
+}
+
+.navbar {
+  background-color: #222;
+  border-color: #111;
+  color: #eee;
+}
+.navbar-default .navbar-brand {
+  color: #ddd;
+  padding-left: 0;
+  &:hover {
+    color: #fff;
+  }
+  img {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin-top: -5px;
+  }
+}
+
+iframe {
+  border: none;
+}
+
+h1, h2, .navbar-brand {
+  font-family: Lato, sans-serif;
+}
+
+section {
+  h1, h2, h3, h4, h5, h6 {
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  p {
+    max-width: 800px;
+    margin: 0 auto 30px;
+  }
+
+  figcaption {
+    max-width: 800px;
+    text-align: right;
+    font-style: italic;
+    margin: 0 auto;
+    font-size: 0.8em;
+  }
+}
+
+.site-footer {
+  font-size: 0.8em;
+  text-align: center;
+}
