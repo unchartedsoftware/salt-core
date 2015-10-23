@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Salt T-Drive Example</title>
+    <meta name="description" content="Example application using Salt to generate Torque TileJSON">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+
+    <style>
+      #map, html, body {
+        width: 100%; height: 100%; padding: 0; margin: 0;
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div id="map"></div>
+  </body>
+
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+
+  <script>
+    // Map control
+    var map = new L.Map('map', {
+      zoomControl: true,
+      center: [39.9, 116.36],
+      zoom: 9,
+      minZoom: 9,
+      maxZoom: 14,
+      scrollWheelZoom: false
+    });
+
+    // Base map
+    L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: 'CartoDB Base Map'
+    }).addTo(map);
+
+    L.tileLayer('http://embed.pantera.io/saltdemos/tdrive/tracks/{z}/{x}/{y}.png', {
+      attribution: '<a href="http://research.microsoft.com/apps/pubs/?id=152883">Microsoft T-Drive Sample Data</a>',
+      tms: true
+    }).addTo(map);
+
+  </script>
+</html>
