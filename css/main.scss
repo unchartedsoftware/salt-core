@@ -21,6 +21,12 @@ body {
   border-color: #111;
   color: #eee;
 }
+.navbar-default .navbar-nav>li>a {
+  color: #ddd;
+  &:hover {
+    color: #eee;
+  }
+}
 .navbar-default .navbar-brand {
   color: #ddd;
   padding-left: 0;

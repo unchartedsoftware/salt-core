@@ -15,7 +15,7 @@ Visualizing big data is hard. Overwhelming amounts of information often motivate
 
 In the example above, pickups and dropoffs from [NYC taxi data](http://www.andresmh.com/nyctaxitrips/) are plotted across hours of a single day. Like a photograph, meaningful features and insights reveal themselves as you pan and zoom from an aggregate high-level view down to every conceivable local region. Here, **Salt** is used to project source data into the [torque](https://github.com/CartoDB/torque) format, and plotted using [Leaflet](https://github.com/Leaflet/Leaflet). [Try it yourself](https://github.com/unchartedsoftware/salt-examples/tree/master/torque-example)!
 
-## Plot all the data
+## Scalable Analytic Layered Tiles
 
 **Salt** enables the visualization of non-numeric spatial data as well. Below, top Twitter hashtags have been plotted in word clouds by region, above the Taxi dataset. Zooming in de-aggregates the word clouds, allowing you to explore local trends, while zooming out gives you a high-level overview of hashtag usage in the New York City area.
 
@@ -28,4 +28,4 @@ In the example above, pickups and dropoffs from [NYC taxi data](http://www.andre
 
 ## Ready to see your data?
 
-Try [Salt](https://github.com/unchartedsoftware/salt) today, or [contact us](mailto:{{site.email}}) for more information.
+Try the [Salt Examples](https://github.com/unchartedsoftware/salt), look at the [docs](/docs/scaladoc/#software.uncharted.salt.core.generation.TileGenerator), or [contact us](mailto:{{site.email}}) for more information.
