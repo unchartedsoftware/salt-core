@@ -60,6 +60,8 @@ project.ext {
   description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
   inceptionYear = '2015'
   url = 'https://github.com/unchartedsoftware/salt'
+  ossrhUsername = ""
+  ossrhPassword = ""
 }
 
 jar {
