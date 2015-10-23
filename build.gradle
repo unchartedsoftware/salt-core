@@ -48,16 +48,18 @@ configurations {
 }
 
 group = 'software.uncharted.salt'
+archivesBaseName = 'salt-core'
 version = '1.0.0'
 
 project.ext {
   scalaBinaryVersion = '2.10'
-  scalaVersion = '2.10.4'
-  sparkVersion = '1.4.0'
+  scalaVersion = '2.10.6'
+  sparkVersion = '1.5.1'
   scoverageVersion = '1.1.1'
-  artifactName = 'salt-core'
+  artifactName = archivesBaseName
   description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
   inceptionYear = '2015'
+  url = 'https://github.com/unchartedsoftware/salt'
 }
 
 jar {
@@ -82,6 +84,11 @@ task docs(type: ScalaDoc) {
 task docsJar(type: Jar, dependsOn: docs) {
   classifier = 'scaladoc'
   from docs.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 checkScoverage {
@@ -110,60 +117,67 @@ coveralls {
 //////////////////////////////////////
 //BEGIN nexus oss
 //////////////////////////////////////
-task createPom << {
-  pom {
-    project {
-      groupId = group
-      version = version
-      artifactId = artifactName
-      description = description
-      url = 'https://github.com/unchartedsoftware/salt'
-
-      inceptionYear = inceptionYear
-      licenses {
-        license {
-          name = 'The Apache Software License, Version 2.0'
-          url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          distribution = 'repo'
-        }
-      }
-      developers {
-        developer {
-          id = 'smcintyre'
-          name = 'Sean McIntyre'
-          email = 'smcintyre@uncharted.software'
-        }
-      }
-      scm {
-        url 'https://github.com/unchartedsoftware/salt'
-        connection 'scm:git:git://github.com/unchartedsoftware/salt.git'
-        developerConnection 'scm:git:git@github.com:unchartedsoftware/salt.git'
-      }
-    }
-  }.writeTo("${buildDir}/libs/${artifactName}-${version}.pom")
+artifacts {
+  archives docsJar, testJar, sourcesJar
 }
-
 signing {
   sign configurations.archives
   sign testJar
   sign docsJar
+  sign sourcesJar
 }
-//make sure install doesn't depend on signing
+//make sure assemble doesn't depend on signing
 gradle.taskGraph.whenReady { taskGraph ->
   def tasks = taskGraph.getAllTasks()
-  if (tasks.find {it.name == 'install'}) {
-    tasks.findAll {it.name == 'signArchives' || it.name == 'signDocsJar' || it.name == 'signTestJar'}.each { task ->
+  if (tasks.find {it.name == 'assemble'}) {
+    tasks.findAll {it.name == 'signArchives' || it.name == 'signDocsJar' || it.name == 'signTestJar' || it.name == 'signSourcesJar'}.each { task ->
       task.enabled = false
     }
   }
 }
-task signPom(dependsOn: createPom) << {
-  signing.sign(file("${buildDir}/libs/${artifactName}-${version}.pom"))
-}
-task nexus(type: Jar, dependsOn: [signArchives, signTestJar, signDocsJar, signPom]) {
-  baseName "${artifactName}-nexus-bundle"
-  from "${buildDir}/libs"
-  destinationDir file("${buildDir}/nexus")
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name = artifactName
+        packaging = 'jar'
+        // optionally artifactId can be defined here
+        description = description
+        url = url
+
+        scm {
+          connection 'scm:git:git://github.com/unchartedsoftware/salt.git'
+          developerConnection 'scm:git:git@github.com:unchartedsoftware/salt.git'
+          url 'https://github.com/unchartedsoftware/salt'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id = 'smcintyre'
+            name = 'Sean McIntyre'
+            email = 'smcintyre@uncharted.software'
+          }
+        }
+      }
+    }
+  }
 }
 //////////////////////////////////////
 //END nexus oss
@@ -203,7 +217,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
+    gradleVersion = '2.8'
 }
 
 idea {
