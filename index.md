@@ -23,7 +23,7 @@ In the example above, pickups and dropoffs from [NYC taxi data](http://www.andre
 
 <figure>
   <iframe width="100%" height="368px" src="{{site.url}}{{site.baseurl}}demos/taxi-twitter/"></iframe>
-  <figcaption>Taxi pickup and dropoff locations with tile-based analytics overlay summarizing the top Twitter hashtags in by region - <a href="{{site.url}}{{site.baseurl}}demos/taxi-twitter/">View Fullscreen</a></figcaption>
+  <figcaption>Taxi pickup and dropoff locations with tile-based analytics overlay summarizing the top Twitter hashtags by region - <a href="{{site.url}}{{site.baseurl}}demos/taxi-twitter/">View Fullscreen</a></figcaption>
 </figure>
 
 ## Ready to see your data?
