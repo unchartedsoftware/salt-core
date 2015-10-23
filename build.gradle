@@ -124,9 +124,6 @@ artifacts {
 }
 signing {
   sign configurations.archives
-  sign testJar
-  sign docsJar
-  sign sourcesJar
 }
 //make sure assemble doesn't depend on signing
 gradle.taskGraph.whenReady { taskGraph ->
@@ -195,8 +192,10 @@ scalaStyle {
 
 sourceSets {
   main { compileClasspath += configurations.provided }
-  test { compileClasspath += configurations.provided }
-  test { runtimeClasspath += configurations.provided }
+  test {
+    compileClasspath += configurations.provided
+    runtimeClasspath += configurations.provided
+  }
   scoverage { compileClasspath += configurations.provided }
   testScoverage { compileClasspath += configurations.provided }
 }
