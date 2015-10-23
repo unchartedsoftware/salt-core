@@ -44,8 +44,10 @@ ossrhUsername=[your-jira-id]
 ossrhPassword=[your-jira-password]
 ```
 
-Finall, building a Nexus-compatible bundle JAR for [manual staging/deployment](http://central.sonatype.org/pages/manual-staging-bundle-creation-and-deployment.html) can be achieved as follows:
+Finally, [deploy](http://central.sonatype.org/pages/gradle.html) a Nexus-compatible set of artifacts:
 
 ```bash
 $ ./gradlew uploadArchives
 ```
+
+Release of the artifacts can be achieved using the process outlined [here](http://central.sonatype.org/pages/releasing-the-deployment.html)

@@ -84,7 +84,7 @@ task docs(type: ScalaDoc) {
 }
 
 task docsJar(type: Jar, dependsOn: docs) {
-  classifier = 'scaladoc'
+  classifier = 'javadoc'
   from docs.destinationDir
 }
 
@@ -209,7 +209,7 @@ dependencies {
     provided "org.apache.spark:spark-sql_${scalaBinaryVersion}:${sparkVersion}"
 
     //scalatest
-    testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:2+"
+    testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5"
     testRuntime 'org.pegdown:pegdown:1.1.0'
 
     //scoverage
