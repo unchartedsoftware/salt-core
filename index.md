@@ -13,7 +13,7 @@ layout: default
 
 Visualizing big data is hard. Overwhelming amounts of information often motivate the creation of highly aggregated visualizations, which can conceal localized patterns behind sums and averages. **Salt** helps you *transform* your data, so that it can be explored interactively at increasing levels of detail.
 
-In the example above, pickups and dropoffs from [NYC taxi data](http://www.andresmh.com/nyctaxitrips/) are plotted across hours of a single day. Like a photograph, meaningful features and insights reveal themselves as you pan and zoom from an aggregate high-level view down to every conceivable local region. Here, **Salt** is used to project source data into the [torque](https://github.com/CartoDB/torque) format, and plotted using [Leaflet](https://github.com/Leaflet/Leaflet). [Try it yourself](https://github.com/unchartedsoftware/salt-examples/tree/master/torque-example)!
+In the example above, 17 million GPS readings from [Microsoft's T-Drive dataset](http://research.microsoft.com/apps/pubs/?id=152883) are plotted using color intensity to represent density. Like a photograph, meaningful features and insights reveal themselves as you pan and zoom from an aggregate high-level view down to every conceivable local region. Here, **Salt** is used to project source data into tiled images that can be added to a web map (in this case, [Leaflet](https://github.com/Leaflet/Leaflet)) with only a few lines of code.
 
 ## Scalable Analytic Layered Tiles
 
@@ -25,6 +25,8 @@ In the example above, pickups and dropoffs from [NYC taxi data](http://www.andre
   <iframe width="100%" height="368px" src="{{site.url}}{{site.baseurl}}demos/taxi-twitter/"></iframe>
   <figcaption>Taxi pickup and dropoff locations with tile-based analytics overlay summarizing the top Twitter hashtags by region - <a href="{{site.url}}{{site.baseurl}}demos/taxi-twitter/">View Fullscreen</a></figcaption>
 </figure>
+
+
 
 ## Ready to see your data?
 
