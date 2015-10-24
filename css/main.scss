@@ -3,42 +3,30 @@
 ---
 @charset "utf-8";
 
-@import
-  "syntax-highlighting"
-;
+$navbar-inverse-color:                      #eee;
+$navbar-inverse-bg:                         #222;
+$navbar-inverse-border:                     #111;
 
-.readable {
+// Inverted navbar links
+$navbar-inverse-link-color:                 #ddd;
+$navbar-inverse-link-hover-color:           #eee;
+
+
+@import "syntax-highlighting";
+@import "../bower_components/bootstrap-sass/assets/stylesheets/bootstrap";
+
+
+@mixin readable {
   max-width: 800px;
-  margin: 0 auto;
+  @include container-fixed;
 }
 
 body {
   padding-top: 50px;
 }
 
-.navbar {
-  background-color: #222;
-  border-color: #111;
-  color: #eee;
-}
-.navbar-default .navbar-nav>li>a {
-  color: #ddd;
-  &:hover {
-    color: #eee;
-  }
-}
-.navbar-default .navbar-brand {
-  color: #ddd;
-  padding-left: 0;
-  &:hover {
-    color: #fff;
-  }
-  img {
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    margin-top: -5px;
-  }
+.navbar .container-fluid {
+  @include readable;
 }
 
 iframe {
@@ -49,22 +37,29 @@ h1, h2, .navbar-brand {
   font-family: Lato, sans-serif;
 }
 
-section {
+figure {
+  margin: 30px 0;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+main {
   h1, h2, h3, h4, h5, h6 {
-    max-width: 800px;
-    margin: 20px auto;
+    @include readable;
+    margin-bottom: 20px;
   }
 
   p {
-    max-width: 800px;
-    margin: 0 auto 30px;
+    @include readable;
+    margin-bottom: 30px;
   }
 
   figcaption {
-    max-width: 800px;
+    @include readable;
+
     text-align: right;
     font-style: italic;
-    margin: 0 auto;
     font-size: 0.8em;
   }
 }
