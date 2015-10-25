@@ -13,13 +13,24 @@ $navbar-inverse-link-hover-color:           #eee;
 
 
 @import "syntax-highlighting";
-@import "../bower_components/bootstrap-sass/assets/stylesheets/bootstrap";
+//@import "../bower_components/bootstrap-sass/assets/stylesheets/bootstrap";
 
-
+//TODO BEGIN remove when we go back to bower
+.navbar-inverse .navbar-brand {
+  color: #eee;
+}
 @mixin readable {
   max-width: 800px;
-  @include container-fixed;
+  padding: 0 20px;
+  margin: 0 auto;
 }
+//TODO END remove when we go back to bower
+
+
+// @mixin readable {
+//   max-width: 800px;
+//   @include container-fixed;
+// }
 
 body {
   padding-top: 50px;
