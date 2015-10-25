@@ -2,11 +2,17 @@
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
         <a class="navbar-brand" href="#"><img src="{{ "/imgs/salt.png" | prepend: site.baseurl }}" width="24" height="24"></img>&nbsp;&nbsp;Salt</a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="collapse navbar-collapse" id="navbar-collapse-1">
         <ul class="nav navbar-nav">
           <li><a class="btn btn-link" target="_blank" href="https://github.com/unchartedsoftware/salt-examples">Examples</a></li>
           <li>
@@ -19,11 +25,7 @@
         </ul>
 
         <form class="navbar-form navbar-right">
-          <div class="btn-group pull-right" role="group" aria-label="downloads">
-            <!-- <a class="btn btn-default" href="{{ site.github.zip_url }}"><i class="fa fa-archive"></i> Download .zip</a>
-            <a class="btn btn-default" href="{{ site.github.tar_url }}"><i class="fa fa-archive"></i> Download .tgz</a> -->
-            <a class="btn btn-primary" href="{{ site.github.repository_url }}"><i class="fa fa-github"></i>&nbsp;Github</a>
-          </div>
+          <button class="btn btn-primary btn-block" href="{{ site.github.repository_url }}"><i class="fa fa-github"></i>&nbsp;Github</button>
         </form>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
