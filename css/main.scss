@@ -44,6 +44,10 @@ iframe {
   border: none;
 }
 
+.readable {
+  @include readable;
+}
+
 h1, h2, .navbar-brand {
   font-family: Lato, sans-serif;
 }
@@ -95,6 +99,17 @@ main {
     @include readable;
     .col-sm-6:first-child {
       padding-left: 0;
+    }
+  }
+
+  .img-icon {
+    width: 75px;
+    @media screen and (max-width: 767px) {
+      margin-top: 40px;
+      margin-bottom: 20px;
+      .col-sm-4:first-child & {
+        margin-top: 0;
+      }
     }
   }
 }
