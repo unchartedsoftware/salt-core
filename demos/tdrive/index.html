@@ -34,13 +34,15 @@
       scrollWheelZoom: false
     });
 
+    map.attributionControl.setPrefix('<a href="http://leafletjs.com" target="_top">Leaflet</a>');
+
     // Base map
     L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
       attribution: 'CartoDB Base Map'
     }).addTo(map);
 
     L.tileLayer('http://embed.pantera.io/saltdemos/tdrive/tracks/{z}/{x}/{y}.png', {
-      attribution: '<a href="http://research.microsoft.com/apps/pubs/?id=152883">Microsoft T-Drive Sample Data</a>, <a href="http://unchartedsoftware.github.io/salt">Uncharted Salt</a>',
+      attribution: '<a href="http://research.microsoft.com/apps/pubs/?id=152883" target="_top">Microsoft T-Drive Sample Data</a>, <a href="http://unchartedsoftware.github.io/salt" target="_top">Uncharted Salt</a>',
       tms: true
     }).addTo(map);
 
