@@ -9,24 +9,50 @@ layout: default
 
 # Explore and Share data, visually
 
-> **Salt** is a library for creating interactive visualizations to explore massive datasets.
+> **Salt** is a library for creating interactive visualizations for massive datasets.
 
-Visualizing big data is hard. Overwhelming amounts of information often motivate the creation of highly aggregated visualizations, which can conceal localized patterns behind sums and averages. **Salt** helps you *transform* your data, so that it can be explored interactively at increasing levels of detail.
+Visualizing big data is hard. Overwhelming amounts of information often motivate the creation of highly aggregated visualizations, which can conceal localized patterns behind sums and averages. **Salt** helps you *scalably transform* your data, so that it can be explored interactively at increasing levels of detail.
 
 In the example above, 17 million GPS readings from [Microsoft's T-Drive dataset](http://research.microsoft.com/apps/pubs/?id=152883) are plotted using color intensity to represent density. Like a photograph, meaningful features and insights reveal themselves as you pan and zoom from an aggregate high-level view down to every conceivable local region. Here, **Salt** is used to project source data into tiled images that can be added to a web map (in this case, [Leaflet](https://github.com/Leaflet/Leaflet)) with only a few lines of code.
 
 ## Scalable Analytic Layered Tiles
 
-**Salt** enables the visualization of non-numeric spatial data as well. Below, top Twitter hashtags have been plotted in word clouds by region, above the Taxi dataset. Zooming in de-aggregates the word clouds, allowing you to explore local trends, while zooming out gives you a high-level overview of hashtag usage in the New York City area.
+**Salt** lets you create high-fidelity visualizations of data at massive scales, revealing phenomena that would otherwise be lost through sampling or coarse aggregation. It makes it easy to generate many kinds of visualizations including geographic heatmaps, cross-plots or time series, layering multiple data sources and dimensions as meaningful contextual overlays that enable analysis and exploration at every scale.
 
-**Salt** makes it easy to generate many kinds of visualizations including geographic heatmaps, cross-plots or time series, with meaningful contextual overlays in a wide variety of data formats that enable analysis and exploration at every scale.
+**Salt** enables the visualization of non-numeric data as well with custom, flexible analytics for keywords, topics, sentiment, and more. Below, top Twitter hashtags have been plotted in word clouds by region above the a dataset of 187 million record <a href="http://chriswhong.com/open-data/foil_nyc_taxi/">New York taxi trips</a>. Zooming in de-aggregates the word clouds, allowing you to explore local trends, while zooming out gives you a high-level overview of hashtag usage in the New York City area.
+
 
 <figure>
   <iframe width="100%" height="368px" src="{{site.url}}{{site.baseurl}}demos/taxi-twitter/"></iframe>
   <figcaption>Taxi pickup and dropoff locations with tile-based analytics overlay summarizing the top Twitter hashtags by region - <a href="{{site.url}}{{site.baseurl}}demos/taxi-twitter/" target="\_blank">View Fullscreen</a></figcaption>
 </figure>
 
+## Flexible Inputs, Flexible Outputs
 
+<div class="row">
+  <div class="col-sm-6">
+    <p>
+Building on the flexibility of <a href="http://spark.apache.org/">Apache Spark</a>, <strong>Salt</strong> is capable of ingesting data in a wide variety of formats and schemas. For example, a 2 million node, 10 million link graph in GraphML format is rendered using <strong>Salt</strong> in a web-maps-like pannable, zoomable interface with trillions of points of resolution. Graph edges are rendered using binning rather than overplotting which ensures that dense cluster structure remains visible.
+    </p>
+  </div>
+  <div class="col-sm-6">
+    <img alt="Massive graphs with Salt" src="{{ site.url }}/imgs/graph_2x.jpg">
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-6">
+    <p>
+<strong>Salt</strong> divides up results into <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiles</a> of aggregated data representations. The coordinate system (2D geographic, 2D cartesian, 1D time-series, etc), data format, serialization, and storage are flexible and totally up to you. For example, we took the same <a href="http://chriswhong.com/open-data/foil_nyc_taxi/">taxi data</a> from above and generated tiled data output compatible with the <a href="https://github.com/CartoDB/torque">Torque TileJSON</a> format to created an animated time-bucketed view of a day of taxi activity. <a href="https://github.com/unchartedsoftware/salt-examples/tree/master/torque-example">Try it yourself!</a>
+    </p>
+  </div>
+  <div class="col-sm-6">
+    <a class="image-overlay" href="{{site.url}}{{site.baseurl}}demos/torque">
+      <img alt="Cartesian plots with Salt" src="{{ site.url }}/imgs/torque_2x.jpg">
+      <span class="glyphicon glyphicon-play-circle"></span>
+    </a>
+  </div>
+</div>
 
 ## Ready to see your data?
 
