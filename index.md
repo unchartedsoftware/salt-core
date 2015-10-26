@@ -36,7 +36,7 @@ Building on the flexibility of <a href="http://spark.apache.org/">Apache Spark</
     </p>
   </div>
   <div class="col-sm-6">
-    <img alt="Massive graphs with Salt" src="{{ site.url }}/imgs/graph_2x.jpg">
+    <img alt="Massive graphs with Salt" src="{{site.url}}{{site.baseurl}}/imgs/graph_2x.jpg">
   </div>
 </div>
 
@@ -48,7 +48,7 @@ Building on the flexibility of <a href="http://spark.apache.org/">Apache Spark</
   </div>
   <div class="col-sm-6">
     <a class="image-overlay" href="{{site.url}}{{site.baseurl}}demos/torque">
-      <img alt="Cartesian plots with Salt" src="{{ site.url }}/imgs/torque_2x.jpg">
+      <img alt="Cartesian plots with Salt" src="{{site.url}}{{site.baseurl}}/imgs/torque_2x.jpg">
       <span class="glyphicon glyphicon-play-circle"></span>
     </a>
   </div>
