@@ -7,7 +7,7 @@
     <meta name="description" content="Example application using Salt to generate Torque TileJSON">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
 
     <style>
       #map, html, body {
@@ -21,7 +21,7 @@
     <div id="map"></div>
   </body>
 
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
 
   <script>
     // Map control
@@ -37,11 +37,11 @@
     map.attributionControl.setPrefix('<a href="http://leafletjs.com" target="_top">Leaflet</a>');
 
     // Base map
-    L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+    L.tileLayer('//cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
       attribution: 'CartoDB Base Map'
     }).addTo(map);
 
-    L.tileLayer('http://embed.pantera.io/saltdemos/tdrive/tracks/{z}/{x}/{y}.png', {
+    L.tileLayer('//s3.amazonaws.com/embed.pantera.io/saltdemos/tdrive/tracks/{z}/{x}/{y}.png', {
       attribution: '<a href="http://research.microsoft.com/apps/pubs/?id=152883" target="_top">Microsoft T-Drive Sample Data</a>, <a href="http://unchartedsoftware.github.io/salt" target="_top">Uncharted Salt</a>',
       tms: true
     }).addTo(map);
