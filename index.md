@@ -11,7 +11,7 @@ layout: default
 
 > **Salt** is a library for creating interactive visualizations of massive datasets.
 
-Visualizing big data is hard. Overwhelming amounts of information often motivate the creation of highly aggregated visualizations, which can conceal localized patterns behind sums and averages. **Salt** helps you *scalably transform* your data, so that it can be explored interactively at increasing levels of detail.
+Visualizing big data is hard. Usually this means creating highly aggregated visualizations that can conceal localized patterns behind sums and averages. **Salt** helps you *scalably transform* your data, so that it can be explored interactively at increasing levels of detail.
 
 **Salt** generates scalable representations of billions of data points, enabling visualizations including geographic heatmaps, cross-plots or time series, and the layering of multiple data sources and dimensions for contextual overlay.
 
