@@ -21,8 +21,10 @@ $navbar-inverse-link-hover-color:           #eee;
 }
 @mixin readable {
   max-width: 768px;
-  padding: 0 20px;
-  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: auto;
+  margin-right: auto;
 }
 //TODO END remove when we go back to bower
 
@@ -110,6 +112,25 @@ main {
       .col-sm-4:first-child & {
         margin-top: 0;
       }
+    }
+  }
+
+  .well {
+    @include readable;
+    max-width: 550px;
+    @media screen and (max-width: 767px) {
+      max-width: 400px;
+    }
+
+    margin-top: 40px;
+    margin-bottom: 40px;
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+    .lead {
+      font-size: 18px;
     }
   }
 }
