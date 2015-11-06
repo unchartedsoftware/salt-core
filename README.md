@@ -25,7 +25,7 @@ Build and fire up the container with a shell:
 
 ```bash
 $ docker build -t uncharted/salt-test .
-$ docker run -v $(pwd):/opt/salt -it --entrypoint=/bin/bash uncharted/salt-test
+$ docker run -v $(pwd):/opt/salt -it uncharted/salt-test bash
 ```
 
 Now, inside the container, build and install Salt:
