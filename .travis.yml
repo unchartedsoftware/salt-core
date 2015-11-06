@@ -18,4 +18,4 @@ before_script:
   # build test container
   - docker build -t uncharted/salt-test .
 
-script: docker run --env-file travis.env --rm uncharted/salt-test coverage coveralls
+script: docker run --env-file travis.env --rm uncharted/salt-test ./gradlew coverage coveralls
