@@ -104,7 +104,7 @@ task testJar(type: Jar) {
 
 task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
-  args = ["--jars","/opt/libs/scalatest_2.10-2.2.5.jar,/opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar,/opt/salt/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/${artifactName}-${version}-tests.jar"]
+  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}","--jars","/opt/salt/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/${artifactName}-${version}-tests.jar"]
 }
 
 task coverage(overwrite: true, dependsOn: test) << {

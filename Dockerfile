@@ -30,10 +30,4 @@ ADD src/test/resources/log4j.properties /usr/local/spark/conf/log4j.properties
 # for dev environment
 ENV GRADLE_OPTS -Dorg.gradle.daemon=true
 
-# download scalatest
-RUN curl http://central.maven.org/maven2/org/scalatest/scalatest_2.10/2.2.5/scalatest_2.10-2.2.5.jar > /opt/libs/scalatest_2.10-2.2.5.jar
-
-# download scoverage
-RUN curl https://repo1.maven.org/maven2/org/scoverage/scalac-scoverage-runtime_2.10/1.1.1/scalac-scoverage-runtime_2.10-1.1.1.jar > /opt/libs/scalac-scoverage-runtime_2.10-1.1.1.jar
-
 CMD ["./gradlew", "coverage"]
