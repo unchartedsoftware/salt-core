@@ -19,13 +19,12 @@ To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahe
 
 #### Using the Docker test container
 
-Since running Salt requires a Spark cluster, a containerized test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
+Since running Salt requires a Spark cluster, a containerized test environment can be created via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
 
-Build and fire up the container with a shell:
+Fire up the container using the provided shell script:
 
 ```bash
-$ docker build -t uncharted/salt-test .
-$ docker run -v $(pwd):/opt/salt -it uncharted/salt-test bash
+$ ./test-enviroment.sh
 ```
 
 Now, inside the container, build and install Salt:

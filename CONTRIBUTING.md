@@ -11,18 +11,10 @@
 
 ## Developing and Testing
 
-Since testing Salt requires a Spark cluster, a containerized development/test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can build and test Salt within that environment:
+Since testing Salt requires a Spark cluster, a containerized development/test environment is included via [Docker](https://www.docker.com/). If you have docker installed, you can interactively build and test Salt within that environment:
 
 ```bash
-$ docker build -t uncharted/salt-test .
-$ docker run --rm uncharted/salt-test
-```
-
-The above commands trigger a one-off build and test of Salt. If you want to interactively test Salt while developing (without having to re-run the container), use the following commands:
-
-```bash
-$ docker build -t uncharted/salt-test .
-$ docker run -v $(pwd):/opt/salt -it uncharted/salt-test bash
+$ ./test-environment
 # then, inside the running container
 $ ./gradlew
 ```
