@@ -18,4 +18,4 @@ before_script:
 
 script:
   # run test container
-  - docker run -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/salt --rm --entrypoint=/bin/bash --workdir="/opt/salt" uncharted/sparklet:1.5.1 ./gradlew coverage coveralls
+  - docker run --env-file travis.env -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/salt --rm --entrypoint=/bin/bash --workdir="/opt/salt" uncharted/sparklet:1.5.1 ./gradlew coverage coveralls
