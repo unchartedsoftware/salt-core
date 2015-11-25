@@ -94,7 +94,7 @@ task sourcesJar(type: Jar) {
 }
 
 checkScoverage {
-  minimumRate = 1
+  minimumRate = 0.9
 }
 
 task testJar(type: Jar) {
