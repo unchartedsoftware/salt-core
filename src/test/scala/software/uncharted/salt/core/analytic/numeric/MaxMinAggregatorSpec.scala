@@ -57,10 +57,10 @@ class MinMaxAggregatorSpec extends FunSpec {
     }
 
     describe("#finish()") {
-      it("should convert the intermediate value into a java (Double, Double) which represents the (min, max)") {
+      it("should convert the intermediate value into a (Double, Double) which represents the (min, max)") {
         var test = (Math.random, Math.random)
-        assert(MinMaxAggregator.finish(test).isInstanceOf[Tuple2[java.lang.Double, java.lang.Double]])
-        assert(MinMaxAggregator.finish(test).equals((new java.lang.Double(test._1), new java.lang.Double(test._2))))
+        assert(MinMaxAggregator.finish(test).isInstanceOf[Tuple2[Double, Double]])
+        assert(MinMaxAggregator.finish(test).equals((test._1, test._2)))
       }
     }
   }

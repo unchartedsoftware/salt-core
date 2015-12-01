@@ -62,10 +62,10 @@ class MaxAggregatorSpec extends FunSpec {
     }
 
     describe("#finish()") {
-      it("should convert the intermediate value into a java Double") {
+      it("should convert the intermediate value into a Double") {
         var test = Math.random
-        assert(MaxAggregator.finish(test).isInstanceOf[java.lang.Double])
-        assert(MaxAggregator.finish(test).equals(new java.lang.Double(test)))
+        assert(MaxAggregator.finish(test).isInstanceOf[Double])
+        assert(MaxAggregator.finish(test).equals(test))
       }
     }
   }

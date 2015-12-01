@@ -19,7 +19,7 @@ package software.uncharted.salt.core.analytic.numeric
 import software.uncharted.salt.core.analytic.Aggregator
 
 //Track sums and counts separately, then finish by dividing
-object MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Double] {
+object MeanAggregator extends Aggregator[Double, (Double, Double), Double] {
   def default(): (Double, Double) = {
     (CountAggregator.default, SumAggregator.default)
   }
@@ -31,7 +31,7 @@ object MeanAggregator extends Aggregator[Double, (Double, Double), java.lang.Dou
     (CountAggregator.merge(left._1, right._1), SumAggregator.merge(left._2, right._2))
   }
 
-  def finish(intermediate: (Double, Double)): java.lang.Double = {
+  def finish(intermediate: (Double, Double)): Double = {
     SumAggregator.finish(intermediate._2)/CountAggregator.finish(intermediate._1)
   }
 }

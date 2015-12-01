@@ -18,12 +18,12 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
-object MinMaxAggregator extends Aggregator[java.lang.Double, (Double, Double), (java.lang.Double, java.lang.Double)] {
+object MinMaxAggregator extends Aggregator[Double, (Double, Double), (Double, Double)] {
   def default(): (Double, Double) = {
     (MinAggregator.default, MaxAggregator.default)
   }
 
-  override def add(current: (Double, Double), next: Option[java.lang.Double]): (Double, Double) = {
+  override def add(current: (Double, Double), next: Option[Double]): (Double, Double) = {
     if (next.isDefined) {
       (MinAggregator.add(current._1, Some(next.get.doubleValue)), MaxAggregator.add(current._2, Some(next.get.doubleValue)))
     } else {
@@ -34,7 +34,7 @@ object MinMaxAggregator extends Aggregator[java.lang.Double, (Double, Double), (
     (MinAggregator.merge(left._1, right._1), MaxAggregator.merge(left._2, right._2))
   }
 
-  def finish(intermediate: (Double, Double)): (java.lang.Double, java.lang.Double) = {
+  def finish(intermediate: (Double, Double)): (Double, Double) = {
     (MinAggregator.finish(intermediate._1), MaxAggregator.finish(intermediate._2))
   }
 }

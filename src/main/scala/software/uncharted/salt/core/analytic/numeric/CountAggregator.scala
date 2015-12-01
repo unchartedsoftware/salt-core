@@ -18,7 +18,7 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
-object CountAggregator extends Aggregator[Any, Double, java.lang.Double] {
+object CountAggregator extends Aggregator[Any, Double, Double] {
 
   def default(): Double = {
     0D
@@ -31,7 +31,7 @@ object CountAggregator extends Aggregator[Any, Double, java.lang.Double] {
     left + right
   }
 
-  def finish(intermediate: Double): java.lang.Double = {
+  def finish(intermediate: Double): Double = {
     intermediate.toDouble
   }
 }
