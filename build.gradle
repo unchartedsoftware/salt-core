@@ -54,7 +54,7 @@ version = '1.0.0'
 project.ext {
   scalaBinaryVersion = '2.10'
   scalaVersion = '2.10.6'
-  sparkVersion = System.getenv("SPARK_VERSION") ?: '1.5.1'
+  sparkVersion = System.getenv("SPARK_VERSION") ?: '1.5.2'
   scoverageVersion = '1.1.1'
   artifactName = archivesBaseName
   description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
@@ -94,7 +94,7 @@ task sourcesJar(type: Jar) {
 }
 
 checkScoverage {
-  minimumRate = 1
+  minimumRate = 0.9
 }
 
 task testJar(type: Jar) {
