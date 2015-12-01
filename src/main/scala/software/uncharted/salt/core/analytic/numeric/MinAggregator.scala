@@ -18,7 +18,7 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
-object MinAggregator extends Aggregator[Double, Double, java.lang.Double] {
+object MinAggregator extends Aggregator[Double, Double, Double] {
   def default(): Double = {
     Double.NaN
   }
@@ -48,7 +48,7 @@ object MinAggregator extends Aggregator[Double, Double, java.lang.Double] {
     }
   }
 
-  def finish(intermediate: Double): java.lang.Double = {
+  def finish(intermediate: Double): Double = {
     intermediate
   }
 }
