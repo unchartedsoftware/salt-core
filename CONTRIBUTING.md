@@ -21,6 +21,16 @@ $ ./gradlew
 
 This will mount the code directory into the container as a volume, allowing you to make code changes on your host machine and test them on-the-fly.
 
+You can also debug the test suite using remote debugging on port 9999. If you're on linux, the host for the debugger will be localhost. If you're on Windows or OSX, then it'll be the ip of your docker toolbox VM.
+
+```bash
+# start the test container as before
+$ ./test-environment
+# then, inside the running container
+$ ./gradlew debug
+# You'll see a message indicating when you should connect your debugger.
+```
+
 ## Deploying to Sonatype Central Repository
 
 Staging and deployment to the Sonatype Central Repository is restricted to core contributors.
