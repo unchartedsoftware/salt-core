@@ -29,6 +29,11 @@ object Spark {
 
 object Main {
   def main(args: Array[String]): Unit = {
+    if (sys.env.isDefinedAt("SPARK_JAVA_OPTS") && sys.env("SPARK_JAVA_OPTS").contains("jdwp=transport=dt_socket")) {
+      print("Sleeping for 8 seconds. Please connect your debugger now...")
+      Thread.sleep(8000)
+    }
+
     val testResult = Runner.run(Array("-o", "-R", "build/classes/test"))
     if (!testResult) {
       System.exit(1)
