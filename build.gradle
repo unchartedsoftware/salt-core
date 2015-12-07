@@ -231,6 +231,7 @@ idea {
     module {
         inheritOutputDirs = false
         outputDir = file("$buildDir/classes/main/")
+        scopes.PROVIDED.plus += [ configurations.provided ]
     }
 }
 
