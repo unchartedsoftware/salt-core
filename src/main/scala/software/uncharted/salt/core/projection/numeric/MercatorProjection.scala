@@ -23,10 +23,12 @@ import org.apache.spark.sql.Row
  *
  * @param min the minimum value of a data-space coordinate (minLon, minLat)
  * @param max the maximum value of a data-space coordinate (maxLon, maxLat)
+ * @param zoomLevels the TMS/WMS zoom levels to project into
  */
 class MercatorProjection(
   min: (Double, Double) = (-180, -85.05112878),
   max: (Double, Double) = (180, 85.05112878),
+  zoomLevels: Seq[Int],
   tms: Boolean = true) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
@@ -37,7 +39,7 @@ class MercatorProjection(
   //Precompute some stuff we'll use frequently
   val piOver180 = Math.PI / 180;
 
-  override def project (dCoords: Option[(Double, Double)], z: Int, maxBin: (Int, Int)): Option[((Int, Int, Int), (Int, Int))] = {
+  override def project (dCoords: Option[(Double, Double)], maxBin: (Int, Int)): Option[Seq[((Int, Int, Int), (Int, Int))]] = {
     //with help from https://developer.here.com/rest-apis/documentation/traffic/topics/mercator-projection.html
     if (!dCoords.isDefined) {
       None
@@ -48,20 +50,23 @@ class MercatorProjection(
       var lon = dCoords.get._1
       var lat = dCoords.get._2
       val latRad = (-lat) * piOver180;
-      val n = Math.pow(2, z).toInt;
 
-      val howFarX = n * ((lon + 180) / 360);
-      val howFarY = n * (1 + (Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI)) / 2
+      Some(zoomLevels.map(z => {
+        val n = Math.pow(2, z).toInt;
 
-      val x = howFarX.toInt
-      val y = howFarY.toInt
+        val howFarX = n * ((lon + 180) / 360);
+        val howFarY = n * (1 + (Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI)) / 2
 
-      var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
-      var yBin = ((howFarY - y)*(maxBin._2 + 1)).toInt
+        val x = howFarX.toInt
+        val y = howFarY.toInt
 
-      // If TMS system, flip y axis
-      val yCoord = if (tms) n - 1 - y else y
-      Some(((z, x, yCoord), (xBin, yBin)))
+        var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
+        var yBin = ((howFarY - y)*(maxBin._2 + 1)).toInt
+
+        // If TMS system, flip y axis
+        val yCoord = if (tms) n - 1 - y else y
+        ((z, x, yCoord), (xBin, yBin))
+      }))
     }
   }
 

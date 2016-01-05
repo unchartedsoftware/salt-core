@@ -19,19 +19,22 @@ package software.uncharted.salt.core.projection.numeric
 import org.apache.spark.sql.Row
 
 /**
- * A projection into 1D (x) space
+ * A projection into zooming 1D (z,x) space
  *
  * @param min the minimum value of a data-space coordinate (minX)
  * @param max the maximum value of a data-space coordinate (maxX)
+ * @param zoomLevels the TMS/WMS zoom levels to project into
  */
 class SeriesProjection(
   min: Double,
-  max: Double) extends NumericProjection[Double, (Int, Int), Int](min, max) {
+  max: Double,
+  zoomLevels: Seq[Int]
+) extends NumericProjection[Double, (Int, Int), Int](min, max) {
 
   //Precompute some stuff we'll use frequently
   val _range = max - min
 
-  override def project (xValue: Option[Double], z: Int, maxBin: Int): Option[((Int, Int), Int)] = {
+  override def project (xValue: Option[Double], maxBin: Int): Option[Seq[((Int, Int), Int)]] = {
     if (!xValue.isDefined) {
       None
     } else if (xValue.get >= max || xValue.get <= min) {
@@ -41,12 +44,14 @@ class SeriesProjection(
       //scale it to [0,1]
       val scaledDataX = translatedDataX/_range
 
-      //compute all tile/bin coordinates (z, x, y, bX, bY)
-      val n = Math.pow(2, z).toInt;
-      var howFarX = scaledDataX * n
-      var x = howFarX.toInt
-      var xBin = ((howFarX - x)*(maxBin + 1)).toInt
-      Some(((z, x), xBin))
+      //compute all tile/bin coordinates (z, x, bX)
+      Some(zoomLevels.map(z => {
+        val n = Math.pow(2, z).toInt;
+        var howFarX = scaledDataX * n
+        var x = howFarX.toInt
+        var xBin = ((howFarX - x)*(maxBin + 1)).toInt
+        ((z, x), xBin)
+      }))
     }
   }
 
