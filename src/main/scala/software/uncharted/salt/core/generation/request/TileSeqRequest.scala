@@ -21,9 +21,8 @@ import software.uncharted.salt.core.projection.Projection
 /**
  * A TileRequest which takes the form of a Seq of tile coordinates
  */
-class TileSeqRequest[TC](tiles: Seq[TC], getZoomLevel: TC => Int) extends TileRequest[TC] {
+class TileSeqRequest[TC](tiles: Iterable[TC]) extends TileRequest[TC] {
 
-  private val _levels = tiles.map(c => getZoomLevel(c)).distinct
   private val _tileMap = tiles.map(c => (c, true)).toMap
 
   /**
@@ -31,12 +30,5 @@ class TileSeqRequest[TC](tiles: Seq[TC], getZoomLevel: TC => Int) extends TileRe
    */
   def inRequest(tile: TC): Boolean = {
     _tileMap.contains(tile)
-  }
-
-  /**
-   * @return a Seq of all zoom levels which contain tile coordinates in this request
-   */
-  def levels(): Seq[Int] = {
-    _levels
   }
 }

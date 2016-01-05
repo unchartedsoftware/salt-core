@@ -24,61 +24,69 @@ class SeriesProjectionSpec extends FunSpec {
   describe("SeriesProjection") {
     describe("#project()") {
       it("should return None when the data-space coordinate is None") {
-        val projection = new SeriesProjection(0, 1)
-        assert(projection.project(None, 0, 100) === None)
+        val projection = new SeriesProjection(0, 1, Seq(0))
+        assert(projection.project(None, 100) === None)
       }
 
       it("should return None when a row's xCol is outside of the defined bounds") {
-        val projection = new SeriesProjection(0D, 1D)
-        assert(projection.project(Some(projection.max + 1), 0, 100) === None)
-        assert(projection.project(Some(projection.min - 1), 0, 100) === None)
-        assert(projection.project(Some(projection.max), 0, 100) === None)
-        assert(projection.project(Some(projection.min), 0, 100) === None)
+        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        assert(projection.project(Some(projection.max + 1), 100) === None)
+        assert(projection.project(Some(projection.min - 1), 100) === None)
+        assert(projection.project(Some(projection.max), 100) === None)
+        assert(projection.project(Some(projection.min), 100) === None)
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
-        val projection = new SeriesProjection(0D, 1D)
+        val projection = new SeriesProjection(0D, 1D, Seq(0))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
-          val coords = projection.project(row, 0, 99)
+          val coords = projection.project(row, 99)
           assert(coords.isDefined)
 
+          //check that one coordinate is projected for each input zoom level
+          assert(coords.get.length === 1)
+
           //check zoom level
-          assert(coords.get._1._1 === 0, "check zoom level")
+          assert(coords.get(0)._1._1 === 0, "check zoom level")
 
           //check coordinates
-          assert(coords.get._1._2 === 0, "check coordinates")
+          assert(coords.get(0)._1._2 === 0, "check coordinates")
 
           //check bin
-          assert(coords.get._2 === Math.floor(row.get*100), "check bin index")
+          assert(coords.get(0)._2 === Math.floor(row.get*100), "check bin index")
         }
       }
 
       it("should assign Rows to the corect tile and bin based on the given zoom level") {
-        val projection = new SeriesProjection(0D, 1D)
+        val projection = new SeriesProjection(0D, 1D, Seq(1))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
-          val coords = projection.project(row, 1, 99)
+          val coords = projection.project(row, 99)
           assert(coords.isDefined)
 
+          //check that one coordinate is projected for each input zoom level
+          assert(coords.get.length === 1)
+
           //check zoom level
-          assert(coords.get._1._1 === 1, "check zoom level")
+          assert(coords.get(0)._1._1 === 1, "check zoom level")
 
           //check coordinates
-          assert(coords.get._1._2 === Math.floor(row.get*2), "check coordinates")
+          assert(coords.get(0)._1._2 === Math.floor(row.get*2), "check coordinates")
 
           //check bin
           val bin = ( (row.get*200) % 100).toInt
-          assert(coords.get._2 === bin, "check bin index")
+          assert(coords.get(0)._2 === bin, "check bin index")
         }
       }
+
+      //TODO test multiple zoom levels
     }
 
     describe("#binTo1D()") {
       it("should be a no-op, returning the xBin passed in") {
-        val projection = new SeriesProjection(0D, 1D)
+        val projection = new SeriesProjection(0D, 1D, Seq(0))
         //fuzz inputs
         for (i <- 0 until 100) {
           val bin = Math.round(Math.random*99).toInt

@@ -75,8 +75,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some(r.getDouble(0))
-        val projection = new SeriesProjection(0D, 1D)
-        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
+        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
 
         //create Series
         val series = new Series(1, cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
@@ -111,8 +111,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some((r.getDouble(0), r.getDouble(1)))
-        val projection = new CartesianProjection((0D, 0D), (1D, 1D))
-        val request = new TileSeqRequest[(Int, Int, Int)](Seq((0,0,0)), (t: (Int, Int, Int)) => t._1)
+        val projection = new CartesianProjection((0D, 0D), (1D, 1D), Seq(0))
+        val request = new TileSeqRequest[(Int, Int, Int)](Seq((0,0,0)))
 
         //create Series
         val series = new Series((1,1), cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
@@ -138,8 +138,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some(r.getDouble(0))
-        val projection = new SeriesProjection(0D, 0.5D)
-        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
+        val projection = new SeriesProjection(0D, 0.5D, Seq(0))
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
         val vExtractor = (r: Row) => None
 
         //create Series
@@ -175,8 +175,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some(r.getDouble(0))
-        val projection = new SeriesProjection(0D, 1D)
-        val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)), (t: (Int, Int)) => t._1)
+        val projection = new SeriesProjection(0D, 1D, Seq(0,1))
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)))
         val vExtractor = (r: Row) => None
 
         //create Series
@@ -213,8 +213,8 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //create projection, request, extractors
         val cExtractor = (r: Row) => Some(r.getDouble(0))
-        val projection = new SeriesProjection( 0D, 1D)
-        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)), (t: (Int, Int)) => t._1)
+        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
         val vExtractor = (r: Row) => None
 
         //create Series

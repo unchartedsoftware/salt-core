@@ -26,9 +26,4 @@ trait TileRequest[TC] extends Serializable {
    * @return true, if the given tile coordinate is part of this request. false otherwise.
    */
   def inRequest(tile: TC): Boolean
-
-  /**
-   * @return a Seq of all zoom levels which contain tile coordinates in this request
-   */
-  def levels(): Seq[Int]
 }
