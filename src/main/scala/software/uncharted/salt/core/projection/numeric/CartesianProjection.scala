@@ -26,9 +26,9 @@ import org.apache.spark.sql.Row
  * @param zoomLevels the TMS/WMS zoom levels to project into
  */
 class CartesianProjection(
+  zoomLevels: Seq[Int],
   min: (Double, Double),
-  max: (Double, Double),
-  zoomLevels: Seq[Int]
+  max: (Double, Double)
 ) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   //Precompute some stuff we'll use frequently
@@ -51,12 +51,12 @@ class CartesianProjection(
       //compute all tile/bin coordinates (z, x, y, bX, bY)
       Some(zoomLevels.map(z => {
         val n = Math.pow(2, z).toInt;
-        var howFarX = scaledDataX * n
-        var howFarY = scaledDataY * n
-        var x = howFarX.toInt
-        var y = howFarY.toInt
-        var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
-        var yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2 + 1)).toInt
+        val howFarX = scaledDataX * n
+        val howFarY = scaledDataY * n
+        val x = howFarX.toInt
+        val y = howFarY.toInt
+        val xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
+        val yBin = (maxBin._2) - ((howFarY - y)*(maxBin._2 + 1)).toInt
         ((z, x, y), (xBin, yBin))
       }))
     }

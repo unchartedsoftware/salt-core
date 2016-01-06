@@ -24,12 +24,12 @@ class MercatorProjectionSpec extends FunSpec {
   describe("MercatorProjection") {
     describe("#project()") {
       it("should return None when the data-space coordinate is None") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(0))
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
         assert(projection.project(None, (100, 100)) === None)
       }
 
       it("should return None when a row's xCol is outside of the defined bounds") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(0))
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
         assert(projection.project(Some((projection.max._1 + 1, Math.random)), (100, 100)) === None)
         assert(projection.project(Some((projection.min._1 - 1, Math.random)), (100, 100)) === None)
         assert(projection.project(Some((projection.max._1, Math.random)), (100, 100)) === None)
@@ -37,7 +37,7 @@ class MercatorProjectionSpec extends FunSpec {
       }
 
       it("should return None when a row's yCol is outside of the defined bounds") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(0))
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
         assert(projection.project(Some((Math.random, projection.max._2 + 1)), (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.min._2 - 1)), (100, 100)) === None)
         assert(projection.project(Some((Math.random, projection.max._2)), (100, 100)) === None)
@@ -45,7 +45,7 @@ class MercatorProjectionSpec extends FunSpec {
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(0))
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random*360-180, Math.random*170-85))
@@ -84,7 +84,7 @@ class MercatorProjectionSpec extends FunSpec {
       }
 
       it("should assign Rows to the correct tile and bin based on the given zoom level in TMS orientation") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(1))
+        val projection = new MercatorProjection(Seq(1), (-180D, -85D), (180D, 85D))
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some((Math.random*360-180, Math.random*170-85))
@@ -124,8 +124,8 @@ class MercatorProjectionSpec extends FunSpec {
 
       it("should provide flipped y tile coordinates in non-TMS orientation") {
         val zoom = 10
-        val tmsProjection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(zoom), true)
-        val stdProjection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(zoom), false)
+        val tmsProjection = new MercatorProjection(Seq(zoom), (-180D, -85D), (180D, 85D), true)
+        val stdProjection = new MercatorProjection(Seq(zoom), (-180D, -85D), (180D, 85D), false)
 
         val n = Math.pow(2, zoom).toInt - 1
         for (i <- -50D until 50D by 10D) {
@@ -148,7 +148,7 @@ class MercatorProjectionSpec extends FunSpec {
 
     describe("#binTo1D()") {
       it("should convert a 2D bin coordinate into row-major order") {
-        val projection = new MercatorProjection((-180D, -85D), (180D, 85D), Seq(0))
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
 
         //fuzz inputs
         for (i <- 0 until 100) {

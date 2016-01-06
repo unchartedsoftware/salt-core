@@ -24,12 +24,12 @@ class SeriesProjectionSpec extends FunSpec {
   describe("SeriesProjection") {
     describe("#project()") {
       it("should return None when the data-space coordinate is None") {
-        val projection = new SeriesProjection(0, 1, Seq(0))
+        val projection = new SeriesProjection(Seq(0), 0, 1)
         assert(projection.project(None, 100) === None)
       }
 
       it("should return None when a row's xCol is outside of the defined bounds") {
-        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        val projection = new SeriesProjection(Seq(0), 0D, 1D)
         assert(projection.project(Some(projection.max + 1), 100) === None)
         assert(projection.project(Some(projection.min - 1), 100) === None)
         assert(projection.project(Some(projection.max), 100) === None)
@@ -37,7 +37,7 @@ class SeriesProjectionSpec extends FunSpec {
       }
 
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
-        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        val projection = new SeriesProjection(Seq(0), 0D, 1D)
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
@@ -59,7 +59,7 @@ class SeriesProjectionSpec extends FunSpec {
       }
 
       it("should assign Rows to the corect tile and bin based on the given zoom level") {
-        val projection = new SeriesProjection(0D, 1D, Seq(1))
+        val projection = new SeriesProjection(Seq(1), 0D, 1D)
         //fuzz inputs
         for (i <- 0 until 100) {
           val row = Some(Math.random)
@@ -86,7 +86,7 @@ class SeriesProjectionSpec extends FunSpec {
 
     describe("#binTo1D()") {
       it("should be a no-op, returning the xBin passed in") {
-        val projection = new SeriesProjection(0D, 1D, Seq(0))
+        val projection = new SeriesProjection(Seq(0), 0D, 1D)
         //fuzz inputs
         for (i <- 0 until 100) {
           val bin = Math.round(Math.random*99).toInt

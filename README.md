@@ -83,7 +83,8 @@ val cExtractor = (r: Row) => {
 
 // create a projection from data-space into mercator tile space, which is suitable for
 // display on top of a map using a mapping library such as leaflet.js
-val projection = new MercatorProjection()
+// we specify the zoom levels we intend to support using a Seq[Int]
+val projection = new MercatorProjection(Seq(0,1))
 
 // a value extractor function to grab the number of passengers from a Row
 val vExtractor = (r: Row) => {
@@ -102,9 +103,8 @@ val avgPassengers = new Series((7, 7), cExtractor, projection, Some(vExtractor),
 
 // which tiles are we generating? In this case, we'll use a TileSeqRequest
 // which allows us to specify a list of tiles we're interested in, by coordinate.
-// We also have to supply this particular request type with a mechanism for
-// extracting zoom levels from a tile coordinate, as the second construction parameter.
-val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)), (t: (Int, Int, Int)) => t._1)
+// these tiles should be within the bounds of the Projection we created earlier
+val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)))
 
 // Tile Generator object, which houses the generation logic
 @transient val gen = new MapReduceTileGenerator(sc)

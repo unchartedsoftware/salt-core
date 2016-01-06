@@ -26,9 +26,9 @@ import org.apache.spark.sql.Row
  * @param zoomLevels the TMS/WMS zoom levels to project into
  */
 class SeriesProjection(
+  zoomLevels: Seq[Int],
   min: Double,
-  max: Double,
-  zoomLevels: Seq[Int]
+  max: Double
 ) extends NumericProjection[Double, (Int, Int), Int](min, max) {
 
   //Precompute some stuff we'll use frequently
@@ -47,9 +47,9 @@ class SeriesProjection(
       //compute all tile/bin coordinates (z, x, bX)
       Some(zoomLevels.map(z => {
         val n = Math.pow(2, z).toInt;
-        var howFarX = scaledDataX * n
-        var x = howFarX.toInt
-        var xBin = ((howFarX - x)*(maxBin + 1)).toInt
+        val howFarX = scaledDataX * n
+        val x = howFarX.toInt
+        val xBin = ((howFarX - x)*(maxBin + 1)).toInt
         ((z, x), xBin)
       }))
     }

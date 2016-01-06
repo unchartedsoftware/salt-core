@@ -26,9 +26,9 @@ import org.apache.spark.sql.Row
  * @param zoomLevels the TMS/WMS zoom levels to project into
  */
 class MercatorProjection(
+  zoomLevels: Seq[Int],
   min: (Double, Double) = (-180, -85.05112878),
   max: (Double, Double) = (180, 85.05112878),
-  zoomLevels: Seq[Int],
   tms: Boolean = true) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   val _internalMaxX = Math.min(max._1, 180);
@@ -60,8 +60,8 @@ class MercatorProjection(
         val x = howFarX.toInt
         val y = howFarY.toInt
 
-        var xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
-        var yBin = ((howFarY - y)*(maxBin._2 + 1)).toInt
+        val xBin = ((howFarX - x)*(maxBin._1 + 1)).toInt
+        val yBin = ((howFarY - y)*(maxBin._2 + 1)).toInt
 
         // If TMS system, flip y axis
         val yCoord = if (tms) n - 1 - y else y
