@@ -30,7 +30,7 @@ $ ./test-enviroment.sh
 Now, inside the container, build and install Salt:
 
 ```bash
-$ ./gradlew install
+$ ./gradlew install -x signArchives
 ```
 
 Be sure to download taxi_micro.csv to the root directory within the container.
