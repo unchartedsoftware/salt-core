@@ -21,7 +21,7 @@ import software.uncharted.salt.core.projection.Projection
 /**
  * A TileRequest which takes the form of a Seq of tile coordinates
  */
-class TileSeqRequest[TC](tiles: Iterable[TC]) extends TileRequest[TC] {
+class TileSeqRequest[TC](tiles: Seq[TC]) extends TileRequest[TC] {
 
   private val _tileMap = tiles.map(c => (c, true)).toMap
 

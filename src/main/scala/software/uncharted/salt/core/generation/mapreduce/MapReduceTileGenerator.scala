@@ -173,7 +173,7 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
    * result for each Row which is useful to a TileGenerator
    *
    * @param row a record type to project and retrieve a value from for aggregation
-   * @return Option[Iterable[(TC, (Int, Option[T]))]] an Iterable of (tile coordinate,(1D bin index,extracted value)) tuples
+   * @return Option[Seq[(TC, (Int, Option[T]))]] an Seq of (tile coordinate,(1D bin index,extracted value)) tuples
    */
   def projectAndTransform(row: RT): Option[Seq[(TC, (Int, Option[T]))]] = {
     val coords = series.projection.project(series.cExtractor(row), series.maxBin)

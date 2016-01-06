@@ -22,7 +22,7 @@ import software.uncharted.salt.core.projection.Projection
  * A TileRequest which takes the form of a Seq of zoom levels,
  * generating all tiles at those levels.
  */
-class TileLevelRequest[TC](inLevels: Iterable[Int], getZoomLevel: TC => Int) extends TileRequest[TC] {
+class TileLevelRequest[TC](inLevels: Seq[Int], getZoomLevel: TC => Int) extends TileRequest[TC] {
 
   private val _levelMap = inLevels.map(c => (c, true)).toMap
 
