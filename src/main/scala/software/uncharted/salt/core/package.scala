@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package software.uncharted.salt.core.analytic
+package software.uncharted.salt
 
 /**
- * Implementations will provide functions for computing online
- * aggregations on values which fall within a bin, or within a tile.
+ * The core Salt library is intended to be as streamlined, readable and domain-agnostic as possible.
  *
- * @tparam I input type
- * @tparam N intermediate type
- * @tparam O output type
+ * It includes a variety of Traits describing extension points for Salt, as well as a few
+ * sample concrete implementations.
  */
-trait Aggregator[-I, N, O] extends Serializable {
-  def default(): N
-  def add(current: N, next: Option[I]): N
-  def merge(left: N, right: N): N
-  def finish(intermediate: N): O
-}
+package object core

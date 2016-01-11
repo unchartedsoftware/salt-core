@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package software.uncharted.salt.core.analytic
+package software.uncharted
 
 /**
- * Implementations will provide functions for computing online
- * aggregations on values which fall within a bin, or within a tile.
+ * Salt is a visualization library for Apache Spark which:
  *
- * @tparam I input type
- * @tparam N intermediate type
- * @tparam O output type
+ * - transforms data-space values into the visualization-space of your choice
+ *
+ * - aggregates values which have the same visualization-space coordinates using a custom aggregation function
+ *
+ * These simple concepts allow for the creation of a variety of powerful big-data visualizations, examples of which
+ * can be found here: [[https://github.com/unchartedsoftware/salt-examples]]
  */
-trait Aggregator[-I, N, O] extends Serializable {
-  def default(): N
-  def add(current: N, next: Option[I]): N
-  def merge(left: N, right: N): N
-  def finish(intermediate: N): O
-}
+package object salt
