@@ -19,6 +19,8 @@ package software.uncharted.salt.core.projection
 import org.apache.spark.sql.Row
 
 /**
+ * A mapping from data-space to visualization-space (tile/bin coordinate)
+ *
  * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a
  *            zero-arg constructor.
