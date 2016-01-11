@@ -8,4 +8,4 @@ docker run \
 -v /$(pwd):/opt/salt \
 -it \
 --workdir="//opt/salt" \
-uncharted/sparklet:1.5.2 bash
+uncharted/sparklet:1.6.0 bash

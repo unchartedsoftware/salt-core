@@ -9,6 +9,7 @@ env:
   # build against multiple versions of spark!
   - SPARK_VERSION=1.4.1
   - SPARK_VERSION=1.5.2
+  - SPARK_VERSION=1.6.0
 
 before_script:
   # generate environment file so we can give the travis environment to our test container
