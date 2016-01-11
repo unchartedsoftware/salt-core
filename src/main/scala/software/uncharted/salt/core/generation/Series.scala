@@ -18,6 +18,7 @@ package software.uncharted.salt.core.generation
 
 import software.uncharted.salt.core.analytic.Aggregator
 import software.uncharted.salt.core.projection.Projection
+import software.uncharted.salt.core.spreading.SpreadingFunction
 import software.uncharted.salt.core.generation.request.TileRequest
 import software.uncharted.salt.core.generation.output.{SeriesData, Tile}
 import org.apache.spark.SparkContext
@@ -38,6 +39,7 @@ import scala.collection.mutable.Map
  * @param vExtractor a mechanism for grabbing or synthesizing the "value" column from a source record (optional)
  * @param binAggregator the desired bin analytic strategy
  * @param tileAggregator the desired tile analytic strategy (optional)
+ * @param spreadingFunction the desired value spreading function (optional)
  * @tparam RT the source data record type (the source data is an RDD[RT])
  * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
@@ -53,9 +55,10 @@ class Series[RT, DC, TC, BC, T, U, V, W, X](
   val maxBin: BC,
   val cExtractor: (RT) => Option[DC],
   val projection: Projection[DC,TC,BC],
-  val vExtractor: Option[(RT) => Option[T]],
+  val vExtractor: Option[(RT) => Option[T]] = None,
   val binAggregator: Aggregator[T, U, V],
-  val tileAggregator: Option[Aggregator[V, W, X]]) extends Serializable {
+  val tileAggregator: Option[Aggregator[V, W, X]] = None,
+  val spreadingFunction: Option[SpreadingFunction[TC, BC, T]] = None) extends Serializable {
 
   private[salt] val id: String = java.util.UUID.randomUUID.toString
 
