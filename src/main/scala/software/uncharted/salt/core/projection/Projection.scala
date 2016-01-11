@@ -16,8 +16,6 @@
 
 package software.uncharted.salt.core.projection
 
-import org.apache.spark.sql.Row
-
 /**
  * A mapping from data-space to visualization-space (tile/bin coordinate)
  *

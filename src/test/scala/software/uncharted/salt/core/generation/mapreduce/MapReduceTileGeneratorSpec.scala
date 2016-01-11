@@ -21,6 +21,7 @@ import software.uncharted.salt.Spark
 import software.uncharted.salt.core.projection.Projection
 import software.uncharted.salt.core.projection.numeric._
 import software.uncharted.salt.core.generation.Series
+import software.uncharted.salt.core.spreading.SpreadingFunction
 import software.uncharted.salt.core.generation.mapreduce.MapReduceTileGenerator
 import software.uncharted.salt.core.generation.output.{SeriesData,Tile}
 import software.uncharted.salt.core.generation.request._
@@ -63,6 +64,7 @@ object MapReduceTileGeneratorSpecClosure {
 }
 
 class MapReduceTileGeneratorSpec extends FunSpec {
+
   describe("MapReduceTileGenerator") {
     describe("#generate()") {
       it("should generate tile level 0, correctly distributing input points into bins") {
@@ -218,7 +220,7 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         val vExtractor = (r: Row) => None
 
         //create Series
-        val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator, None)
+        val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator)
 
         val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(s => {
@@ -233,6 +235,67 @@ class MapReduceTileGeneratorSpec extends FunSpec {
 
         //verify max/min tile analytic is not present
         assert(!result(0).tileMeta.isDefined)
+
+        //verify bins touched
+        val binsTouched = manualBins.toSeq.length
+        assert(result(0).binsTouched === binsTouched)
+      }
+
+      it("support an optional value spreading function per Series") {
+
+        //generate some random data
+        val data = Array.fill(10)(0D).map(a => Math.random)
+
+        //manually bin, and double bin values since with incrementSpread
+        //we'll effectively be summing them twice.
+        val manualBins = data.groupBy(a => a > 0.5).map(a => (a._1, a._2.length*2))
+
+        //create projection, request, extractors
+        val cExtractor = (r: Row) => Some(r.getDouble(0))
+        val projection = new SeriesProjection(Seq(0), 0D, 1D)
+        val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
+        val vExtractor = (r: Row) => Some(1D)
+
+        //create SpreadingFunction for use in tests
+        val incrementSpread = new SpreadingFunction[(Int, Int), Int, Double]() {
+          override def spread(
+            coords: Seq[((Int, Int), Int)],
+            value: Option[Double]
+          ): Seq[((Int, Int), Int, Option[Double])] = {
+            coords.map(c => {
+              val v: Option[Double] = value match {
+                case None => None
+                case _ => Some(value.get + 1)
+              }
+              (c._1, c._2, v)
+            })
+          }
+        }
+
+        //create Series
+        val series = new Series(1, cExtractor, projection, Some(vExtractor), SumAggregator, Some(MinMaxAggregator), Some(incrementSpread))
+
+        val tiles = MapReduceTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
+        val result = tiles.map(s => {
+          series(s)
+        })
+        assert(result.length === 1) //did we generate a tile?
+
+        println(data.mkString(","))
+        println(result(0).bins)
+        println(manualBins)
+
+        //verify binning
+        assert(result(0).bins.length === 2)
+        assert(result(0).bins(0) === manualBins.get(false).getOrElse(0))
+        assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
+
+        //verify max/min tile analytic
+        val min = result(0).bins.reduce((a,b) => Math.min(a, b))
+        val max = result(0).bins.reduce((a,b) => Math.max(a, b))
+        assert(result(0).tileMeta.isDefined)
+        assert(result(0).tileMeta.get._1 === min)
+        assert(result(0).tileMeta.get._2 === max)
 
         //verify bins touched
         val binsTouched = manualBins.toSeq.length

@@ -182,9 +182,12 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
         case None => None
         case _ => series.vExtractor.get(row)
       }
-      Some(
-        coords.get.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin),value)))
-      )
+      if (series.spreadingFunction.isDefined) {
+        val spreadValues = series.spreadingFunction.get.spread(coords.get, value)
+        Some(spreadValues.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), c._3))))
+      } else {
+        Some(coords.get.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin),value))))
+      }
     } else {
       None
     }
