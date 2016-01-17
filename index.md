@@ -84,7 +84,7 @@ Building on the flexibility of <a href="http://spark.apache.org/">Apache Spark</
       <p class="lead">Get the <a href="https://github.com/unchartedsoftware/salt">Code</a></p>
     </div>
     <div class="col-sm-4">
-      <p class="lead">Review the <a href="{{"/docs/scaladoc/#software.uncharted.salt.core.generation.TileGenerator" | prepend: site.baseurl }}">Docs</a></p>
+      <p class="lead">Review the <a href="{{ "/docs/" | prepend: site.baseurl }}{{site.latest}}/#software.uncharted.salt.package">Docs</a></p>
     </div>
   </div>
   <p>
