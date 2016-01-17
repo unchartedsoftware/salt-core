@@ -32,7 +32,7 @@ class SeriesProjection(
 ) extends NumericProjection[Double, (Int, Int), Int](min, max) {
 
   //Precompute some stuff we'll use frequently
-  val _range = max - min
+  private[salt] val _range = max - min
 
   override def project (xValue: Option[Double], maxBin: Int): Option[Seq[((Int, Int), Int)]] = {
     if (!xValue.isDefined) {

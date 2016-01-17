@@ -32,8 +32,8 @@ class CartesianProjection(
 ) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
   //Precompute some stuff we'll use frequently
-  val _xRange = max._1 - min._1
-  val _yRange = max._2 - min._2
+  private[salt] val _xRange = max._1 - min._1
+  private[salt] val _yRange = max._2 - min._2
 
   override def project (dCoords: Option[(Double, Double)], maxBin: (Int, Int)): Option[Seq[((Int, Int, Int), (Int, Int))]] = {
     if (!dCoords.isDefined) {

@@ -31,13 +31,13 @@ class MercatorProjection(
   max: (Double, Double) = (180, 85.05112878),
   tms: Boolean = true) extends NumericProjection[(Double, Double), (Int, Int, Int), (Int, Int)](min, max) {
 
-  val _internalMaxX = Math.min(max._1, 180);
-  val _internalMinX = Math.max(min._1, -180);
-  val _internalMaxY = Math.min(max._2, 85.05112878);
-  val _internalMinY = Math.max(min._2, -85.05112878);
+  private[salt] val _internalMaxX = Math.min(max._1, 180);
+  private[salt] val _internalMinX = Math.max(min._1, -180);
+  private[salt] val _internalMaxY = Math.min(max._2, 85.05112878);
+  private[salt] val _internalMinY = Math.max(min._2, -85.05112878);
 
   //Precompute some stuff we'll use frequently
-  val piOver180 = Math.PI / 180;
+  private[salt] val piOver180 = Math.PI / 180;
 
   override def project (dCoords: Option[(Double, Double)], maxBin: (Int, Int)): Option[Seq[((Int, Int, Int), (Int, Int))]] = {
     //with help from https://developer.here.com/rest-apis/documentation/traffic/topics/mercator-projection.html
