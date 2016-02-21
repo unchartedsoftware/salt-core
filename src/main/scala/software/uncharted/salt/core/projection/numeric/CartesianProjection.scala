@@ -38,7 +38,7 @@ class CartesianProjection(
   override def project (dCoords: Option[(Double, Double)], maxBin: (Int, Int)): Option[Seq[((Int, Int, Int), (Int, Int))]] = {
     if (!dCoords.isDefined) {
       None
-    } else if (dCoords.get._1 >= max._1 || dCoords.get._1 <= min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 <= min._2) {
+    } else if (dCoords.get._1 >= max._1 || dCoords.get._1 < min._1 || dCoords.get._2 >= max._2 || dCoords.get._2 < min._2) {
       //make sure that we always stay INSIDE the range
       None
     } else {

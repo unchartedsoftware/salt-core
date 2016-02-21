@@ -28,22 +28,32 @@ class CartesianProjectionSpec extends FunSpec {
         assert(projection.project(None, (100, 100)) === None)
       }
 
+      // epsilon value for bounds checks
+      val epsilon = 1E-12
+      // A random guaranteed to be in bounds, for bounds checks
+      def boundedRandom = Math.random * (1.0 - 2.0 * epsilon) + epsilon
+
       it("should return None when a row's xCol is outside of the defined bounds") {
         val projection = new CartesianProjection(Seq(0), (0D, 0D), (1D, 1D))
-        assert(projection.project(Some((projection.max._1 + 1, Math.random)), (100, 100)) === None)
-        assert(projection.project(Some((projection.min._1 - 1, Math.random)), (100, 100)) === None)
-        assert(projection.project(Some((projection.max._1, Math.random)), (100, 100)) === None)
-        assert(projection.project(Some((projection.min._1, Math.random)), (100, 100)) === None)
+        assert(projection.project(Some((projection.max._1 + epsilon, boundedRandom)), (100, 100)) === None)
+        assert(projection.project(Some((projection.min._1 - epsilon, boundedRandom)), (100, 100)) === None)
+        assert(projection.project(Some((projection.max._1, boundedRandom)), (100, 100)) === None)
+        assert(projection.project(Some((projection.min._1, boundedRandom)), (100, 100)).isDefined)
+        assert(projection.project(Some((projection.max._1 - epsilon, boundedRandom)), (100, 100)).isDefined)
+        assert(projection.project(Some((projection.min._1 + epsilon, boundedRandom)), (100, 100)).isDefined)
       }
 
       it("should return None when a row's yCol is outside of the defined bounds") {
         val projection = new CartesianProjection(Seq(0), (0D, 0D), (1D, 1D))
-        assert(projection.project(Some((Math.random, projection.max._2 + 1)), (100, 100)) === None)
-        assert(projection.project(Some((Math.random, projection.min._2 - 1)), (100, 100)) === None)
-        assert(projection.project(Some((Math.random, projection.max._2)), (100, 100)) === None)
-        assert(projection.project(Some((Math.random, projection.min._2)), (100, 100)) === None)
+        assert(projection.project(Some((boundedRandom, projection.max._2 + epsilon)), (100, 100)) === None)
+        assert(projection.project(Some((boundedRandom, projection.min._2 - epsilon)), (100, 100)) === None)
+        assert(projection.project(Some((boundedRandom, projection.max._2)), (100, 100)) === None)
+        assert(projection.project(Some((boundedRandom, projection.min._2)), (100, 100)).isDefined)
+        assert(projection.project(Some((boundedRandom, projection.max._2 - epsilon)), (100, 100)).isDefined)
+        assert(projection.project(Some((boundedRandom, projection.min._2 + epsilon)), (100, 100)).isDefined)
       }
 
+      // Note from here down, Math.random will do unadorned, as it is closed-open, just like bins are
       it("should assign all Rows to the same tile at zoom level 0, to the correct bin") {
         val projection = new CartesianProjection(Seq(0), (0D, 0D), (1D, 1D))
         //fuzz inputs
