@@ -1,5 +1,5 @@
 # Salt
-Copyright 2015 Uncharted Software Inc.
+Copyright 2016 Uncharted Software Inc.
 
 ## NOTICE files
 
