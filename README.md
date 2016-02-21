@@ -158,7 +158,3 @@ Salt allows tile batches to be phrased in several ways:
 ### Series
 
 A Series pairs together a Projection with Aggregators. Multiple Series can be generated simultaneously, each operating on the source data in tandem.
-
-### Serialization
-
-Salt currently supports serializing tiles consisting of basic type values to Apache Avro which is fully compliant with the aperture-tiles sparse/dense schemas. This functionality is provided in a separate package called salt-avro-serializer.
