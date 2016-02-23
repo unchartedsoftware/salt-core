@@ -68,8 +68,6 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
   }
 
   override def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]] = {
-    data.cache //ensure data is cached
-
     val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
