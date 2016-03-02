@@ -1,0 +1,10 @@
+/* */ 
+var classof = require('./_classof'),
+    from = require('./_array-from-iterable');
+module.exports = function(NAME) {
+  return function toJSON() {
+    if (classof(this) != NAME)
+      throw TypeError(NAME + "#toJSON isn't generic");
+    return from(this);
+  };
+};
