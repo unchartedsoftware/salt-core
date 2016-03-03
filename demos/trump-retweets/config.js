@@ -205,7 +205,7 @@ System.config({
     }
   },
   bundles: {
-    "app.min-a94e5bc610.js": [
+    "app.min-e02398a6ac.js": [
       "app.html!github:systemjs/plugin-text@0.0.3.js",
       "app.js",
       "components/binary-layer.js",
