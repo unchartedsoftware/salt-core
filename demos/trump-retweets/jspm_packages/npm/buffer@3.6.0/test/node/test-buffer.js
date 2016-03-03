@@ -3,11 +3,11 @@
   'use strict';
   if (process.env.OBJECT_IMPL)
     global.TYPED_ARRAY_SUPPORT = false;
-  var Buffer = require('../../index').Buffer;
+  var Buffer = require('../../../buffer@3.6.0.json!systemjs-json').Buffer;
   var common = {};
   var assert = require('assert');
-  var Buffer = require('../../index').Buffer;
-  var SlowBuffer = require('../../index').SlowBuffer;
+  var Buffer = require('../../../buffer@3.6.0.json!systemjs-json').Buffer;
+  var SlowBuffer = require('../../../buffer@3.6.0.json!systemjs-json').SlowBuffer;
   var cntr = 0;
   var b = Buffer(1024);
   assert.strictEqual(1024, b.length);

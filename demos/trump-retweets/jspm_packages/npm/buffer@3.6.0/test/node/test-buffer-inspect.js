@@ -3,11 +3,11 @@
   'use strict';
   if (process.env.OBJECT_IMPL)
     global.TYPED_ARRAY_SUPPORT = false;
-  var Buffer = require('../../index').Buffer;
+  var Buffer = require('../../../buffer@3.6.0.json!systemjs-json').Buffer;
   var common = {};
   var assert = require('assert');
   var util = require('util');
-  var buffer = require('../../index');
+  var buffer = require('../../../buffer@3.6.0.json!systemjs-json');
   buffer.INSPECT_MAX_BYTES = 2;
   var b = new Buffer(4);
   b.fill('1234');

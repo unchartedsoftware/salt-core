@@ -3,10 +3,10 @@
   'use strict';
   if (process.env.OBJECT_IMPL)
     global.TYPED_ARRAY_SUPPORT = false;
-  var Buffer = require('../../index').Buffer;
+  var Buffer = require('../../../buffer@3.6.0.json!systemjs-json').Buffer;
   var common = {};
   var assert = require('assert');
-  var Buffer = require('../../index').Buffer;
+  var Buffer = require('../../../buffer@3.6.0.json!systemjs-json').Buffer;
   var LENGTH = 16;
   var ab = new ArrayBuffer(LENGTH);
   var dv = new DataView(ab);
