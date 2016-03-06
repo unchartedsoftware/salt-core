@@ -1,6 +1,6 @@
 "bundle";
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 (function(window, document, undefined) {
   var oldL = window.L,
       L = {};
@@ -6502,18 +6502,16 @@ var _removeDefine = System.get("@@amd-helpers").createDefine();
   });
 }(window, document));
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("github:Leaflet/Leaflet@0.7.7.js", ["github:Leaflet/Leaflet@0.7.7/dist/leaflet-src.js"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
-System.registerDynamic("github:github/fetch@0.10.1/fetch.js", [], false, function(__require, __exports, __module) {
-  var _retrieveGlobal = System.get("@@global-helpers").prepareGlobal(__module.id, null, null);
+System.registerDynamic("github:github/fetch@0.10.1/fetch.js", [], false, function($__require, $__exports, $__module) {
+  var _retrieveGlobal = System.get("@@global-helpers").prepareGlobal($__module.id, null, null);
   (function() {
     (function() {
       'use strict';
@@ -6844,38 +6842,35 @@ System.registerDynamic("github:github/fetch@0.10.1/fetch.js", [], false, functio
 
 System.registerDynamic("github:github/fetch@0.10.1.js", ["github:github/fetch@0.10.1/fetch.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('github:github/fetch@0.10.1/fetch.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:systemjs/plugin-text@0.0.3/text.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   exports.translate = function(load) {
     return 'def' + 'ine(function() {\nreturn "' + load.source.replace(/(["\\])/g, '\\$1').replace(/[\f]/g, "\\f").replace(/[\b]/g, "\\b").replace(/[\n]/g, "\\n").replace(/[\t]/g, "\\t").replace(/[\r]/g, "\\r").replace(/[\u2028]/g, "\\u2028").replace(/[\u2029]/g, "\\u2029") + '";\n});';
   };
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:systemjs/plugin-text@0.0.3.js", ["github:systemjs/plugin-text@0.0.3/text"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('github:systemjs/plugin-text@0.0.3/text');
-  global.define = __define;
   return module.exports;
 });
 
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
   'use strict';
   Number.isNaN = Number.isNaN || function(value) {
@@ -7255,18 +7250,16 @@ define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports"
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-polyfills@1.0.0-beta.1.0.1.js", ["npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-pal-browser@1.0.0-beta.1.1.4/aurelia-pal-browser.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -7669,18 +7662,16 @@ define("npm:aurelia-pal-browser@1.0.0-beta.1.1.4/aurelia-pal-browser.js", ["expo
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-pal-browser@1.0.0-beta.1.1.4.js", ["npm:aurelia-pal-browser@1.0.0-beta.1.1.4/aurelia-pal-browser"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-bootstrapper@1.0.0-beta.1.1.4/aurelia-bootstrapper.js", ["exports", "aurelia-polyfills", "aurelia-pal", "aurelia-pal-browser"], function(exports, _aureliaPolyfills, _aureliaPal, _aureliaPalBrowser) {
   'use strict';
   exports.__esModule = true;
@@ -7803,18 +7794,16 @@ define("npm:aurelia-bootstrapper@1.0.0-beta.1.1.4/aurelia-bootstrapper.js", ["ex
   run();
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-bootstrapper@1.0.0-beta.1.1.4.js", ["npm:aurelia-bootstrapper@1.0.0-beta.1.1.4/aurelia-bootstrapper"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-fetch-client@1.0.0-beta.1.1.1/aurelia-fetch-client.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -8025,18 +8014,16 @@ define("npm:aurelia-fetch-client@1.0.0-beta.1.1.1/aurelia-fetch-client.js", ["ex
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-fetch-client@1.0.0-beta.1.1.1.js", ["npm:aurelia-fetch-client@1.0.0-beta.1.1.1/aurelia-fetch-client"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-framework@1.0.0-beta.1.1.4/aurelia-framework.js", ["exports", "aurelia-logging", "aurelia-templating", "aurelia-path", "aurelia-dependency-injection", "aurelia-loader", "aurelia-pal", "aurelia-binding", "aurelia-metadata", "aurelia-task-queue"], function(exports, _aureliaLogging, _aureliaTemplating, _aureliaPath, _aureliaDependencyInjection, _aureliaLoader, _aureliaPal, _aureliaBinding, _aureliaMetadata, _aureliaTaskQueue) {
   'use strict';
   exports.__esModule = true;
@@ -8389,18 +8376,16 @@ define("npm:aurelia-framework@1.0.0-beta.1.1.4/aurelia-framework.js", ["exports"
   exports.LogManager = LogManager;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-framework@1.0.0-beta.1.1.4.js", ["npm:aurelia-framework@1.0.0-beta.1.1.4/aurelia-framework"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-history-browser@1.0.0-beta.1.1.4/aurelia-history-browser.js", ["exports", "aurelia-pal", "aurelia-history"], function(exports, _aureliaPal, _aureliaHistory) {
   'use strict';
   exports.__esModule = true;
@@ -8661,18 +8646,16 @@ define("npm:aurelia-history-browser@1.0.0-beta.1.1.4/aurelia-history-browser.js"
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-history-browser@1.0.0-beta.1.1.4.js", ["npm:aurelia-history-browser@1.0.0-beta.1.1.4/aurelia-history-browser"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-loader-default@1.0.0-beta.1.1.3/aurelia-loader-default.js", ["exports", "aurelia-loader", "aurelia-pal", "aurelia-metadata"], function(exports, _aureliaLoader, _aureliaPal, _aureliaMetadata) {
   'use strict';
   exports.__esModule = true;
@@ -8867,18 +8850,16 @@ define("npm:aurelia-loader-default@1.0.0-beta.1.1.3/aurelia-loader-default.js", 
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-loader-default@1.0.0-beta.1.1.3.js", ["npm:aurelia-loader-default@1.0.0-beta.1.1.3/aurelia-loader-default"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-logging-console@1.0.0-beta.1.1.4/aurelia-logging-console.js", ["exports", "aurelia-pal", "aurelia-logging"], function(exports, _aureliaPal, _aureliaLogging) {
   'use strict';
   exports.__esModule = true;
@@ -8949,18 +8930,16 @@ define("npm:aurelia-logging-console@1.0.0-beta.1.1.4/aurelia-logging-console.js"
   exports.ConsoleAppender = ConsoleAppender;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-logging-console@1.0.0-beta.1.1.4.js", ["npm:aurelia-logging-console@1.0.0-beta.1.1.4/aurelia-logging-console"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-binding@1.0.0-beta.1.1.2/aurelia-templating-binding.js", ["exports", "aurelia-logging", "aurelia-binding", "aurelia-templating"], function(exports, _aureliaLogging, _aureliaBinding, _aureliaTemplating) {
   'use strict';
   exports.__esModule = true;
@@ -9446,18 +9425,16 @@ define("npm:aurelia-templating-binding@1.0.0-beta.1.1.2/aurelia-templating-bindi
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-binding@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating-binding@1.0.0-beta.1.1.2/aurelia-templating-binding"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compose.js", ["exports", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -9641,10 +9618,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compose.js", ["exports
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/if.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaTaskQueue) {
   'use strict';
   exports.__esModule = true;
@@ -9722,10 +9698,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/if.js", ["exports", "a
   exports.If = If;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/with.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-binding"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -9771,10 +9746,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/with.js", ["exports", 
   exports.With = With;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/null-repeat-strategy.js", ["exports"], function(exports) {
   "use strict";
   exports.__esModule = true;
@@ -9796,10 +9770,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/null-repeat-strategy.j
   exports.NullRepeatStrategy = NullRepeatStrategy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/array-repeat-strategy.js", ["exports", "./repeat-utilities", "aurelia-binding"], function(exports, _repeatUtilities, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -9969,10 +9942,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/array-repeat-strategy.
   exports.ArrayRepeatStrategy = ArrayRepeatStrategy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/map-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
@@ -10087,10 +10059,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/map-repeat-strategy.js
   exports.MapRepeatStrategy = MapRepeatStrategy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/set-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
@@ -10191,10 +10162,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/set-repeat-strategy.js
   exports.SetRepeatStrategy = SetRepeatStrategy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/number-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
@@ -10254,10 +10224,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/number-repeat-strategy
   exports.NumberRepeatStrategy = NumberRepeatStrategy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-strategy-locator.js", ["exports", "./null-repeat-strategy", "./array-repeat-strategy", "./map-repeat-strategy", "./set-repeat-strategy", "./number-repeat-strategy"], function(exports, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy) {
   'use strict';
   exports.__esModule = true;
@@ -10306,10 +10275,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-strategy-locato
   exports.RepeatStrategyLocator = RepeatStrategyLocator;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-utilities.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -10387,10 +10355,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-utilities.js", 
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/analyze-view-factory.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -10440,10 +10407,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/analyze-view-factory.j
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat.js", ["exports", "aurelia-dependency-injection", "aurelia-binding", "aurelia-templating", "./repeat-strategy-locator", "./repeat-utilities", "./analyze-view-factory"], function(exports, _aureliaDependencyInjection, _aureliaBinding, _aureliaTemplating, _repeatStrategyLocator, _repeatUtilities, _analyzeViewFactory) {
   'use strict';
   exports.__esModule = true;
@@ -10634,10 +10600,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat.js", ["exports"
   exports.Repeat = Repeat;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/show.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -10670,10 +10635,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/show.js", ["exports", 
   exports.Show = Show;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/hide.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -10706,10 +10670,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/hide.js", ["exports", 
   exports.Hide = Hide;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/sanitize-html.js", ["exports", "aurelia-binding", "aurelia-dependency-injection", "./html-sanitizer"], function(exports, _aureliaBinding, _aureliaDependencyInjection, _htmlSanitizer) {
   'use strict';
   exports.__esModule = true;
@@ -10737,10 +10700,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/sanitize-html.js", ["e
   exports.SanitizeHTMLValueConverter = SanitizeHTMLValueConverter;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/replaceable.js", ["exports", "aurelia-dependency-injection", "aurelia-templating"], function(exports, _aureliaDependencyInjection, _aureliaTemplating) {
   'use strict';
   exports.__esModule = true;
@@ -10775,10 +10737,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/replaceable.js", ["exp
   exports.Replaceable = Replaceable;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/focus.js", ["exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -10833,10 +10794,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/focus.js", ["exports",
   exports.Focus = Focus;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compile-spy.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-logging", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaLogging, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -10858,10 +10818,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compile-spy.js", ["exp
   exports.CompileSpy = CompileSpy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/view-spy.js", ["exports", "aurelia-templating", "aurelia-logging"], function(exports, _aureliaTemplating, _aureliaLogging) {
   'use strict';
   exports.__esModule = true;
@@ -10905,10 +10864,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/view-spy.js", ["export
   exports.ViewSpy = ViewSpy;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/dynamic-element.js", ["exports", "aurelia-templating"], function(exports, _aureliaTemplating) {
   'use strict';
   exports.__esModule = true;
@@ -10939,10 +10897,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/dynamic-element.js", [
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/css-resource.js", ["exports", "aurelia-templating", "aurelia-loader", "aurelia-dependency-injection", "aurelia-path", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaLoader, _aureliaDependencyInjection, _aureliaPath, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -11039,10 +10996,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/css-resource.js", ["ex
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/html-sanitizer.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -11064,10 +11020,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/html-sanitizer.js", ["
   exports.HTMLSanitizer = HTMLSanitizer;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-mode-behaviors.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -11133,10 +11088,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-mode-behaviors
   exports.TwoWayBindingBehavior = TwoWayBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/throttle-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -11198,10 +11152,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/throttle-binding-behav
   exports.ThrottleBindingBehavior = ThrottleBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/debounce-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -11256,10 +11209,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/debounce-binding-behav
   exports.DebounceBindingBehavior = DebounceBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/signal-binding-behavior.js", ["exports", "./binding-signaler"], function(exports, _bindingSignaler) {
   'use strict';
   exports.__esModule = true;
@@ -11319,10 +11271,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/signal-binding-behavio
   exports.SignalBindingBehavior = SignalBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-signaler.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -11351,10 +11302,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-signaler.js", 
   exports.BindingSignaler = BindingSignaler;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/update-trigger-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
@@ -11424,10 +11374,9 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/update-trigger-binding
   exports.UpdateTriggerBindingBehavior = UpdateTriggerBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/aurelia-templating-resources.js", ["exports", "./compose", "./if", "./with", "./repeat", "./show", "./hide", "./sanitize-html", "./replaceable", "./focus", "./compile-spy", "./view-spy", "aurelia-templating", "./dynamic-element", "./css-resource", "aurelia-pal", "./html-sanitizer", "./binding-mode-behaviors", "./throttle-binding-behavior", "./debounce-binding-behavior", "./signal-binding-behavior", "./binding-signaler", "./update-trigger-binding-behavior"], function(exports, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _compileSpy, _viewSpy, _aureliaTemplating, _dynamicElement, _cssResource, _aureliaPal, _htmlSanitizer, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior) {
   'use strict';
   exports.__esModule = true;
@@ -11488,18 +11437,16 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/aurelia-templating-res
   exports.UpdateTriggerBindingBehavior = _updateTriggerBindingBehavior.UpdateTriggerBindingBehavior;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating-resources@1.0.0-beta.1.1.2/aurelia-templating-resources"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/route-loader.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-router", "aurelia-path", "aurelia-metadata"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaRouter, _aureliaPath, _aureliaMetadata) {
   'use strict';
   exports.__esModule = true;
@@ -11552,10 +11499,9 @@ define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/route-loader.js", ["expor
   exports.TemplatingRouteLoader = TemplatingRouteLoader;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/router-view.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-router", "aurelia-metadata", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaRouter, _aureliaMetadata, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -11724,10 +11670,9 @@ define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/router-view.js", ["export
   exports.RouterView = RouterView;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-loader@1.0.0-beta.1.1.1/aurelia-loader.js", ["exports", "aurelia-path", "aurelia-metadata"], function(exports, _aureliaPath, _aureliaMetadata) {
   'use strict';
   exports.__esModule = true;
@@ -11858,18 +11803,16 @@ define("npm:aurelia-loader@1.0.0-beta.1.1.1/aurelia-loader.js", ["exports", "aur
   exports.Loader = Loader;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-loader@1.0.0-beta.1.1.1.js", ["npm:aurelia-loader@1.0.0-beta.1.1.1/aurelia-loader"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-binding@1.0.0-beta.1.2.2/aurelia-binding.js", ["exports", "aurelia-pal", "aurelia-task-queue", "aurelia-metadata"], function(exports, _aureliaPal, _aureliaTaskQueue, _aureliaMetadata) {
   'use strict';
   exports.__esModule = true;
@@ -16186,18 +16129,16 @@ define("npm:aurelia-binding@1.0.0-beta.1.2.2/aurelia-binding.js", ["exports", "a
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-binding@1.0.0-beta.1.2.2.js", ["npm:aurelia-binding@1.0.0-beta.1.2.2/aurelia-binding"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-task-queue@1.0.0-beta.1.1.1/aurelia-task-queue.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -16317,18 +16258,16 @@ define("npm:aurelia-task-queue@1.0.0-beta.1.1.1/aurelia-task-queue.js", ["export
   exports.TaskQueue = TaskQueue;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-task-queue@1.0.0-beta.1.1.1.js", ["npm:aurelia-task-queue@1.0.0-beta.1.1.1/aurelia-task-queue"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating.js", ["exports", "aurelia-logging", "aurelia-pal", "aurelia-metadata", "aurelia-path", "aurelia-loader", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaLogging, _aureliaPal, _aureliaMetadata, _aureliaPath, _aureliaLoader, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue) {
   'use strict';
   exports.__esModule = true;
@@ -19791,18 +19730,16 @@ define("npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating.js", ["export
   exports.TemplatingEngine = TemplatingEngine;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-path@1.0.0-beta.1.1.1/aurelia-path.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -19983,18 +19920,16 @@ define("npm:aurelia-path@1.0.0-beta.1.1.1/aurelia-path.js", ["exports"], functio
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-path@1.0.0-beta.1.1.1.js", ["npm:aurelia-path@1.0.0-beta.1.1.1/aurelia-path"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-route-recognizer@1.0.0-beta.1.1.3/aurelia-route-recognizer.js", ["exports", "aurelia-path"], function(exports, _aureliaPath) {
   'use strict';
   exports.__esModule = true;
@@ -20395,18 +20330,16 @@ define("npm:aurelia-route-recognizer@1.0.0-beta.1.1.3/aurelia-route-recognizer.j
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-route-recognizer@1.0.0-beta.1.1.3.js", ["npm:aurelia-route-recognizer@1.0.0-beta.1.1.3/aurelia-route-recognizer"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-metadata@1.0.0-beta.1.1.6/aurelia-metadata.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -20630,18 +20563,16 @@ define("npm:aurelia-metadata@1.0.0-beta.1.1.6/aurelia-metadata.js", ["exports", 
   };
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-metadata@1.0.0-beta.1.1.6.js", ["npm:aurelia-metadata@1.0.0-beta.1.1.6/aurelia-metadata"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-injection.js", ["exports", "aurelia-metadata", "aurelia-pal"], function(exports, _aureliaMetadata, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
@@ -21133,18 +21064,16 @@ define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-inj
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4.js", ["npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-injection"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-history@1.0.0-beta.1.1.1/aurelia-history.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -21177,18 +21106,16 @@ define("npm:aurelia-history@1.0.0-beta.1.1.1/aurelia-history.js", ["exports"], f
   exports.History = History;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-history@1.0.0-beta.1.1.1.js", ["npm:aurelia-history@1.0.0-beta.1.1.1/aurelia-history"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-event-aggregator@1.0.0-beta.1.1.1/aurelia-event-aggregator.js", ["exports", "aurelia-logging"], function(exports, _aureliaLogging) {
   'use strict';
   exports.__esModule = true;
@@ -21299,18 +21226,16 @@ define("npm:aurelia-event-aggregator@1.0.0-beta.1.1.1/aurelia-event-aggregator.j
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-event-aggregator@1.0.0-beta.1.1.1.js", ["npm:aurelia-event-aggregator@1.0.0-beta.1.1.1/aurelia-event-aggregator"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-router@1.0.0-beta.1.1.3/aurelia-router.js", ["exports", "aurelia-logging", "aurelia-route-recognizer", "aurelia-dependency-injection", "aurelia-history", "aurelia-event-aggregator"], function(exports, _aureliaLogging, _aureliaRouteRecognizer, _aureliaDependencyInjection, _aureliaHistory, _aureliaEventAggregator) {
   'use strict';
   exports.__esModule = true;
@@ -22662,18 +22587,16 @@ define("npm:aurelia-router@1.0.0-beta.1.1.3/aurelia-router.js", ["exports", "aur
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-router@1.0.0-beta.1.1.3.js", ["npm:aurelia-router@1.0.0-beta.1.1.3/aurelia-router"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-pal@1.0.0-beta.1.1.1/aurelia-pal.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -22728,18 +22651,16 @@ define("npm:aurelia-pal@1.0.0-beta.1.1.1/aurelia-pal.js", ["exports"], function(
   }
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-pal@1.0.0-beta.1.1.1.js", ["npm:aurelia-pal@1.0.0-beta.1.1.1/aurelia-pal"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-logging@1.0.0-beta.1.1.2/aurelia-logging.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
@@ -22842,18 +22763,16 @@ define("npm:aurelia-logging@1.0.0-beta.1.1.2/aurelia-logging.js", ["exports"], f
   exports.Logger = Logger;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-logging@1.0.0-beta.1.1.2.js", ["npm:aurelia-logging@1.0.0-beta.1.1.2/aurelia-logging"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/route-href.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-router", "aurelia-pal", "aurelia-logging"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaRouter, _aureliaPal, _aureliaLogging) {
   'use strict';
   exports.__esModule = true;
@@ -22914,10 +22833,9 @@ define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/route-href.js", ["exports
   exports.RouteHref = RouteHref;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/aurelia-templating-router.js", ["exports", "aurelia-router", "./route-loader", "./router-view", "./route-href"], function(exports, _aureliaRouter, _routeLoader, _routerView, _routeHref) {
   'use strict';
   exports.__esModule = true;
@@ -22931,18 +22849,16 @@ define("npm:aurelia-templating-router@1.0.0-beta.1.1.2/aurelia-templating-router
   exports.configure = configure;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:aurelia-templating-router@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating-router@1.0.0-beta.1.1.2/aurelia-templating-router"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 (function(global, factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = global.document ? factory(global, true) : function(w) {
@@ -28936,6 +28852,8 @@ var _removeDefine = System.get("@@amd-helpers").createDefine();
   if (typeof define === "function" && define.amd) {
     define("npm:jquery@2.2.1/dist/jquery.js", [], function() {
       return jQuery;
+    }), define("jquery", ["npm:jquery@2.2.1/dist/jquery.js"], function(m) {
+      return m;
     });
   }
   var _jQuery = window.jQuery,
@@ -28955,21 +28873,19 @@ var _removeDefine = System.get("@@amd-helpers").createDefine();
   return jQuery;
 }));
 
-_removeDefine();
 })();
 (function() {
-var _removeDefine = System.get("@@amd-helpers").createDefine();
+var define = System.amdDefine;
 define("npm:jquery@2.2.1.js", ["npm:jquery@2.2.1/dist/jquery.js"], function(main) {
   return main;
 });
 
-_removeDefine();
 })();
 System.registerDynamic("npm:base64-js@0.0.8/lib/b64.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   ;
   (function(exports) {
@@ -29067,25 +28983,23 @@ System.registerDynamic("npm:base64-js@0.0.8/lib/b64.js", [], true, function($__r
     exports.toByteArray = b64ToByteArray;
     exports.fromByteArray = uint8ToBase64;
   }(typeof exports === 'undefined' ? (this.base64js = {}) : exports));
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:base64-js@0.0.8.js", ["npm:base64-js@0.0.8/lib/b64.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:base64-js@0.0.8/lib/b64.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:ieee754@1.1.6/index.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   exports.read = function(buffer, offset, isLE, mLen, nBytes) {
     var e,
         m;
@@ -29162,49 +29076,45 @@ System.registerDynamic("npm:ieee754@1.1.6/index.js", [], true, function($__requi
     for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
     buffer[offset + i - d] |= s * 128;
   };
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:ieee754@1.1.6.js", ["npm:ieee754@1.1.6/index.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:ieee754@1.1.6/index.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:isarray@1.0.0/index.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   var toString = {}.toString;
   module.exports = Array.isArray || function(arr) {
     return toString.call(arr) == '[object Array]';
   };
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:isarray@1.0.0.js", ["npm:isarray@1.0.0/index.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:isarray@1.0.0/index.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:buffer@3.6.0/index.js", ["base64-js", "ieee754", "isarray"], true, function($__require, exports, module) {
   "use strict";
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   var base64 = $__require('base64-js');
   var ieee754 = $__require('ieee754');
   var isArray = $__require('isarray');
@@ -30500,45 +30410,41 @@ System.registerDynamic("npm:buffer@3.6.0/index.js", ["base64-js", "ieee754", "is
     }
     return i;
   }
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:buffer@3.6.0.js", ["npm:buffer@3.6.0/index.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:buffer@3.6.0/index.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:jspm/nodelibs-buffer@0.1.0/index.js", ["buffer"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = System._nodeRequire ? System._nodeRequire('buffer') : $__require('buffer');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:jspm/nodelibs-buffer@0.1.0.js", ["github:jspm/nodelibs-buffer@0.1.0/index"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('github:jspm/nodelibs-buffer@0.1.0/index');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:process@0.11.2/browser.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   var process = module.exports = {};
   var queue = [];
   var draining = false;
@@ -30622,45 +30528,41 @@ System.registerDynamic("npm:process@0.11.2/browser.js", [], true, function($__re
   process.umask = function() {
     return 0;
   };
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:process@0.11.2.js", ["npm:process@0.11.2/browser.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:process@0.11.2/browser.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:jspm/nodelibs-process@0.1.2/index.js", ["process"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = System._nodeRequire ? process : $__require('process');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("github:jspm/nodelibs-process@0.1.2.js", ["github:jspm/nodelibs-process@0.1.2/index"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('github:jspm/nodelibs-process@0.1.2/index');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:lodash@4.6.1/lodash.js", ["buffer", "process"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   "format cjs";
   (function(Buffer, process) {
     ;
@@ -35763,25 +35665,23 @@ System.registerDynamic("npm:lodash@4.6.1/lodash.js", ["buffer", "process"], true
       }
     }.call(this));
   })($__require('buffer').Buffer, $__require('process'));
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:lodash@4.6.1.js", ["npm:lodash@4.6.1/lodash.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:lodash@4.6.1/lodash.js');
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:moment@2.11.2/moment.js", [], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   "format cjs";
   ;
   (function(global, factory) {
@@ -38407,16 +38307,14 @@ System.registerDynamic("npm:moment@2.11.2/moment.js", [], true, function($__requ
     var _moment = utils_hooks__hooks;
     return _moment;
   }));
-  global.define = __define;
   return module.exports;
 });
 
 System.registerDynamic("npm:moment@2.11.2.js", ["npm:moment@2.11.2/moment.js"], true, function($__require, exports, module) {
   ;
-  var global = this,
-      __define = global.define;
-  global.define = undefined;
+  var define;
+  var global = this;
+  var GLOBAL = this;
   module.exports = $__require('npm:moment@2.11.2/moment.js');
-  global.define = __define;
   return module.exports;
 });

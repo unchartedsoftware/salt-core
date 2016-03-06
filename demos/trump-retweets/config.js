@@ -205,7 +205,7 @@ System.config({
     }
   },
   bundles: {
-    "app.min-0b06430326.js": [
+    "app.min-eaa3c070c4.js": [
       "app.html!github:systemjs/plugin-text@0.0.3.js",
       "app.js",
       "components/binary-layer.js",
@@ -223,7 +223,7 @@ System.config({
       "util/leaflet-1d.js",
       "util/value-transform.js"
     ],
-    "vendor.min-2a852c3149.js": [
+    "vendor.min-5b11c579d9.js": [
       "github:Leaflet/Leaflet@0.7.7.js",
       "github:Leaflet/Leaflet@0.7.7/dist/leaflet-src.js",
       "github:github/fetch@0.10.1.js",
