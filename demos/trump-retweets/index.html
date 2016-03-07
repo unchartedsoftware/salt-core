@@ -23,9 +23,21 @@
 
   <body aurelia-app>
     <script src="jspm_packages/system.js"></script>
-    <script src="config.2b925587.js"></script>
+    <script src="config.437268e1.js"></script>
     <script>
-      System.import('aurelia-bootstrapper');
+      // Loads WeakMap polyfill needed by MutationObservers
+      System.import('core-js').then(function() {
+        // Imports MutationObserver polyfill
+        return System.import('request-frame').then(function(requestFrame) {
+          requestFrame('request');
+          requestFrame('cancel');
+          requestFrame('native');
+          return System.import('polymer/mutationobservers');
+        });
+      }).then(function() {
+        // Ensures start of Aurelia when all required IE9 dependencies are loaded
+        System.import('aurelia-bootstrapper');
+      });
     </script>
     <script>
      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

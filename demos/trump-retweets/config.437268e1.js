@@ -33,6 +33,8 @@ System.config({
     "leaflet": "github:Leaflet/Leaflet@0.7.7",
     "lodash": "npm:lodash@4.6.1",
     "moment": "npm:moment@2.11.2",
+    "polymer/mutationobservers": "github:polymer/mutationobservers@0.4.2",
+    "request-frame": "npm:request-frame@1.4.1",
     "text": "github:systemjs/plugin-text@0.0.3",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
@@ -198,6 +200,9 @@ System.config({
     },
     "npm:process@0.11.2": {
       "assert": "github:jspm/nodelibs-assert@0.1.0"
+    },
+    "npm:request-frame@1.4.1": {
+      "systemjs-json": "github:systemjs/plugin-json@0.1.0"
     },
     "npm:util@0.10.3": {
       "inherits": "npm:inherits@2.0.1",
