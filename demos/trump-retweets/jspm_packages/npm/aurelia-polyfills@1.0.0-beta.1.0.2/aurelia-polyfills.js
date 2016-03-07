@@ -2,6 +2,257 @@
 define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
   'use strict';
 
+  (function (Object, GOPS) {
+    'use strict';
+
+    if (GOPS in Object) return;
+
+    var setDescriptor,
+        G = typeof global === typeof G ? window : global,
+        id = 0,
+        random = '' + Math.random(),
+        prefix = '__\x01symbol:',
+        prefixLength = prefix.length,
+        internalSymbol = '__\x01symbol@@' + random,
+        DP = 'defineProperty',
+        DPies = 'defineProperties',
+        GOPN = 'getOwnPropertyNames',
+        GOPD = 'getOwnPropertyDescriptor',
+        PIE = 'propertyIsEnumerable',
+        gOPN = Object[GOPN],
+        gOPD = Object[GOPD],
+        create = Object.create,
+        keys = Object.keys,
+        defineProperty = Object[DP],
+        defineProperties = Object[DPies],
+        descriptor = gOPD(Object, GOPN),
+        ObjectProto = Object.prototype,
+        hOP = ObjectProto.hasOwnProperty,
+        pIE = ObjectProto[PIE],
+        toString = ObjectProto.toString,
+        indexOf = Array.prototype.indexOf || function (v) {
+      for (var i = this.length; i-- && this[i] !== v;) {}
+      return i;
+    },
+        addInternalIfNeeded = function addInternalIfNeeded(o, uid, enumerable) {
+      if (!hOP.call(o, internalSymbol)) {
+        defineProperty(o, internalSymbol, {
+          enumerable: false,
+          configurable: false,
+          writable: false,
+          value: {}
+        });
+      }
+      o[internalSymbol]['@@' + uid] = enumerable;
+    },
+        createWithSymbols = function createWithSymbols(proto, descriptors) {
+      var self = create(proto);
+      gOPN(descriptors).forEach(function (key) {
+        if (propertyIsEnumerable.call(descriptors, key)) {
+          $defineProperty(self, key, descriptors[key]);
+        }
+      });
+      return self;
+    },
+        copyAsNonEnumerable = function copyAsNonEnumerable(descriptor) {
+      var newDescriptor = create(descriptor);
+      newDescriptor.enumerable = false;
+      return newDescriptor;
+    },
+        get = function get() {},
+        onlyNonSymbols = function onlyNonSymbols(name) {
+      return name != internalSymbol && !hOP.call(source, name);
+    },
+        onlySymbols = function onlySymbols(name) {
+      return name != internalSymbol && hOP.call(source, name);
+    },
+        propertyIsEnumerable = function propertyIsEnumerable(key) {
+      var uid = '' + key;
+      return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
+    },
+        setAndGetSymbol = function setAndGetSymbol(uid) {
+      var descriptor = {
+        enumerable: false,
+        configurable: true,
+        get: get,
+        set: function set(value) {
+          setDescriptor(this, uid, {
+            enumerable: false,
+            configurable: true,
+            writable: true,
+            value: value
+          });
+          addInternalIfNeeded(this, uid, true);
+        }
+      };
+      defineProperty(ObjectProto, uid, descriptor);
+      return source[uid] = defineProperty(Object(uid), 'constructor', sourceConstructor);
+    },
+        Symbol = function Symbol(description) {
+      if (this && this !== G) {
+        throw new TypeError('Symbol is not a constructor');
+      }
+      return setAndGetSymbol(prefix.concat(description || '', random, ++id));
+    },
+        source = create(null),
+        sourceConstructor = { value: Symbol },
+        sourceMap = function sourceMap(uid) {
+      return source[uid];
+    },
+        $defineProperty = function defineProp(o, key, descriptor) {
+      var uid = '' + key;
+      if (onlySymbols(uid)) {
+        setDescriptor(o, uid, descriptor.enumerable ? copyAsNonEnumerable(descriptor) : descriptor);
+        addInternalIfNeeded(o, uid, !!descriptor.enumerable);
+      } else {
+        defineProperty(o, key, descriptor);
+      }
+      return o;
+    },
+        $getOwnPropertySymbols = function getOwnPropertySymbols(o) {
+      return gOPN(o).filter(onlySymbols).map(sourceMap);
+    };
+
+    descriptor.value = $defineProperty;
+    defineProperty(Object, DP, descriptor);
+
+    descriptor.value = $getOwnPropertySymbols;
+    defineProperty(Object, GOPS, descriptor);
+
+    descriptor.value = function getOwnPropertyNames(o) {
+      return gOPN(o).filter(onlyNonSymbols);
+    };
+    defineProperty(Object, GOPN, descriptor);
+
+    descriptor.value = function defineProperties(o, descriptors) {
+      var symbols = $getOwnPropertySymbols(descriptors);
+      if (symbols.length) {
+        keys(descriptors).concat(symbols).forEach(function (uid) {
+          if (propertyIsEnumerable.call(descriptors, uid)) {
+            $defineProperty(o, uid, descriptors[uid]);
+          }
+        });
+      } else {
+        defineProperties(o, descriptors);
+      }
+      return o;
+    };
+    defineProperty(Object, DPies, descriptor);
+
+    descriptor.value = propertyIsEnumerable;
+    defineProperty(ObjectProto, PIE, descriptor);
+
+    descriptor.value = Symbol;
+    defineProperty(G, 'Symbol', descriptor);
+
+    descriptor.value = function (key) {
+      var uid = prefix.concat(prefix, key, random);
+      return uid in ObjectProto ? source[uid] : setAndGetSymbol(uid);
+    };
+    defineProperty(Symbol, 'for', descriptor);
+
+    descriptor.value = function (symbol) {
+      return hOP.call(source, symbol) ? symbol.slice(prefixLength * 2, -random.length) : void 0;
+    };
+    defineProperty(Symbol, 'keyFor', descriptor);
+
+    descriptor.value = function getOwnPropertyDescriptor(o, key) {
+      var descriptor = gOPD(o, key);
+      if (descriptor && onlySymbols(key)) {
+        descriptor.enumerable = propertyIsEnumerable.call(o, key);
+      }
+      return descriptor;
+    };
+    defineProperty(Object, GOPD, descriptor);
+
+    descriptor.value = function (proto, descriptors) {
+      return arguments.length === 1 ? create(proto) : createWithSymbols(proto, descriptors);
+    };
+    defineProperty(Object, 'create', descriptor);
+
+    descriptor.value = function () {
+      var str = toString.call(this);
+      return str === '[object String]' && onlySymbols(this) ? '[object Symbol]' : str;
+    };
+    defineProperty(ObjectProto, 'toString', descriptor);
+
+    try {
+      setDescriptor = create(defineProperty({}, prefix, {
+        get: function get() {
+          return defineProperty(this, prefix, { value: false })[prefix];
+        }
+      }))[prefix] || defineProperty;
+    } catch (o_O) {
+      setDescriptor = function (o, key, descriptor) {
+        var protoDescriptor = gOPD(ObjectProto, key);
+        delete ObjectProto[key];
+        defineProperty(o, key, descriptor);
+        defineProperty(ObjectProto, key, protoDescriptor);
+      };
+    }
+  })(Object, 'getOwnPropertySymbols');
+
+  (function (O, S) {
+    var dP = O.defineProperty,
+        ObjectProto = O.prototype,
+        toString = ObjectProto.toString,
+        toStringTag = 'toStringTag',
+        descriptor;
+    ['iterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', toStringTag].forEach(function (name) {
+      if (!(name in Symbol)) {
+        dP(Symbol, name, { value: Symbol(name) });
+        switch (name) {
+          case toStringTag:
+            descriptor = O.getOwnPropertyDescriptor(ObjectProto, 'toString');
+            descriptor.value = function () {
+              var str = toString.call(this),
+                  tst = this[Symbol.toStringTag];
+              return typeof tst === 'undefined' ? str : '[object ' + tst + ']';
+            };
+            dP(ObjectProto, 'toString', descriptor);
+            break;
+        }
+      }
+    });
+  })(Object, Symbol);
+
+  (function (Si, AP, SP) {
+
+    function returnThis() {
+      return this;
+    }
+
+    if (!AP[Si]) AP[Si] = function () {
+      var i = 0,
+          self = this,
+          iterator = {
+        next: function next() {
+          var done = self.length <= i;
+          return done ? { done: done } : { done: done, value: self[i++] };
+        }
+      };
+      iterator[Si] = returnThis;
+      return iterator;
+    };
+
+    if (!SP[Si]) SP[Si] = function () {
+      var fromCodePoint = String.fromCodePoint,
+          self = this,
+          i = 0,
+          length = self.length,
+          iterator = {
+        next: function next() {
+          var done = length <= i,
+              c = done ? '' : fromCodePoint(self.codePointAt(i));
+          i += c.length;
+          return done ? { done: done } : { done: done, value: c };
+        }
+      };
+      iterator[Si] = returnThis;
+      return iterator;
+    };
+  })(Symbol.iterator, Array.prototype, String.prototype);
+
   Number.isNaN = Number.isNaN || function (value) {
     return value !== value;
   };
@@ -168,29 +419,38 @@ define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
       return false;
     };
   }
-  if (typeof Object.assign !== 'function') {
-    Object.assign = function (target) {
-      if (target === undefined || target === null) {
-        throw new TypeError('Cannot convert undefined or null to object');
-      }
-
-      var output = Object(target);
-
-      for (var index = 1; index < arguments.length; index++) {
-        var source = arguments[index];
-
-        if (source !== undefined && source !== null) {
-          for (var nextKey in source) {
-            if (source.hasOwnProperty(nextKey)) {
-              output[nextKey] = source[nextKey];
-            }
+  (function (O) {
+    if ('assign' in O) return;
+    O.defineProperty(O, 'assign', {
+      configurable: true,
+      writable: true,
+      value: (function () {
+        var gOPS = O.getOwnPropertySymbols,
+            pIE = O.propertyIsEnumerable,
+            filterOS = gOPS ? function (self) {
+          return gOPS(self).filter(pIE, self);
+        } : function () {
+          return Array.prototype;
+        };
+        return function assign(where) {
+          if (gOPS && !(where instanceof O)) {
+            console.warn('problematic Symbols', where);
           }
-        }
-      }
 
-      return output;
-    };
-  }
+          function set(keyOrSymbol) {
+            where[keyOrSymbol] = arg[keyOrSymbol];
+          }
+
+          for (var arg, i = 1; i < arguments.length; i++) {
+            arg = arguments[i];
+            O.keys(arg).concat(filterOS(arg)).forEach(set);
+          }
+          return where;
+        };
+      })()
+    });
+  })(Object);
+
   (function (global) {
     var i;
 
@@ -214,7 +474,9 @@ define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
     }
 
     if (typeof Map == 'undefined' || typeof new Map().values !== 'function' || !new Map().values().next) {
-      global.Map = createCollection({
+      var _createCollection;
+
+      global.Map = createCollection((_createCollection = {
         'delete': sharedDelete,
 
         has: mapHas,
@@ -232,11 +494,13 @@ define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
         forEach: sharedForEach,
 
         clear: sharedClear
-      });
+      }, _createCollection[Symbol.iterator] = mapEntries, _createCollection));
     }
 
     if (typeof Set == 'undefined' || typeof new Set().values !== 'function' || !new Set().values().next) {
-      global.Set = createCollection({
+      var _createCollection2;
+
+      global.Set = createCollection((_createCollection2 = {
         has: setHas,
 
         add: sharedAdd,
@@ -251,7 +515,7 @@ define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
         entries: setEntries,
 
         forEach: sharedForEach
-      });
+      }, _createCollection2[Symbol.iterator] = sharedValues, _createCollection2));
     }
 
     if (typeof WeakSet == 'undefined') {
@@ -392,6 +656,7 @@ define(['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
       }
     }
   })(_aureliaPal.PLATFORM.global);
+
   var emptyMetadata = Object.freeze({});
   var metadataContainerKey = '__metadata__';
   var bind = Function.prototype.bind;

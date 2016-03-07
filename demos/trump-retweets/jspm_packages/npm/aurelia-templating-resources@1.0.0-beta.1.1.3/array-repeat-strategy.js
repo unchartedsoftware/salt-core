@@ -110,7 +110,7 @@ define(['exports', './repeat-utilities', 'aurelia-binding'], function (exports, 
         return;
       }
 
-      var maybePromise = this._runSplices(repeat, array, splices);
+      var maybePromise = this._runSplices(repeat, array.slice(0), splices);
       if (maybePromise instanceof Promise) {
         (function () {
           var queuedSplices = repeat.__queuedSplices = [];

@@ -6876,8 +6876,242 @@ System.registerDynamic("github:systemjs/plugin-text@0.0.3.js", ["github:systemjs
 
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
+define("npm:aurelia-polyfills@1.0.0-beta.1.0.2/aurelia-polyfills.js", ["exports", "aurelia-pal"], function(exports, _aureliaPal) {
   'use strict';
+  (function(Object, GOPS) {
+    'use strict';
+    if (GOPS in Object)
+      return;
+    var setDescriptor,
+        G = typeof global === typeof G ? window : global,
+        id = 0,
+        random = '' + Math.random(),
+        prefix = '__\x01symbol:',
+        prefixLength = prefix.length,
+        internalSymbol = '__\x01symbol@@' + random,
+        DP = 'defineProperty',
+        DPies = 'defineProperties',
+        GOPN = 'getOwnPropertyNames',
+        GOPD = 'getOwnPropertyDescriptor',
+        PIE = 'propertyIsEnumerable',
+        gOPN = Object[GOPN],
+        gOPD = Object[GOPD],
+        create = Object.create,
+        keys = Object.keys,
+        defineProperty = Object[DP],
+        defineProperties = Object[DPies],
+        descriptor = gOPD(Object, GOPN),
+        ObjectProto = Object.prototype,
+        hOP = ObjectProto.hasOwnProperty,
+        pIE = ObjectProto[PIE],
+        toString = ObjectProto.toString,
+        indexOf = Array.prototype.indexOf || function(v) {
+          for (var i = this.length; i-- && this[i] !== v; ) {}
+          return i;
+        },
+        addInternalIfNeeded = function addInternalIfNeeded(o, uid, enumerable) {
+          if (!hOP.call(o, internalSymbol)) {
+            defineProperty(o, internalSymbol, {
+              enumerable: false,
+              configurable: false,
+              writable: false,
+              value: {}
+            });
+          }
+          o[internalSymbol]['@@' + uid] = enumerable;
+        },
+        createWithSymbols = function createWithSymbols(proto, descriptors) {
+          var self = create(proto);
+          gOPN(descriptors).forEach(function(key) {
+            if (propertyIsEnumerable.call(descriptors, key)) {
+              $defineProperty(self, key, descriptors[key]);
+            }
+          });
+          return self;
+        },
+        copyAsNonEnumerable = function copyAsNonEnumerable(descriptor) {
+          var newDescriptor = create(descriptor);
+          newDescriptor.enumerable = false;
+          return newDescriptor;
+        },
+        get = function get() {},
+        onlyNonSymbols = function onlyNonSymbols(name) {
+          return name != internalSymbol && !hOP.call(source, name);
+        },
+        onlySymbols = function onlySymbols(name) {
+          return name != internalSymbol && hOP.call(source, name);
+        },
+        propertyIsEnumerable = function propertyIsEnumerable(key) {
+          var uid = '' + key;
+          return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
+        },
+        setAndGetSymbol = function setAndGetSymbol(uid) {
+          var descriptor = {
+            enumerable: false,
+            configurable: true,
+            get: get,
+            set: function set(value) {
+              setDescriptor(this, uid, {
+                enumerable: false,
+                configurable: true,
+                writable: true,
+                value: value
+              });
+              addInternalIfNeeded(this, uid, true);
+            }
+          };
+          defineProperty(ObjectProto, uid, descriptor);
+          return source[uid] = defineProperty(Object(uid), 'constructor', sourceConstructor);
+        },
+        Symbol = function Symbol(description) {
+          if (this && this !== G) {
+            throw new TypeError('Symbol is not a constructor');
+          }
+          return setAndGetSymbol(prefix.concat(description || '', random, ++id));
+        },
+        source = create(null),
+        sourceConstructor = {value: Symbol},
+        sourceMap = function sourceMap(uid) {
+          return source[uid];
+        },
+        $defineProperty = function defineProp(o, key, descriptor) {
+          var uid = '' + key;
+          if (onlySymbols(uid)) {
+            setDescriptor(o, uid, descriptor.enumerable ? copyAsNonEnumerable(descriptor) : descriptor);
+            addInternalIfNeeded(o, uid, !!descriptor.enumerable);
+          } else {
+            defineProperty(o, key, descriptor);
+          }
+          return o;
+        },
+        $getOwnPropertySymbols = function getOwnPropertySymbols(o) {
+          return gOPN(o).filter(onlySymbols).map(sourceMap);
+        };
+    descriptor.value = $defineProperty;
+    defineProperty(Object, DP, descriptor);
+    descriptor.value = $getOwnPropertySymbols;
+    defineProperty(Object, GOPS, descriptor);
+    descriptor.value = function getOwnPropertyNames(o) {
+      return gOPN(o).filter(onlyNonSymbols);
+    };
+    defineProperty(Object, GOPN, descriptor);
+    descriptor.value = function defineProperties(o, descriptors) {
+      var symbols = $getOwnPropertySymbols(descriptors);
+      if (symbols.length) {
+        keys(descriptors).concat(symbols).forEach(function(uid) {
+          if (propertyIsEnumerable.call(descriptors, uid)) {
+            $defineProperty(o, uid, descriptors[uid]);
+          }
+        });
+      } else {
+        defineProperties(o, descriptors);
+      }
+      return o;
+    };
+    defineProperty(Object, DPies, descriptor);
+    descriptor.value = propertyIsEnumerable;
+    defineProperty(ObjectProto, PIE, descriptor);
+    descriptor.value = Symbol;
+    defineProperty(G, 'Symbol', descriptor);
+    descriptor.value = function(key) {
+      var uid = prefix.concat(prefix, key, random);
+      return uid in ObjectProto ? source[uid] : setAndGetSymbol(uid);
+    };
+    defineProperty(Symbol, 'for', descriptor);
+    descriptor.value = function(symbol) {
+      return hOP.call(source, symbol) ? symbol.slice(prefixLength * 2, -random.length) : void 0;
+    };
+    defineProperty(Symbol, 'keyFor', descriptor);
+    descriptor.value = function getOwnPropertyDescriptor(o, key) {
+      var descriptor = gOPD(o, key);
+      if (descriptor && onlySymbols(key)) {
+        descriptor.enumerable = propertyIsEnumerable.call(o, key);
+      }
+      return descriptor;
+    };
+    defineProperty(Object, GOPD, descriptor);
+    descriptor.value = function(proto, descriptors) {
+      return arguments.length === 1 ? create(proto) : createWithSymbols(proto, descriptors);
+    };
+    defineProperty(Object, 'create', descriptor);
+    descriptor.value = function() {
+      var str = toString.call(this);
+      return str === '[object String]' && onlySymbols(this) ? '[object Symbol]' : str;
+    };
+    defineProperty(ObjectProto, 'toString', descriptor);
+    try {
+      setDescriptor = create(defineProperty({}, prefix, {get: function get() {
+          return defineProperty(this, prefix, {value: false})[prefix];
+        }}))[prefix] || defineProperty;
+    } catch (o_O) {
+      setDescriptor = function(o, key, descriptor) {
+        var protoDescriptor = gOPD(ObjectProto, key);
+        delete ObjectProto[key];
+        defineProperty(o, key, descriptor);
+        defineProperty(ObjectProto, key, protoDescriptor);
+      };
+    }
+  })(Object, 'getOwnPropertySymbols');
+  (function(O, S) {
+    var dP = O.defineProperty,
+        ObjectProto = O.prototype,
+        toString = ObjectProto.toString,
+        toStringTag = 'toStringTag',
+        descriptor;
+    ['iterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', toStringTag].forEach(function(name) {
+      if (!(name in Symbol)) {
+        dP(Symbol, name, {value: Symbol(name)});
+        switch (name) {
+          case toStringTag:
+            descriptor = O.getOwnPropertyDescriptor(ObjectProto, 'toString');
+            descriptor.value = function() {
+              var str = toString.call(this),
+                  tst = this[Symbol.toStringTag];
+              return typeof tst === 'undefined' ? str : '[object ' + tst + ']';
+            };
+            dP(ObjectProto, 'toString', descriptor);
+            break;
+        }
+      }
+    });
+  })(Object, Symbol);
+  (function(Si, AP, SP) {
+    function returnThis() {
+      return this;
+    }
+    if (!AP[Si])
+      AP[Si] = function() {
+        var i = 0,
+            self = this,
+            iterator = {next: function next() {
+                var done = self.length <= i;
+                return done ? {done: done} : {
+                  done: done,
+                  value: self[i++]
+                };
+              }};
+        iterator[Si] = returnThis;
+        return iterator;
+      };
+    if (!SP[Si])
+      SP[Si] = function() {
+        var fromCodePoint = String.fromCodePoint,
+            self = this,
+            i = 0,
+            length = self.length,
+            iterator = {next: function next() {
+                var done = length <= i,
+                    c = done ? '' : fromCodePoint(self.codePointAt(i));
+                i += c.length;
+                return done ? {done: done} : {
+                  done: done,
+                  value: c
+                };
+              }};
+        iterator[Si] = returnThis;
+        return iterator;
+      };
+  })(Symbol.iterator, Array.prototype, String.prototype);
   Number.isNaN = Number.isNaN || function(value) {
     return value !== value;
   };
@@ -7026,25 +7260,37 @@ define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports"
       return false;
     };
   }
-  if (typeof Object.assign !== 'function') {
-    Object.assign = function(target) {
-      if (target === undefined || target === null) {
-        throw new TypeError('Cannot convert undefined or null to object');
-      }
-      var output = Object(target);
-      for (var index = 1; index < arguments.length; index++) {
-        var source = arguments[index];
-        if (source !== undefined && source !== null) {
-          for (var nextKey in source) {
-            if (source.hasOwnProperty(nextKey)) {
-              output[nextKey] = source[nextKey];
-            }
+  (function(O) {
+    if ('assign' in O)
+      return;
+    O.defineProperty(O, 'assign', {
+      configurable: true,
+      writable: true,
+      value: (function() {
+        var gOPS = O.getOwnPropertySymbols,
+            pIE = O.propertyIsEnumerable,
+            filterOS = gOPS ? function(self) {
+              return gOPS(self).filter(pIE, self);
+            } : function() {
+              return Array.prototype;
+            };
+        return function assign(where) {
+          if (gOPS && !(where instanceof O)) {
+            console.warn('problematic Symbols', where);
           }
-        }
-      }
-      return output;
-    };
-  }
+          function set(keyOrSymbol) {
+            where[keyOrSymbol] = arg[keyOrSymbol];
+          }
+          for (var arg,
+              i = 1; i < arguments.length; i++) {
+            arg = arguments[i];
+            O.keys(arg).concat(filterOS(arg)).forEach(set);
+          }
+          return where;
+        };
+      })()
+    });
+  })(Object);
   (function(global) {
     var i;
     var defineProperty = Object.defineProperty,
@@ -7061,7 +7307,8 @@ define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports"
       }, true);
     }
     if (typeof Map == 'undefined' || typeof new Map().values !== 'function' || !new Map().values().next) {
-      global.Map = createCollection({
+      var _createCollection;
+      global.Map = createCollection((_createCollection = {
         'delete': sharedDelete,
         has: mapHas,
         get: sharedGet,
@@ -7071,10 +7318,11 @@ define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports"
         entries: mapEntries,
         forEach: sharedForEach,
         clear: sharedClear
-      });
+      }, _createCollection[Symbol.iterator] = mapEntries, _createCollection));
     }
     if (typeof Set == 'undefined' || typeof new Set().values !== 'function' || !new Set().values().next) {
-      global.Set = createCollection({
+      var _createCollection2;
+      global.Set = createCollection((_createCollection2 = {
         has: setHas,
         add: sharedAdd,
         'delete': sharedDelete,
@@ -7083,7 +7331,7 @@ define("npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills.js", ["exports"
         values: sharedValues,
         entries: setEntries,
         forEach: sharedForEach
-      });
+      }, _createCollection2[Symbol.iterator] = sharedValues, _createCollection2));
     }
     if (typeof WeakSet == 'undefined') {
       global.WeakSet = createCollection({
@@ -7259,7 +7507,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-polyfills@1.0.0-beta.1.0.1.js", ["npm:aurelia-polyfills@1.0.0-beta.1.0.1/aurelia-polyfills"], function(main) {
+define("npm:aurelia-polyfills@1.0.0-beta.1.0.2.js", ["npm:aurelia-polyfills@1.0.0-beta.1.0.2/aurelia-polyfills"], function(main) {
   return main;
 });
 
@@ -9458,7 +9706,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compose.js", ["exports", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaTemplating, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/compose.js", ["exports", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   var _createDecoratedClass = (function() {
@@ -9645,7 +9893,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/if.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaTaskQueue) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/if.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaTaskQueue) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -9726,7 +9974,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/with.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-binding"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/with.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-binding"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -9775,7 +10023,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/null-repeat-strategy.js", ["exports"], function(exports) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/null-repeat-strategy.js", ["exports"], function(exports) {
   "use strict";
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -9800,7 +10048,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/array-repeat-strategy.js", ["exports", "./repeat-utilities", "aurelia-binding"], function(exports, _repeatUtilities, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/array-repeat-strategy.js", ["exports", "./repeat-utilities", "aurelia-binding"], function(exports, _repeatUtilities, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -9898,7 +10146,7 @@ define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/array-repeat-strategy.
         repeat.__array = array.slice(0);
         return;
       }
-      var maybePromise = this._runSplices(repeat, array, splices);
+      var maybePromise = this._runSplices(repeat, array.slice(0), splices);
       if (maybePromise instanceof Promise) {
         (function() {
           var queuedSplices = repeat.__queuedSplices = [];
@@ -9973,7 +10221,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/map-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/map-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10091,7 +10339,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/set-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/set-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10195,7 +10443,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/number-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/number-repeat-strategy.js", ["exports", "./repeat-utilities"], function(exports, _repeatUtilities) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10258,7 +10506,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-strategy-locator.js", ["exports", "./null-repeat-strategy", "./array-repeat-strategy", "./map-repeat-strategy", "./set-repeat-strategy", "./number-repeat-strategy"], function(exports, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/repeat-strategy-locator.js", ["exports", "./null-repeat-strategy", "./array-repeat-strategy", "./map-repeat-strategy", "./set-repeat-strategy", "./number-repeat-strategy"], function(exports, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10310,7 +10558,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat-utilities.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/repeat-utilities.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   exports.updateOverrideContexts = updateOverrideContexts;
@@ -10391,7 +10639,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/analyze-view-factory.js", ["exports"], function(exports) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/analyze-view-factory.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
   exports.viewsRequireLifecycle = viewsRequireLifecycle;
@@ -10444,7 +10692,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/repeat.js", ["exports", "aurelia-dependency-injection", "aurelia-binding", "aurelia-templating", "./repeat-strategy-locator", "./repeat-utilities", "./analyze-view-factory"], function(exports, _aureliaDependencyInjection, _aureliaBinding, _aureliaTemplating, _repeatStrategyLocator, _repeatUtilities, _analyzeViewFactory) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/repeat.js", ["exports", "aurelia-dependency-injection", "aurelia-binding", "aurelia-templating", "./repeat-strategy-locator", "./repeat-utilities", "./analyze-view-factory"], function(exports, _aureliaDependencyInjection, _aureliaBinding, _aureliaTemplating, _repeatStrategyLocator, _repeatUtilities, _analyzeViewFactory) {
   'use strict';
   exports.__esModule = true;
   var _createDecoratedClass = (function() {
@@ -10638,7 +10886,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/show.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/show.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10674,7 +10922,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/hide.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/hide.js", ["exports", "aurelia-dependency-injection", "aurelia-templating", "aurelia-pal"], function(exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10710,7 +10958,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/sanitize-html.js", ["exports", "aurelia-binding", "aurelia-dependency-injection", "./html-sanitizer"], function(exports, _aureliaBinding, _aureliaDependencyInjection, _htmlSanitizer) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/sanitize-html.js", ["exports", "aurelia-binding", "aurelia-dependency-injection", "./html-sanitizer"], function(exports, _aureliaBinding, _aureliaDependencyInjection, _htmlSanitizer) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10741,7 +10989,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/replaceable.js", ["exports", "aurelia-dependency-injection", "aurelia-templating"], function(exports, _aureliaDependencyInjection, _aureliaTemplating) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/replaceable.js", ["exports", "aurelia-dependency-injection", "aurelia-templating"], function(exports, _aureliaDependencyInjection, _aureliaTemplating) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10779,7 +11027,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/focus.js", ["exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/focus.js", ["exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10837,7 +11085,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/compile-spy.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-logging", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaLogging, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/compile-spy.js", ["exports", "aurelia-templating", "aurelia-dependency-injection", "aurelia-logging", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaLogging, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10862,7 +11110,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/view-spy.js", ["exports", "aurelia-templating", "aurelia-logging"], function(exports, _aureliaTemplating, _aureliaLogging) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/view-spy.js", ["exports", "aurelia-templating", "aurelia-logging"], function(exports, _aureliaTemplating, _aureliaLogging) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -10909,7 +11157,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/dynamic-element.js", ["exports", "aurelia-templating"], function(exports, _aureliaTemplating) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/dynamic-element.js", ["exports", "aurelia-templating"], function(exports, _aureliaTemplating) {
   'use strict';
   exports.__esModule = true;
   exports._createDynamicElement = _createDynamicElement;
@@ -10943,7 +11191,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/css-resource.js", ["exports", "aurelia-templating", "aurelia-loader", "aurelia-dependency-injection", "aurelia-path", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaLoader, _aureliaDependencyInjection, _aureliaPath, _aureliaPal) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/css-resource.js", ["exports", "aurelia-templating", "aurelia-loader", "aurelia-dependency-injection", "aurelia-path", "aurelia-pal"], function(exports, _aureliaTemplating, _aureliaLoader, _aureliaDependencyInjection, _aureliaPath, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   exports._createCSSResource = _createCSSResource;
@@ -11043,7 +11291,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/html-sanitizer.js", ["exports"], function(exports) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/html-sanitizer.js", ["exports"], function(exports) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -11068,7 +11316,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-mode-behaviors.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/binding-mode-behaviors.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _inherits(subClass, superClass) {
@@ -11137,7 +11385,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/throttle-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/throttle-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -11202,7 +11450,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/debounce-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/debounce-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -11260,7 +11508,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/signal-binding-behavior.js", ["exports", "./binding-signaler"], function(exports, _bindingSignaler) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/signal-binding-behavior.js", ["exports", "./binding-signaler"], function(exports, _bindingSignaler) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -11323,7 +11571,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/binding-signaler.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/binding-signaler.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   function _classCallCheck(instance, Constructor) {
@@ -11355,7 +11603,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/update-trigger-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/update-trigger-binding-behavior.js", ["exports", "aurelia-binding"], function(exports, _aureliaBinding) {
   'use strict';
   exports.__esModule = true;
   var _createClass = (function() {
@@ -11428,7 +11676,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2/aurelia-templating-resources.js", ["exports", "./compose", "./if", "./with", "./repeat", "./show", "./hide", "./sanitize-html", "./replaceable", "./focus", "./compile-spy", "./view-spy", "aurelia-templating", "./dynamic-element", "./css-resource", "aurelia-pal", "./html-sanitizer", "./binding-mode-behaviors", "./throttle-binding-behavior", "./debounce-binding-behavior", "./signal-binding-behavior", "./binding-signaler", "./update-trigger-binding-behavior"], function(exports, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _compileSpy, _viewSpy, _aureliaTemplating, _dynamicElement, _cssResource, _aureliaPal, _htmlSanitizer, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3/aurelia-templating-resources.js", ["exports", "./compose", "./if", "./with", "./repeat", "./show", "./hide", "./sanitize-html", "./replaceable", "./focus", "./compile-spy", "./view-spy", "aurelia-templating", "./dynamic-element", "./css-resource", "aurelia-pal", "./html-sanitizer", "./binding-mode-behaviors", "./throttle-binding-behavior", "./debounce-binding-behavior", "./signal-binding-behavior", "./binding-signaler", "./update-trigger-binding-behavior"], function(exports, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _compileSpy, _viewSpy, _aureliaTemplating, _dynamicElement, _cssResource, _aureliaPal, _htmlSanitizer, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior) {
   'use strict';
   exports.__esModule = true;
   function configure(config) {
@@ -11492,7 +11740,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating-resources@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating-resources@1.0.0-beta.1.1.2/aurelia-templating-resources"], function(main) {
+define("npm:aurelia-templating-resources@1.0.0-beta.1.1.3.js", ["npm:aurelia-templating-resources@1.0.0-beta.1.1.3/aurelia-templating-resources"], function(main) {
   return main;
 });
 
@@ -16329,7 +16577,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating.js", ["exports", "aurelia-logging", "aurelia-pal", "aurelia-metadata", "aurelia-path", "aurelia-loader", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaLogging, _aureliaPal, _aureliaMetadata, _aureliaPath, _aureliaLoader, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue) {
+define("npm:aurelia-templating@1.0.0-beta.1.1.4/aurelia-templating.js", ["exports", "aurelia-logging", "aurelia-pal", "aurelia-metadata", "aurelia-path", "aurelia-loader", "aurelia-binding", "aurelia-dependency-injection", "aurelia-task-queue"], function(exports, _aureliaLogging, _aureliaPal, _aureliaMetadata, _aureliaPath, _aureliaLoader, _aureliaBinding, _aureliaDependencyInjection, _aureliaTaskQueue) {
   'use strict';
   exports.__esModule = true;
   var _createClass = (function() {
@@ -19594,6 +19842,9 @@ define("npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating.js", ["export
         });
       } else if (context.viewSlot) {
         context.viewSlot.removeAll();
+        if (context.compositionTransactionNotifier) {
+          context.compositionTransactionNotifier.done();
+        }
         return Promise.resolve(null);
       }
     };
@@ -19609,7 +19860,7 @@ define("npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating.js", ["export
     ElementConfigResource.prototype.initialize = function initialize(container, target) {};
     ElementConfigResource.prototype.register = function register(registry, name) {};
     ElementConfigResource.prototype.load = function load(container, target) {
-      var config = new Target();
+      var config = new target();
       var eventManager = container.get(_aureliaBinding.EventManager);
       eventManager.registerElementConfig(config);
     };
@@ -19795,7 +20046,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-templating@1.0.0-beta.1.1.2.js", ["npm:aurelia-templating@1.0.0-beta.1.1.2/aurelia-templating"], function(main) {
+define("npm:aurelia-templating@1.0.0-beta.1.1.4.js", ["npm:aurelia-templating@1.0.0-beta.1.1.4/aurelia-templating"], function(main) {
   return main;
 });
 
@@ -20642,7 +20893,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-injection.js", ["exports", "aurelia-metadata", "aurelia-pal"], function(exports, _aureliaMetadata, _aureliaPal) {
+define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.5/aurelia-dependency-injection.js", ["exports", "aurelia-metadata", "aurelia-pal"], function(exports, _aureliaMetadata, _aureliaPal) {
   'use strict';
   exports.__esModule = true;
   var _classInvokers;
@@ -20789,6 +21040,30 @@ define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-inj
     return StrategyResolver;
   })();
   exports.StrategyResolver = StrategyResolver;
+  var Factory = (function() {
+    function Factory(key) {
+      _classCallCheck(this, _Factory);
+      this._key = key;
+    }
+    Factory.prototype.get = function get(container) {
+      var _this2 = this;
+      return function() {
+        for (var _len = arguments.length,
+            rest = Array(_len),
+            _key = 0; _key < _len; _key++) {
+          rest[_key] = arguments[_key];
+        }
+        return container.invoke(_this2._key, rest);
+      };
+    };
+    Factory.of = function of(key) {
+      return new Factory(key);
+    };
+    var _Factory = Factory;
+    Factory = resolver()(Factory) || Factory;
+    return Factory;
+  })();
+  exports.Factory = Factory;
   function invoker(value) {
     return function(target) {
       _aureliaMetadata.metadata.define(_aureliaMetadata.metadata.invoker, value, target);
@@ -21117,10 +21392,10 @@ define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-inj
     return potentialTarget ? deco(potentialTarget) : deco;
   }
   function inject() {
-    for (var _len = arguments.length,
-        rest = Array(_len),
-        _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
+    for (var _len2 = arguments.length,
+        rest = Array(_len2),
+        _key2 = 0; _key2 < _len2; _key2++) {
+      rest[_key2] = arguments[_key2];
     }
     return function(target, key, descriptor) {
       if (descriptor) {
@@ -21137,7 +21412,7 @@ _removeDefine();
 })();
 (function() {
 var _removeDefine = System.get("@@amd-helpers").createDefine();
-define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.4.js", ["npm:aurelia-dependency-injection@1.0.0-beta.1.1.4/aurelia-dependency-injection"], function(main) {
+define("npm:aurelia-dependency-injection@1.0.0-beta.1.1.5.js", ["npm:aurelia-dependency-injection@1.0.0-beta.1.1.5/aurelia-dependency-injection"], function(main) {
   return main;
 });
 
