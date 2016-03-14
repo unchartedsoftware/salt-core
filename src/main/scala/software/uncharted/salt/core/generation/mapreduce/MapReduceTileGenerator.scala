@@ -157,7 +157,7 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
    * result for each Row which is useful to a TileGenerator
    *
    * @param row a record type to project and retrieve a value from for aggregation
-   * @return Seq[(TC, (Int, Option[T]))] a Seq of (tile coordinate,1D bin index,extracted value) tuples
+   * @return Seq[(TC, Int, Option[T])] a Seq of (tile coordinate,1D bin index,extracted value) tuples
    */
   def projectAndFilter(row: RT, bRequest: Broadcast[TileRequest[TC]]): Seq[(TC, Int, Option[T])] = {
     series.projection.project(series.cExtractor(row), series.maxBin)
