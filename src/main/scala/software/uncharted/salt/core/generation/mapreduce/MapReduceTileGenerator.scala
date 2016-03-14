@@ -43,12 +43,12 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
   private def transformData[RT,TC: ClassTag](
     data: RDD[RT],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]],
-    bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
+    bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Int, Option[_]))] = {
 
     data.flatMap(r => {
       bSeries.value.view.zipWithIndex.flatMap(s => {
         s._1.projectAndFilter(r, bRequest)
-        .map((c: (TC, (Int, Option[_]))) => (c._1, (s._2, c._2)))
+        .map((c: (TC, Int, Option[_])) => (c._1, (s._2, c._2, c._3)))
       }).force
     })
   }
@@ -80,7 +80,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
   }
 
   private def sanitizedClosureGenerate[RT,TC: ClassTag](
-    transformedData: RDD[(TC, (Int, (Int, Option[_])))],
+    transformedData: RDD[(TC, (Int, Int, Option[_]))],
     combiner: MapReduceTileGeneratorCombiner[RT,TC],
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
   ): RDD[Tile[TC]] = {
@@ -108,7 +108,7 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
   bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]) extends Serializable {
 
   //create a new combiner, with a fresh set of bins
-  def createCombiner(firstValue: (Int, (Int, Option[_]))): Array[Array[_]] = {
+  def createCombiner(firstValue: (Int, Int, Option[_])): Array[Array[_]] = {
     val buff = new ArrayBuffer[Array[_]]
     val series = bSeries.value
     //create empty bins with default values, for each series
@@ -117,13 +117,13 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
       buff.append(b)
     }
     //add the first value to the appropriate set of bins
-    series(firstValue._1).add(buff(firstValue._1), firstValue._2)
+    series(firstValue._1).add(buff(firstValue._1), firstValue._2, firstValue._3)
     buff.toArray
   }
 
   //how to add a value to a combiner
-  def mergeValue(combiner: Array[Array[_]], newValue: (Int, (Int, Option[_]))): Array[Array[_]] = {
-    bSeries.value(newValue._1).add(combiner(newValue._1), newValue._2)
+  def mergeValue(combiner: Array[Array[_]], newValue: (Int, Int, Option[_])): Array[Array[_]] = {
+    bSeries.value(newValue._1).add(combiner(newValue._1), newValue._2, newValue._3)
     combiner
   }
 
@@ -157,26 +157,26 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
    * result for each Row which is useful to a TileGenerator
    *
    * @param row a record type to project and retrieve a value from for aggregation
-   * @return Seq[(TC, (Int, Option[T]))] a Seq of (tile coordinate,(1D bin index,extracted value)) tuples
+   * @return Seq[(TC, (Int, Option[T]))] a Seq of (tile coordinate,1D bin index,extracted value) tuples
    */
-  def projectAndFilter(row: RT, bRequest: Broadcast[TileRequest[TC]]): Seq[(TC, (Int, Option[T]))] = {
+  def projectAndFilter(row: RT, bRequest: Broadcast[TileRequest[TC]]): Seq[(TC, Int, Option[T])] = {
     series.projection.project(series.cExtractor(row), series.maxBin)
     .map(coords => {
       // get the value for this row if there is a value extractor
       val value = series.vExtractor.flatMap(e => e(row))
       // spread value over coordinates with spreading function if there is one
-      val spreadValues: Seq[(TC, (Int, Option[T]))] = series.spreadingFunction.isDefined match {
+      val spreadValues: Seq[(TC, Int, Option[T])] = series.spreadingFunction.isDefined match {
         case true => {
           val spreadValues = series.spreadingFunction.get.spread(coords, value)
-          spreadValues.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), c._3)))
+          spreadValues.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), c._3))
         }
-        case _ => coords.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), value)))
+        case _ => coords.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), value))
       }
       //filter down to only the tiles we care about
       spreadValues.filter(d =>  bRequest.value.inRequest(d._1))
     })
     //return an empty sequence if our value at this point is None
-    .getOrElse(Seq[(TC, (Int, Option[T]))]())
+    .getOrElse(Seq[(TC, Int, Option[T])]())
   }
 
   /**
@@ -189,12 +189,13 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
   /**
    * Add a value to a buffer using the binAggregator
    * @param buffer an existing buffer
-   * @param newValue a 1D bin coordinate and an extracted value to aggregate into that bin
+   * @param index a 1D bin coordinate
+   * @param newValue an extracted value to aggregate into that bin
    * @return the existing buffer with newValue aggregated into the correct bin
    */
-  def add(buffer: Array[_], newValue: (Int, Option[_])): Array[U] = {
+  def add(buffer: Array[_], index: Int, newValue: Option[_]): Array[U] = {
     val uBuffer = buffer.asInstanceOf[Array[U]]
-    uBuffer(newValue._1) = series.binAggregator.add(uBuffer(newValue._1), newValue._2.asInstanceOf[Option[T]])
+    uBuffer(index) = series.binAggregator.add(uBuffer(index), newValue.asInstanceOf[Option[T]])
     uBuffer
   }
 
