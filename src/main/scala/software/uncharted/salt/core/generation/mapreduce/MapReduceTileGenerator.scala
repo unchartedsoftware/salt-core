@@ -46,10 +46,10 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
 
     data.flatMap(r => {
-      bSeries.value.zipWithIndex.flatMap(s => {
+      bSeries.value.view.zipWithIndex.flatMap(s => {
         s._1.projectAndFilter(r, bRequest)
         .map((c: (TC, (Int, Option[_]))) => (c._1, (s._2, c._2)))
-      })
+      }).force
     })
   }
 
