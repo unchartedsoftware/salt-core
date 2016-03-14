@@ -25,7 +25,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
-import scala.collection.mutable.{ArrayBuffer,HashMap}
+import scala.collection.SeqView
+import scala.collection.mutable.{ListBuffer, ArrayBuffer, HashMap}
 import scala.util.Try
 
 /**
@@ -45,11 +46,19 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Int, Option[_]))] = {
 
+    // this is a critical path, so we're not going to use idiomatic scala here.
     data.flatMap(r => {
-      bSeries.value.view.zipWithIndex.flatMap(s => {
-        s._1.projectAndFilter(r, bRequest)
-        .map((c: (TC, Int, Option[_])) => (c._1, (s._2, c._2, c._3)))
-      }).force
+      val seriesSeq = bSeries.value;
+      val buff = new ListBuffer[(TC,(Int, Int, Option[_]))]()
+      var index: Int = 0;
+      while (index < seriesSeq.length) {
+        val d = seriesSeq(index)
+                .projectAndFilter(r, bRequest)
+                .map((c: (TC, Int, Option[_])) => (c._1, (index, c._2, c._3)))
+        buff.appendAll(d)
+        index+=1;
+      }
+      buff.toList
     })
   }
 
@@ -112,9 +121,11 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
     val buff = new ArrayBuffer[Array[_]]
     val series = bSeries.value
     //create empty bins with default values, for each series
-    for (s <- 0 until series.length) {
-      var b = series(s).makeBins
+    var i: Int = 0;
+    while (i < series.length) {
+      var b = series(i).makeBins
       buff.append(b)
+      i+=1;
     }
     //add the first value to the appropriate set of bins
     series(firstValue._1).add(buff(firstValue._1), firstValue._2, firstValue._3)
@@ -165,15 +176,15 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
       // get the value for this row if there is a value extractor
       val value = series.vExtractor.flatMap(e => e(row))
       // spread value over coordinates with spreading function if there is one
-      val spreadValues: Seq[(TC, Int, Option[T])] = series.spreadingFunction.isDefined match {
+      val spreadValues = series.spreadingFunction.isDefined match {
         case true => {
           val spreadValues = series.spreadingFunction.get.spread(coords, value)
-          spreadValues.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), c._3))
+          spreadValues.view.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), c._3))
         }
-        case _ => coords.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), value))
+        case _ => coords.view.map(c => (c._1, series.projection.binTo1D(c._2, series.maxBin), value))
       }
       //filter down to only the tiles we care about
-      spreadValues.filter(d =>  bRequest.value.inRequest(d._1))
+      spreadValues.filter(d =>  bRequest.value.inRequest(d._1)).force
     })
     //return an empty sequence if our value at this point is None
     .getOrElse(Seq[(TC, Int, Option[T])]())
