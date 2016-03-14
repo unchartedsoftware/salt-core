@@ -38,7 +38,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
-   * rows which contain a key (tile coordinate), a series ID, and a (bin, value).
+   * rows which contain a key (tile coordinate), a series index, and a (bin, value).
    */
   private def transformData[RT,TC: ClassTag](
     data: RDD[RT],
@@ -46,24 +46,10 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, (Int, Option[_])))] = {
 
     data.flatMap(r => {
-      val request = bRequest.value
-      val series = bSeries.value
-
-      //map all input data to an RDD of (TC, (seriesId, 1Dbin, Option[value]))
-      val buff = new ArrayBuffer[(TC, (Int, (Int, Option[_])))](series.length)
-      for (s <- 0 until series.length) {
-        val transformedData = series(s).projectAndTransform(r)
-        if (transformedData.isDefined) {
-          buff.appendAll(
-            transformedData.get
-            //filter down to only the tiles we care about
-            .filter(d => request.inRequest(d._1))
-            //map to include the series ID
-            .map(d => (d._1, (s, d._2)))
-          )
-        }
-      }
-      buff.toSeq
+      bSeries.value.zipWithIndex.flatMap(s => {
+        s._1.projectAndFilter(r, bRequest)
+        .map((c: (TC, (Int, Option[_]))) => (c._1, (s._2, c._2)))
+      })
     })
   }
 
@@ -167,28 +153,30 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
   private val maxBins = series.projection.binTo1D(series.maxBin, series.maxBin) + 1
 
   /**
-   * Combines cExtractor with projection to produce an intermediate
+   * Combines cExtractor with projection and request to produce an intermediate
    * result for each Row which is useful to a TileGenerator
    *
    * @param row a record type to project and retrieve a value from for aggregation
-   * @return Option[Seq[(TC, (Int, Option[T]))]] an Seq of (tile coordinate,(1D bin index,extracted value)) tuples
+   * @return Seq[(TC, (Int, Option[T]))] a Seq of (tile coordinate,(1D bin index,extracted value)) tuples
    */
-  def projectAndTransform(row: RT): Option[Seq[(TC, (Int, Option[T]))]] = {
-    val coords = series.projection.project(series.cExtractor(row), series.maxBin)
-    if (coords.isDefined) {
-      val value: Option[T] = series.vExtractor match {
-        case None => None
-        case _ => series.vExtractor.get(row)
+  def projectAndFilter(row: RT, bRequest: Broadcast[TileRequest[TC]]): Seq[(TC, (Int, Option[T]))] = {
+    series.projection.project(series.cExtractor(row), series.maxBin)
+    .map(coords => {
+      // get the value for this row if there is a value extractor
+      val value = series.vExtractor.flatMap(e => e(row))
+      // spread value over coordinates with spreading function if there is one
+      val spreadValues: Seq[(TC, (Int, Option[T]))] = series.spreadingFunction.isDefined match {
+        case true => {
+          val spreadValues = series.spreadingFunction.get.spread(coords, value)
+          spreadValues.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), c._3)))
+        }
+        case _ => coords.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), value)))
       }
-      if (series.spreadingFunction.isDefined) {
-        val spreadValues = series.spreadingFunction.get.spread(coords.get, value)
-        Some(spreadValues.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin), c._3))))
-      } else {
-        Some(coords.get.map(c => (c._1, (series.projection.binTo1D(c._2, series.maxBin),value))))
-      }
-    } else {
-      None
-    }
+      //filter down to only the tiles we care about
+      spreadValues.filter(d =>  bRequest.value.inRequest(d._1))
+    })
+    //return an empty sequence if our value at this point is None
+    .getOrElse(Seq[(TC, (Int, Option[T]))]())
   }
 
   /**
