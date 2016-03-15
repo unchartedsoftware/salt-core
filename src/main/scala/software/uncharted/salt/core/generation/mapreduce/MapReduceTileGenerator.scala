@@ -153,15 +153,25 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
  *
  * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
  * individual series.
+ * @tparam RT the source data record type (the source data is an RDD[RT])
+ * @tparam DC the abstract type representing a data-space coordinate
+ * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
+ * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
+ *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam T Input data type for bin aggregators
+ * @tparam U Intermediate data type for bin aggregators
+ * @tparam V Output data type for bin aggregators, and input for tile aggregator
+ * @tparam W Intermediate data type for tile aggregators
+ * @tparam X Output data type for tile aggregators
  */
 private class MapReduceSeriesWrapper[
   RT,
   DC,
   TC,
   BC,
-  T,
-  U,
-  V,
+  @specialized(Int, Long, Double) T,
+  @specialized(Int, Long, Double) U,
+  @specialized(Int, Long, Double) V,
   W,
   X
 ]

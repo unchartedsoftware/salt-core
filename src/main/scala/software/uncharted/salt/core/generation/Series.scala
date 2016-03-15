@@ -51,7 +51,17 @@ import scala.collection.mutable.Map
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-class Series[RT, DC, TC, BC, T, U, V, W, X](
+class Series[
+  RT,
+  DC,
+  TC,
+  BC,
+  @specialized(Double) T,
+  @specialized(Double) U,
+  @specialized(Double) V, 
+  W,
+  X
+](
   val maxBin: BC,
   val cExtractor: (RT) => Option[DC],
   val projection: Projection[DC,TC,BC],

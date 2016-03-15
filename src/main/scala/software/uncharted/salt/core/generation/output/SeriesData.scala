@@ -30,7 +30,11 @@ import software.uncharted.salt.core.projection.Projection
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
  * @tparam X Output data type for tile aggregators
  */
-class SeriesData[TC, V, X](
+class SeriesData[
+  TC,
+  @specialized(Int, Long, Double) V,
+  @specialized(Int, Long, Double) X
+](
   val coords: TC,
   val bins: Seq[V],
   val binsTouched: Int,
