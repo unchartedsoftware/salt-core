@@ -154,8 +154,19 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
  * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
  * individual series.
  */
-private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: ClassTag, X](
-  series: Series[RT, DC, TC, BC, T, U, V, W, X])(implicit tileIntermediateManifest: Manifest[W]) extends Serializable {
+private class MapReduceSeriesWrapper[
+  RT,
+  DC,
+  TC,
+  BC,
+  T,
+  U,
+  V,
+  W,
+  X
+]
+(series: Series[RT, DC, TC, BC, T, U, V, W, X])
+(implicit binIntermediateTag: ClassTag[U], tileIntermediateTag: ClassTag[W]) extends Serializable {
 
   private[salt] def id: String = {
     series.id
@@ -235,7 +246,7 @@ private class MapReduceSeriesWrapper[RT, DC, TC, BC, T, U: ClassTag, V, W: Class
    */
   def finish(binData: (TC, Array[_])): SeriesData[TC, V, X] = {
     var tile: W = series.tileAggregator match {
-      case None => tileIntermediateManifest.runtimeClass.newInstance.asInstanceOf[W]
+      case None => tileIntermediateTag.runtimeClass.newInstance.asInstanceOf[W]
       case _ => series.tileAggregator.get.default
     }
     val key = binData._1
