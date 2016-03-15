@@ -21,6 +21,7 @@ import software.uncharted.salt.core.projection.Projection
 import software.uncharted.salt.core.generation.output.{SeriesData,Tile}
 import software.uncharted.salt.core.generation.{Series, TileGenerator}
 import software.uncharted.salt.core.generation.request.TileRequest
+import software.uncharted.salt.core.util.SparseArray
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
@@ -117,8 +118,8 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
   bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]) extends Serializable {
 
   //create a new combiner, with a fresh set of bins
-  def createCombiner(firstValue: (Int, Int, Option[_])): Array[Array[_]] = {
-    val buff = new ArrayBuffer[Array[_]]
+  def createCombiner(firstValue: (Int, Int, Option[_])): Array[SparseArray[_]] = {
+    val buff = new ArrayBuffer[SparseArray[_]]
     val series = bSeries.value
     //create empty bins with default values, for each series
     var i: Int = 0;
@@ -133,13 +134,13 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
   }
 
   //how to add a value to a combiner
-  def mergeValue(combiner: Array[Array[_]], newValue: (Int, Int, Option[_])): Array[Array[_]] = {
+  def mergeValue(combiner: Array[SparseArray[_]], newValue: (Int, Int, Option[_])): Array[SparseArray[_]] = {
     bSeries.value(newValue._1).add(combiner(newValue._1), newValue._2, newValue._3)
     combiner
   }
 
   //how to merge combiners
-  def mergeCombiners(r1: Array[Array[_]], r2: Array[Array[_]]): Array[Array[_]] = {
+  def mergeCombiners(r1: Array[SparseArray[_]], r2: Array[SparseArray[_]]): Array[SparseArray[_]] = {
     val series = bSeries.value
     for (s <- 0 until series.length) {
       series(s).merge(r1(s), r2(s))
@@ -214,8 +215,8 @@ private class MapReduceSeriesWrapper[
   /**
    * @return A fresh buffer to store intermediate values for the bin analytic
    */
-  def makeBins(): Array[U] = {
-    Array.fill[U](maxBins)(series.binAggregator.default)
+  def makeBins(): SparseArray[U] = {
+    new SparseArray[U](maxBins, series.binAggregator.default)
   }
 
   /**
@@ -225,9 +226,9 @@ private class MapReduceSeriesWrapper[
    * @param newValue an extracted value to aggregate into that bin
    * @return the existing buffer with newValue aggregated into the correct bin
    */
-  def add(buffer: Array[_], index: Int, newValue: Option[_]): Array[U] = {
-    val uBuffer = buffer.asInstanceOf[Array[U]]
-    uBuffer(index) = series.binAggregator.add(uBuffer(index), newValue.asInstanceOf[Option[T]])
+  def add(buffer: SparseArray[_], index: Int, newValue: Option[_]): SparseArray[U] = {
+    val uBuffer = buffer.asInstanceOf[SparseArray[U]]
+    uBuffer.update(index, series.binAggregator.add(uBuffer(index), newValue.asInstanceOf[Option[T]]))
     uBuffer
   }
 
@@ -237,11 +238,11 @@ private class MapReduceSeriesWrapper[
    * @param r2 the second buffer
    * @return a merged buffer. Neither r1 nor r2 should be used after this, since one is reused.
    */
-  def merge(r1: Array[_], r2: Array[_]): Array[U] = {
-    val uR1 = r1.asInstanceOf[Array[U]]
-    val uR2 = r2.asInstanceOf[Array[U]]
+  def merge(r1: SparseArray[_], r2: SparseArray[_]): SparseArray[U] = {
+    val uR1 = r1.asInstanceOf[SparseArray[U]]
+    val uR2 = r2.asInstanceOf[SparseArray[U]]
     for (i <- 0 until maxBins) {
-      uR1(i) = series.binAggregator.merge(uR1(i), uR2(i))
+      uR1.update(i, series.binAggregator.merge(uR1(i), uR2(i)))
     }
     uR1
   }
@@ -254,7 +255,7 @@ private class MapReduceSeriesWrapper[
    * @param binData a tuple consisting of a tile coordinate and the intermediate bin values
    * @return a finished SeriesData object
    */
-  def finish(binData: (TC, Array[_])): SeriesData[TC, V, X] = {
+  def finish(binData: (TC, SparseArray[_])): SeriesData[TC, V, X] = {
     var tile: W = series.tileAggregator match {
       case None => tileIntermediateTag.runtimeClass.newInstance.asInstanceOf[W]
       case _ => series.tileAggregator.get.default
@@ -262,14 +263,14 @@ private class MapReduceSeriesWrapper[
     val key = binData._1
     var binsTouched = 0
 
-    val finishedBins = binData._2.asInstanceOf[Array[U]].map(a => {
+    val finishedBins = binData._2.asInstanceOf[SparseArray[U]].map(a => {
       if (!a.equals(series.binAggregator.default)) binsTouched+=1
       val bin = series.binAggregator.finish(a)
       if (series.tileAggregator.isDefined) {
         tile = series.tileAggregator.get.add(tile, Some(bin))
       }
       bin
-    })
+    }).toSeq
 
     val finishedTile: Option[X] = series.tileAggregator match {
       case None => None
