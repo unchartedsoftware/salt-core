@@ -259,9 +259,9 @@ class MapReduceTileGeneratorSpec extends FunSpec {
         //create SpreadingFunction for use in tests
         val incrementSpread = new SpreadingFunction[(Int, Int), Int, Double]() {
           override def spread(
-            coords: Seq[((Int, Int), Int)],
+            coords: Traversable[((Int, Int), Int)],
             value: Option[Double]
-          ): Seq[((Int, Int), Int, Option[Double])] = {
+          ): Traversable[((Int, Int), Int, Option[Double])] = {
             coords.map(c => {
               val v: Option[Double] = value match {
                 case None => None

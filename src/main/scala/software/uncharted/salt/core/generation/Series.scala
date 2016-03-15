@@ -58,7 +58,7 @@ class Series[
   BC,
   @specialized(Double) T,
   @specialized(Double) U,
-  @specialized(Double) V, 
+  @specialized(Double) V,
   W,
   X
 ](

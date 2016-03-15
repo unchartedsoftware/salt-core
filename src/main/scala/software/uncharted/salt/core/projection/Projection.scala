@@ -31,10 +31,10 @@ abstract class Projection[DC, TC, BC]() extends Serializable {
    * Project a data-space coordinate into the corresponding tile coordinate and bin coordinate
    * @param dc the data-space coordinate
    * @param maxBin The maximum possible bin index (i.e. if your tile is 256x256, this would be (255,255))
-   * @return Option[Seq[(TC, Int)]] representing a series of tile coordinate/bin index pairs if the given source
+   * @return Option[Traversable[(TC, Int)]] representing a series of tile coordinate/bin index pairs if the given source
    *         row is within the bounds of the viz. None otherwise.
    */
-  def project(dc: Option[DC], maxBin: BC): Option[Seq[(TC, BC)]]
+  def project(dc: Option[DC], maxBin: BC): Option[Traversable[(TC, BC)]]
 
   /**
    * Project a bin index BC into 1 dimension for easy storage of bin values in an array

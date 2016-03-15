@@ -32,7 +32,7 @@ abstract class SpreadingFunction[TC, BC, T]() extends Serializable {
    *
    * @param coords the visualization-space coordinates
    * @param value the value to spread
-   * @return Seq[(TC, BC, Option[T])] A sequence of tile coordinates, with the spread values
+   * @return Traversable[(TC, BC, Option[T])] A sequence of tile coordinates, with the spread values
    */
-  def spread(coords: Seq[(TC, BC)], value: Option[T]): Seq[(TC, BC, Option[T])]
+  def spread(coords: Traversable[(TC, BC)], value: Option[T]): Traversable[(TC, BC, Option[T])]
 }
