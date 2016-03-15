@@ -33,8 +33,9 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   default: T,
   values: HashMap[Int, T]
 )(implicit tag: ClassTag[T])
-extends ArrayLike[T, SparseArray[T]]
-with Builder[T, SparseArray[T]] {
+  extends ArrayLike[T, SparseArray[T]]
+  with Builder[T, SparseArray[T]]
+  with Serializable {
 
   assert (size >= values.size)
 
