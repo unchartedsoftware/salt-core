@@ -3,7 +3,7 @@
 
 ## Getting Started
 
-Please note that this README represents an unreleased, bleeding-edge version of Salt. For up-to-date stable docs, please visit the [Salt website](http://uncharted.software/salt).
+Please note that this README represents an unreleased, bleeding-edge version of Salt. For up-to-date stable docs, please navigate to the appropriate **release tag** or [visit the Salt website](http://uncharted.software/salt).
 
 ## Examples
 
