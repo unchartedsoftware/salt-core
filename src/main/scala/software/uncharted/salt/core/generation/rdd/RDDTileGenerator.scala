@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package software.uncharted.salt.core.generation.mapreduce
+package software.uncharted.salt.core.generation.rdd
 
 import software.uncharted.salt.core.analytic.Aggregator
 import software.uncharted.salt.core.projection.Projection
@@ -31,12 +31,11 @@ import scala.collection.mutable.{ListBuffer, ArrayBuffer, HashMap}
 import scala.util.Try
 
 /**
- * Tile Generator which utilizes a map/reduce approach to
- * generating large tile sets.
+ * Tile Generator which an RDD combineByKey approach to generating large tile sets.
  * @param sc a SparkContext
  * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
  */
-class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
+class RDDTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 
   /**
    * Converts raw input data into an RDD which contains only what we need:
@@ -44,7 +43,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
    */
   private def transformData[RT,TC: ClassTag](
     data: RDD[RT],
-    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]],
+    bSeries: Broadcast[Seq[RDDSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]],
     bRequest: Broadcast[TileRequest[TC]]): RDD[(TC, (Int, Int, Option[_]))] = {
 
     // this is a critical path, so we're not going to use idiomatic scala here.
@@ -64,7 +63,7 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
   }
 
   override def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]] = {
-    val mSeries = series.map(s => new MapReduceSeriesWrapper(s))
+    val mSeries = series.map(s => new RDDSeriesWrapper(s))
 
     //broadcast stuff we'll use on the workers throughout our tilegen process
     val bSeries = sc.broadcast(mSeries)
@@ -74,8 +73,8 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     val transformedData = transformData[RT,TC](data, bSeries, bRequest)
 
     //Now we are going to use combineByKey, but we need some lambdas which are
-    //defined in MapReduceTileGeneratorCombiner first.
-    val combiner = new MapReduceTileGeneratorCombiner[RT,TC](bSeries)
+    //defined in RDDTileGeneratorCombiner first.
+    val combiner = new RDDTileGeneratorCombiner[RT,TC](bSeries)
 
     //do the work in a closure which is sanitized of all non-serializable things
     val result = sanitizedClosureGenerate[RT,TC](
@@ -91,8 +90,8 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 
   private def sanitizedClosureGenerate[RT,TC: ClassTag](
     transformedData: RDD[(TC, (Int, Int, Option[_]))],
-    combiner: MapReduceTileGeneratorCombiner[RT,TC],
-    bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
+    combiner: RDDTileGeneratorCombiner[RT,TC],
+    bSeries: Broadcast[Seq[RDDSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]
   ): RDD[Tile[TC]] = {
     //Do the actual combineByKey to produce finished bin data
     val tileData = transformedData.combineByKey(
@@ -114,8 +113,8 @@ class MapReduceTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 }
 
 //Just an easy way to define closures for combineByKey
-private class MapReduceTileGeneratorCombiner[RT,TC](
-  bSeries: Broadcast[Seq[MapReduceSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]) extends Serializable {
+private class RDDTileGeneratorCombiner[RT,TC](
+  bSeries: Broadcast[Seq[RDDSeriesWrapper[RT,_,TC,_,_,_,_,_,_]]]) extends Serializable {
 
   //create a new combiner, with a fresh set of bins
   def createCombiner(firstValue: (Int, Int, Option[_])): Array[SparseArray[_]] = {
@@ -152,7 +151,7 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
 /**
  * Isolates all type-aware stuff which operates on a Series into a single object
  *
- * Wrapper methods allow the MapReduceTileGenerator to ignore the types within
+ * Wrapper methods allow the RDDTileGenerator to ignore the types within
  * individual series.
  * @tparam RT the source data record type (the source data is an RDD[RT])
  * @tparam DC the abstract type representing a data-space coordinate
@@ -165,7 +164,7 @@ private class MapReduceTileGeneratorCombiner[RT,TC](
  * @tparam W Intermediate data type for tile aggregators
  * @tparam X Output data type for tile aggregators
  */
-private class MapReduceSeriesWrapper[
+private class RDDSeriesWrapper[
   RT,
   DC,
   TC,
@@ -276,6 +275,6 @@ private class MapReduceSeriesWrapper[
       case None => None
       case _ => Some(series.tileAggregator.get.finish(tile))
     }
-    new SeriesData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile, series.projection)
+    new SeriesData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile)
   }
 }

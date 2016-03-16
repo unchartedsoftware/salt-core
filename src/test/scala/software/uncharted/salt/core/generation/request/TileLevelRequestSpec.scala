@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package software.uncharted.salt.core.analytic.numeric
+package software.uncharted.salt.core.generation.request
 
 import org.scalatest._
 import software.uncharted.salt.core.generation.request._
@@ -24,13 +24,15 @@ import org.apache.spark.sql.Row
 class TileLevelRequestSpec extends FunSpec {
   describe("TileLevelRequest") {
     describe("#inRequest()") {
-      val request = new TileLevelRequest(Seq(0,1,2,3,4,5), (t: (Int, Int)) => t._1)
-      for (i <- 0 until 100) {
-        val level = (Math.random*10).toInt
-        if (level < 6) {
-          assert(request.inRequest((level, 0)))
-        } else {
-          assert(!request.inRequest((level, 0)))
+      it("should facilitate requesting tiles using a sequence of zoom levels, along with a definition of \'zoom level\' for the given coordinate type") {
+        val request = new TileLevelRequest(Seq(0,1,2,3,4,5), (t: (Int, Int)) => t._1)
+        for (i <- 0 until 100) {
+          val level = (Math.random*10).toInt
+          if (level < 6) {
+            assert(request.inRequest((level, 0)))
+          } else {
+            assert(!request.inRequest((level, 0)))
+          }
         }
       }
     }

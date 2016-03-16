@@ -52,3 +52,17 @@ abstract class TileGenerator(sc: SparkContext) {
    */
   def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]]
 }
+
+/**
+ * Provides the default implementation of TileGenerator so that clients do not
+ * need to import some specific implementation.
+ */
+object TileGenerator {
+  /**
+   * @param sc a SparkContext
+   * @return the default TileGenerator implementation
+   */
+  final def apply(sc: SparkContext): TileGenerator = {
+    new rdd.RDDTileGenerator(sc)
+  }
+}

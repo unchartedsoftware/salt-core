@@ -50,7 +50,7 @@ Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste t
 ```scala
 import software.uncharted.salt.core.projection.numeric._
 import software.uncharted.salt.core.generation.Series
-import software.uncharted.salt.core.generation.mapreduce.MapReduceTileGenerator
+import software.uncharted.salt.core.generation.TileGenerator
 import software.uncharted.salt.core.analytic._
 import software.uncharted.salt.core.generation.request._
 import software.uncharted.salt.core.analytic.numeric._
@@ -107,7 +107,7 @@ val avgPassengers = new Series((7, 7), cExtractor, projection, Some(vExtractor),
 val request = new TileSeqRequest(Seq((0,0,0), (1,0,0)))
 
 // Tile Generator object, which houses the generation logic
-@transient val gen = new MapReduceTileGenerator(sc)
+@transient val gen = TileGenerator(sc)
 
 // Flip the switch by passing in the series and the request
 // Note: Multiple series can be run against the source data
