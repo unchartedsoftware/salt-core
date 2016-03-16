@@ -1,6 +1,10 @@
 # Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt.svg?branch=master)](https://travis-ci.org/unchartedsoftware/salt) [![Coverage Status](https://coveralls.io/repos/unchartedsoftware/salt/badge.svg?branch=master)](https://coveralls.io/r/unchartedsoftware/salt?branch=master)
 > http://uncharted.software/salt
 
+## Getting Started
+
+Please note that this README represents an unreleased, bleeding-edge version of Salt. For up-to-date stable docs, please visit the [Salt website](http://uncharted.software/salt).
+
 ## Examples
 
 Example projects can be found at [salt-examples](https://github.com/unchartedsoftware/salt-examples).
@@ -42,7 +46,7 @@ Keep the container running! We'll need it to try the following example.
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:2.0.1"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:3.0.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
