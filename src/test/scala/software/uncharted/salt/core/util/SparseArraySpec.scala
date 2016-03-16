@@ -57,6 +57,15 @@ class SparseArraySpec extends FunSpec {
         assert(test(0) == 12)
       }
 
+      it("should safely set the element at the given index to the default value, eliminating an existing stored value if one was present") {
+        val test = new SparseArray(5, -1, Map(0 -> 0))
+        test.update(0, 12)
+        test.update(0, -1)
+        test.update(1, -1)
+        assert(test(0) == -1)
+        assert(test(1) == -1)
+      }
+
       it("should throw an ArrayOutOfBoundsException if the given index is outside the SparseArray size") {
         val test = new SparseArray(2, -1, Map())
         intercept[ArrayIndexOutOfBoundsException] {
@@ -89,6 +98,12 @@ class SparseArraySpec extends FunSpec {
           b += 12
           assert(b.result.size == 1)
           assert(b.result()(0) == 12)
+        }
+        it("should safely append a default element to the SparseArray builder") {
+          val b = test.newBuilder()
+          b += -1
+          assert(b.result.size == 1)
+          assert(b.result()(0) == -1)
         }
       }
       describe("#clear()") {

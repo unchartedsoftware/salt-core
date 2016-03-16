@@ -60,10 +60,14 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   }
 
   override def update(idx: Int, elem: T): Unit = {
-    if (idx < internalSize) {
+    if (idx >= internalSize) {
+      throw new ArrayIndexOutOfBoundsException(idx)
+    } else if (!elem.equals(default)) {
+      // only store non-default values
       internalValues.put(idx, elem)
     } else {
-      throw new ArrayIndexOutOfBoundsException(idx)
+      // we know elem equals default, so wipe out the internally stored value if there was one
+      internalValues.remove(idx)
     }
   }
 
@@ -83,7 +87,10 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   override def += (elem: T): this.type = {
   //scalastyle:on
     internalSize += 1
-    internalValues.put(internalSize-1, elem)
+    // only store non-default values
+    if (!elem.equals(default)) {
+      internalValues.put(internalSize-1, elem)
+    }
     this
   }
 
