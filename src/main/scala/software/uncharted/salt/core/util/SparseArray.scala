@@ -30,23 +30,29 @@ import scala.collection.mutable.{ArrayLike, Builder, HashMap}
  */
 private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   size: Int,
-  default: T,
-  values: HashMap[Int, T]
+  val default: T,
+  inValues: Map[Int, T]
 )(implicit tag: ClassTag[T])
   extends ArrayLike[T, SparseArray[T]]
   with Builder[T, SparseArray[T]]
   with Serializable {
 
-  assert (size >= values.size)
+  assert (size >= inValues.size)
 
   private var internalSize = size
+  private var internalValues = new HashMap[Int, T]() ++ inValues
 
   def this(size: Int, default: T)(implicit tag: ClassTag[T]) = {
-    this(size, default, new HashMap[Int, T]())
+    this(size, default, Map[Int, T]())
   }
 
+  @throws(classOf[ArrayIndexOutOfBoundsException])
   override def apply(idx: Int): T = {
-    values.getOrElse(idx, default)
+    if (idx < internalSize) {
+      internalValues.getOrElse(idx, default)
+    } else {
+      throw new ArrayIndexOutOfBoundsException(idx)
+    }
   }
 
   override def length(): Int = {
@@ -54,12 +60,16 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   }
 
   override def update(idx: Int, elem: T): Unit = {
-    values.put(idx, elem)
+    if (idx < internalSize) {
+      internalValues.put(idx, elem)
+    } else {
+      throw new ArrayIndexOutOfBoundsException(idx)
+    }
   }
 
   override def seq: collection.IndexedSeq[T] = {
     val buff = Array.fill[T](internalSize)(default)
-    for ((key, value) <- values) {
+    for ((key, value) <- internalValues) {
       buff(key) = value
     }
     buff
@@ -72,14 +82,14 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
   //scalastyle:off method.name
   override def += (elem: T): this.type = {
   //scalastyle:on
-    values.put(internalSize, elem)
     internalSize += 1
+    internalValues.put(internalSize-1, elem)
     this
   }
 
   override def clear(): Unit = {
     internalSize = 0
-    values.clear()
+    internalValues.clear()
   }
 
   override def result(): SparseArray[T] = {

@@ -22,8 +22,4 @@ import software.uncharted.salt.core.generation.Series
 class Tile[TC](
   val coords: TC,
   private[salt] val seriesData: Map[String,SeriesData[TC,_,_]]
-) extends Serializable {
-  def apply[RT,DC,BC,T,U,V,W,X](series: Series[RT,DC,TC,BC,T,U,V,W,X]): Option[SeriesData[TC, V, X]] = {
-    seriesData.get(series.id).asInstanceOf[Option[SeriesData[TC, V, X]]]
-  }
-}
+) extends Serializable

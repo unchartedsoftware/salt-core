@@ -56,9 +56,9 @@ class Series[
   DC,
   TC,
   BC,
-  @specialized(Double) T,
-  @specialized(Double) U,
-  @specialized(Double) V,
+  @specialized(Int, Long, Double) T,
+  @specialized(Int, Long, Double) U,
+  @specialized(Int, Long, Double) V,
   W,
   X
 ](
@@ -72,7 +72,7 @@ class Series[
 
   private[salt] val id: String = java.util.UUID.randomUUID.toString
 
-  def apply(tile: Tile[TC]): SeriesData[TC,V,X] = {
-    tile.seriesData.get(id).get.asInstanceOf[SeriesData[TC, V, X]]
+  def apply(tile: Tile[TC]): Option[SeriesData[TC,V,X]] = {
+    tile.seriesData.get(id).asInstanceOf[Option[SeriesData[TC, V, X]]]
   }
 }
