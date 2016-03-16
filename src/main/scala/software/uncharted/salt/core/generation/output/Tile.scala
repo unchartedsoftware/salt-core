@@ -19,6 +19,11 @@ package software.uncharted.salt.core.generation.output
 import scala.collection.mutable.Map
 import software.uncharted.salt.core.generation.Series
 
+/**
+ * Container for the output of a tile job, where every "tile" has
+ * within it the results of the individual Series, grouped by
+ * coordinate.
+ */
 class Tile[TC](
   val coords: TC,
   private[salt] val seriesData: Map[String,SeriesData[TC,_,_]]
