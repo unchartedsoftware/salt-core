@@ -59,6 +59,7 @@ private[salt] class SparseArray[@specialized(Int, Long, Double) T](
     internalSize
   }
 
+  @throws(classOf[ArrayIndexOutOfBoundsException])
   override def update(idx: Int, elem: T): Unit = {
     if (idx >= internalSize) {
       throw new ArrayIndexOutOfBoundsException(idx)
