@@ -17,7 +17,9 @@
 package software.uncharted.salt.core.projection
 
 /**
- * A mapping from data-space to visualization-space (tile/bin coordinate)
+ * A mapping from data-space to visualization-space (tile/bin coordinate).
+ * While there are potentially an infinite number of tiles, each tile
+ * is finite in terms of the number of bins.
  *
  * @tparam DC the abstract type representing a data-space coordinate
  * @tparam TC the abstract type representing a tile coordinate. Must feature a
