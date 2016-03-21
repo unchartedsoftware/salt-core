@@ -17,7 +17,9 @@
 package software.uncharted.salt.core.spreading
 
 /**
- * Spread a single value over multiple visualization-space coordinates
+ * Spread a single value over multiple visualization-space coordinates. The value
+ * and the coordinates in question are all guaranteed to come from the same, single
+ * record from the source dataset.
  *
  * @tparam TC the abstract type representing a tile coordinate. Must feature a
  *            zero-arg constructor.

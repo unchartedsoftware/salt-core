@@ -192,10 +192,11 @@ private class RDDSeriesWrapper[
    * @return Traversable[(TC, Int, Option[T])] a Seq of (tile coordinate,1D bin index,extracted value) tuples
    */
   def projectAndFilter(row: RT, bRequest: Broadcast[TileRequest[TC]]): Traversable[(TC, Int, Option[T])] = {
+    // get the value for this row if there is a value extractor
+    val value = series.vExtractor.flatMap(e => e(row))
+
     series.projection.project(series.cExtractor(row), series.maxBin)
     .map(coords => {
-      // get the value for this row if there is a value extractor
-      val value = series.vExtractor.flatMap(e => e(row))
       // spread value over coordinates with spreading function if there is one
       val spreadValues = series.spreadingFunction.isDefined match {
         case true => {
