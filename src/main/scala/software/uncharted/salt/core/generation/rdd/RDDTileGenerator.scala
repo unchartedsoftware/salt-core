@@ -33,7 +33,7 @@ import scala.util.Try
 /**
  * Tile Generator which an RDD combineByKey approach to generating large tile sets.
  * @param sc a SparkContext
- * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
+ * @tparam TC the abstract type representing a tile coordinate.
  */
 class RDDTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
 
@@ -103,7 +103,7 @@ class RDDTileGenerator(sc: SparkContext) extends TileGenerator(sc) {
     //finish tiles by finishing bins, and applying tile aggregators to bin data
     tileData.map(t => {
       val series = bSeries.value
-      val buff = new HashMap[String, SeriesData[TC,_,_]]
+      val buff = new HashMap[String, SeriesData[TC,_,_,_]]
       for(s <- 0 until series.length) {
         buff += (series(s).id -> series(s).finish((t._1, t._2(s))))
       }
@@ -155,9 +155,8 @@ private class RDDTileGeneratorCombiner[RT,TC](
  * individual series.
  * @tparam RT the source data record type (the source data is an RDD[RT])
  * @tparam DC the abstract type representing a data-space coordinate
- * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
- * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
- *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam TC the abstract type representing a tile coordinate.
+ * @tparam BC the abstract type representing a bin coordinate. Must be represented in 1 dimension.
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
@@ -255,7 +254,7 @@ private class RDDSeriesWrapper[
    * @param binData a tuple consisting of a tile coordinate and the intermediate bin values
    * @return a finished SeriesData object
    */
-  def finish(binData: (TC, SparseArray[_])): SeriesData[TC, V, X] = {
+  def finish(binData: (TC, SparseArray[_])): SeriesData[TC, BC, V, X] = {
     var tile: W = series.tileAggregator match {
       case None => tileIntermediateTag.runtimeClass.newInstance.asInstanceOf[W]
       case _ => series.tileAggregator.get.default
@@ -276,6 +275,14 @@ private class RDDSeriesWrapper[
       case None => None
       case _ => Some(series.tileAggregator.get.finish(tile))
     }
-    new SeriesData[TC, V, X](key, finishedBins, binsTouched, series.binAggregator.finish(series.binAggregator.default), finishedTile)
+    new SeriesData[TC, BC, V, X](
+      series.projection,
+      series.maxBin,
+      key,
+      finishedBins,
+      binsTouched,
+      series.binAggregator.finish(series.binAggregator.default),
+      finishedTile
+    )
   }
 }
