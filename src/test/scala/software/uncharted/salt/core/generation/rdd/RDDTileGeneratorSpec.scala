@@ -100,10 +100,6 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)
-
-        //verify bins touched
-        val binsTouched = manualBins.toSeq.length
-        assert(result(0).binsTouched === binsTouched)
       }
 
       it("should generate tile level 0, using a CartesianProjection, and correctly distributing input points into bins") {
@@ -164,10 +160,6 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)
-
-        //verify bins touched
-        val binsTouched = manualBins.toSeq.length
-        assert(result(0).binsTouched === binsTouched)
       }
 
       it("should generate successive tile levels, correctly distributing input points into bins") {
@@ -194,7 +186,7 @@ class RDDTileGeneratorSpec extends FunSpec {
         val tilesMap = result.map(a => (a.coords, a)).toMap
 
         //verify binning of level 1 by aggregating it into level 0
-        val combinedOneBins = tilesMap.get((1,0)).get.bins ++ tilesMap.get((1,1)).get.bins
+        val combinedOneBins = tilesMap.get((1,0)).get.bins.seq ++ tilesMap.get((1,1)).get.bins.seq
 
         //verify tile levels 1 and 0 are consistent
         var j = 0
@@ -235,10 +227,6 @@ class RDDTileGeneratorSpec extends FunSpec {
 
         //verify max/min tile analytic is not present
         assert(!result(0).tileMeta.isDefined)
-
-        //verify bins touched
-        val binsTouched = manualBins.toSeq.length
-        assert(result(0).binsTouched === binsTouched)
       }
 
       it("support an optional value spreading function per Series") {
@@ -296,10 +284,6 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)
-
-        //verify bins touched
-        val binsTouched = manualBins.toSeq.length
-        assert(result(0).binsTouched === binsTouched)
       }
 
       //TODO test multiple series

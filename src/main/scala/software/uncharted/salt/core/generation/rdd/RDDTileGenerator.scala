@@ -175,7 +175,11 @@ private class RDDSeriesWrapper[
   X
 ]
 (series: Series[RT, DC, TC, BC, T, U, V, W, X])
-(implicit binIntermediateTag: ClassTag[U], tileIntermediateTag: ClassTag[W]) extends Serializable {
+(
+  implicit val binIntermediateTag: ClassTag[U],
+  implicit val binFinalTag: ClassTag[V],
+  implicit val tileIntermediateTag: ClassTag[W]
+) extends Serializable {
 
   private[salt] def id: String = {
     series.id
@@ -260,16 +264,17 @@ private class RDDSeriesWrapper[
       case _ => series.tileAggregator.get.default
     }
     val key = binData._1
-    var binsTouched = 0
 
-    val finishedBins = binData._2.asInstanceOf[SparseArray[U]].map(a => {
-      if (!a.equals(series.binAggregator.default)) binsTouched+=1
+    val finishedBins = new SparseArray[V](0, series.binAggregator.finish(series.binAggregator.default))
+    val typedBinData = binData._2.asInstanceOf[SparseArray[U]]
+    while (finishedBins.length < typedBinData.length) {
+      val a = typedBinData(finishedBins.length)
       val bin = series.binAggregator.finish(a)
       if (series.tileAggregator.isDefined) {
         tile = series.tileAggregator.get.add(tile, Some(bin))
       }
-      bin
-    }).toSeq
+      finishedBins += bin
+    }
 
     val finishedTile: Option[X] = series.tileAggregator match {
       case None => None
@@ -280,8 +285,6 @@ private class RDDSeriesWrapper[
       series.maxBin,
       key,
       finishedBins,
-      binsTouched,
-      series.binAggregator.finish(series.binAggregator.default),
       finishedTile
     )
   }

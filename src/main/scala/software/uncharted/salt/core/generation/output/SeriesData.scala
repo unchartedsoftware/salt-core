@@ -17,6 +17,9 @@
 package software.uncharted.salt.core.generation.output
 
 import software.uncharted.salt.core.projection.Projection
+import software.uncharted.salt.core.util.SparseArray
+
+import scala.reflect.ClassTag
 
 /**
  * A thin wrapper class for the output of a tile generation,
@@ -24,10 +27,6 @@ import software.uncharted.salt.core.projection.Projection
  *
  * @param coords the tile coordinates for this aggregator
  * @param bins the output values of bin aggregators
- * @param binsTouched the number of bins which have non-default values. If this value is low, clients might want to
- *                    consider a sparse representation of this tile when serializing.
- * @param defaultBinValue the default value for bins in this tile. If many bin values in bins equals this value, clients
- *                        might want to consider a sparse representation of this tile when serializing
  * @param tileMeta the output value of the tile aggregator
  * @tparam TC the abstract type representing a tile coordinate.
  * @tparam BC the abstract type representing a bin coordinate. Must be something that can be represented in 1 dimension.
@@ -43,9 +42,7 @@ class SeriesData[
   private[salt] val projection: Projection[_, TC, BC],
   private[salt] val maxBin: BC,
   val coords: TC,
-  val bins: Seq[V],
-  val binsTouched: Int,
-  val defaultBinValue: V,
+  val bins: SparseArray[V],
   val tileMeta: Option[X]) extends Serializable {
 
   /**
@@ -70,7 +67,7 @@ class SeriesData[
    * @tparam NX output tile metadata type
    */
   @throws(classOf[SeriesDataMergeException])
-  def merge[OV, OX, NV, NX](
+  def merge[OV, OX, NV: ClassTag, NX](
     other: SeriesData[TC, BC, OV, OX],
     binMerge: (V, OV) => NV,
     tileMetaMerge: Option[(X, OX) => NX] = None
@@ -82,17 +79,13 @@ class SeriesData[
     }
 
     // new default value
-    val newDefault = binMerge(defaultBinValue, other.defaultBinValue)
+    val newDefault = binMerge(bins.default, other.bins.default)
 
     // merge bins
-    var newBinsTouched = 0
-    val newBins = bins.zip(other.bins).map(v => {
-      val result = binMerge(v._1, v._2)
-      if (!result.equals(newDefault)) {
-        newBinsTouched += 1
-      }
-      result
-    })
+    val newBins = new SparseArray[NV](0, newDefault)
+    while (newBins.length<bins.length) {
+      val result = binMerge(bins(newBins.length), other.bins(newBins.length))
+    }
 
     // compute new meta
     val newMeta: Option[NX] = tileMetaMerge.isDefined match {
@@ -100,6 +93,6 @@ class SeriesData[
       case _ => None
     }
 
-    new SeriesData(projection, maxBin, coords, newBins, newBinsTouched, newDefault, newMeta)
+    new SeriesData(projection, maxBin, coords, newBins, newMeta)
   }
 }
