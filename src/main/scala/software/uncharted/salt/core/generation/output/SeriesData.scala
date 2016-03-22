@@ -43,7 +43,8 @@ class SeriesData[
   private[salt] val maxBin: BC,
   val coords: TC,
   val bins: SparseArray[V],
-  val tileMeta: Option[X]) extends Serializable {
+  val tileMeta: Option[X]
+) extends Serializable {
 
   /**
    * Retrieve a value from this SeriesData's bins using a bin coordinate
@@ -51,12 +52,13 @@ class SeriesData[
    * @return the corresponding value
    */
   def apply(bin: BC): V = {
-    bins(projection.binTo1D(maxBin, bin))
+    bins(projection.binTo1D(bin, maxBin))
   }
 
   /**
    * Combine this SeriesData with another congruent one. Congruent SeriesData have an identical
-   * tile coordinate and the same bin dimensions.
+   * tile coordinate and the same bin dimensions. The new SeriesData will inherit this SeriesData's
+   * Projection.
    *
    * @param other the SeriesData to merge with
    * @param binMerge the function for merging bin values
@@ -84,13 +86,13 @@ class SeriesData[
     // merge bins
     val newBins = new SparseArray[NV](0, newDefault)
     while (newBins.length<bins.length) {
-      val result = binMerge(bins(newBins.length), other.bins(newBins.length))
+      newBins += binMerge(bins(newBins.length), other.bins(newBins.length))
     }
 
     // compute new meta
-    val newMeta: Option[NX] = tileMetaMerge.isDefined match {
-      case true => tileMeta.zip(other.tileMeta).map(m =>  tileMetaMerge.get(m._1, m._2)).headOption
-      case _ => None
+    var newMeta: Option[NX] = None
+    if  (tileMetaMerge.isDefined && tileMeta.isDefined && other.tileMeta.isDefined) {
+      newMeta = Some(tileMetaMerge.get(tileMeta.get, other.tileMeta.get))
     }
 
     new SeriesData(projection, maxBin, coords, newBins, newMeta)
