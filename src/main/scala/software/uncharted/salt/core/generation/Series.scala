@@ -42,9 +42,8 @@ import scala.collection.mutable.Map
  * @param spreadingFunction the desired value spreading function (optional)
  * @tparam RT the source data record type (the source data is an RDD[RT])
  * @tparam DC the abstract type representing a data-space coordinate
- * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
- * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
- *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam TC the abstract type representing a tile coordinate.
+ * @tparam BC the abstract type representing a bin coordinate. Must be something that can be represented in 1 dimension.
  * @tparam T Input data type for bin aggregators
  * @tparam U Intermediate data type for bin aggregators
  * @tparam V Output data type for bin aggregators, and input for tile aggregator
@@ -72,7 +71,7 @@ class Series[
 
   private[salt] val id: String = java.util.UUID.randomUUID.toString
 
-  def apply(tile: Tile[TC]): Option[SeriesData[TC,V,X]] = {
-    tile.seriesData.get(id).asInstanceOf[Option[SeriesData[TC, V, X]]]
+  def apply(tile: Tile[TC]): Option[SeriesData[TC,BC,V,X]] = {
+    tile.seriesData.get(id).asInstanceOf[Option[SeriesData[TC, BC, V, X]]]
   }
 }

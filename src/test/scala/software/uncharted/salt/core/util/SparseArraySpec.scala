@@ -44,6 +44,18 @@ class SparseArraySpec extends FunSpec {
       }
     }
 
+    describe("#density()") {
+      it("should return the density of the SparseArray") {
+        val test = new SparseArray(2, -1, Map())
+        assert(test.length() == 2)
+        assert(test.density() == 0)
+        test.update(0, -1)
+        assert(test.density() == 0)
+        test.update(1, 2)
+        assert(test.density() == 0.5)
+      }
+    }
+
     describe("#update()") {
       it("should set the element at the given index if the given index never had a value") {
         val test = new SparseArray(2, -1, Map())

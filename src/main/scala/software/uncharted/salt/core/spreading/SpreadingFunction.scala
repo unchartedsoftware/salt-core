@@ -21,10 +21,8 @@ package software.uncharted.salt.core.spreading
  * and the coordinates in question are all guaranteed to come from the same, single
  * record from the source dataset.
  *
- * @tparam TC the abstract type representing a tile coordinate. Must feature a
- *            zero-arg constructor.
- * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
- *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam TC the abstract type representing a tile coordinate.
+ * @tparam BC the abstract type representing a bin coordinate. Must be something that can be represented in 1 dimension.
  * @tparam T Input data type for bin aggregators
  */
 abstract class SpreadingFunction[TC, BC, T]() extends Serializable {

@@ -48,7 +48,7 @@ abstract class TileGenerator(sc: SparkContext) {
    *               a single pass over the source data.
    * @param request tiles requested for generation
    * @tparam RT the source data record type (the source data is an RDD[RT])
-   * @tparam TC the abstract type representing a tile coordinate. Must feature a zero-arg constructor.
+   * @tparam TC the abstract type representing a tile coordinate.
    */
   def generate[RT,TC: ClassTag](data: RDD[RT], series: Seq[Series[RT,_,TC,_,_,_,_,_,_]], request: TileRequest[TC]): RDD[Tile[TC]]
 }

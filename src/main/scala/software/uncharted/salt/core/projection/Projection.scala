@@ -22,10 +22,8 @@ package software.uncharted.salt.core.projection
  * is finite in terms of the number of bins.
  *
  * @tparam DC the abstract type representing a data-space coordinate
- * @tparam TC the abstract type representing a tile coordinate. Must feature a
- *            zero-arg constructor.
- * @tparam BC the abstract type representing a bin coordinate. Must feature a zero-arg
- *            constructor and should be something that can be represented in 1 dimension.
+ * @tparam TC the abstract type representing a tile coordinate.
+ * @tparam BC the abstract type representing a bin coordinate. Must be something that can be represented in 1 dimension.
  */
 abstract class Projection[DC, TC, BC]() extends Serializable {
 
