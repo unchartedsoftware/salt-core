@@ -25,8 +25,9 @@ object MeanAggregator extends Aggregator[Double, (Double, Double), Double] {
   }
 
   override def add(current: (Double, Double), next: Option[Double]): (Double, Double) = {
-    (CountAggregator.add(current._1, next), SumAggregator.add(current._2, next))
+    (CountAggregator.add(current._1, Some(1)), SumAggregator.add(current._2, next))
   }
+
   override def merge(left: (Double, Double), right: (Double, Double)): (Double, Double) = {
     (CountAggregator.merge(left._1, right._1), SumAggregator.merge(left._2, right._2))
   }

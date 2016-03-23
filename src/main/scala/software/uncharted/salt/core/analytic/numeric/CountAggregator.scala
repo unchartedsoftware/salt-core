@@ -18,20 +18,21 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
-object CountAggregator extends Aggregator[Any, Double, Double] {
+object CountAggregator extends Aggregator[Int, Double, Double] {
 
   def default(): Double = {
-    0D
+    0L
   }
 
-  override def add(current: Double, next: Option[Any]): Double = {
-    current + 1
+  override def add(current: Double, next: Option[Int]): Double = {
+    current + next.getOrElse(0)
   }
+
   override def merge(left: Double, right: Double): Double = {
     left + right
   }
 
   def finish(intermediate: Double): Double = {
-    intermediate.toDouble
+    intermediate
   }
 }

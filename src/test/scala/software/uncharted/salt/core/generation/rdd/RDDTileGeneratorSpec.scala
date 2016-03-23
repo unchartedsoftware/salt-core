@@ -79,9 +79,10 @@ class RDDTileGeneratorSpec extends FunSpec {
         val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(Seq(0), 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
+        val vExtractor = (r: Row) => Some(1)
 
         //create Series
-        val series = new Series(1, cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
+        val series = new Series(1, cExtractor, projection, vExtractor, CountAggregator, Some(MinMaxAggregator))
 
         val tiles = RDDTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(t => {
@@ -111,9 +112,10 @@ class RDDTileGeneratorSpec extends FunSpec {
         val cExtractor = (r: Row) => Some((r.getDouble(0), r.getDouble(1)))
         val projection = new CartesianProjection(Seq(0), (0D, 0D), (1D, 1D))
         val request = new TileSeqRequest[(Int, Int, Int)](Seq((0,0,0)))
+        val vExtractor = (r: Row) => Some(1)
 
         //create Series
-        val series = new Series((1,1), cExtractor, projection, None, CountAggregator, Some(MinMaxAggregator))
+        val series = new Series((1,1), cExtractor, projection, vExtractor, CountAggregator, Some(MinMaxAggregator))
 
         val tiles = RDDTileGeneratorSpecClosure.testCartesianClosure(data, Seq(series), request)
         val result = tiles.map(t => {
@@ -138,10 +140,10 @@ class RDDTileGeneratorSpec extends FunSpec {
         val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(Seq(0), 0D, 0.5D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
-        val vExtractor = (r: Row) => None
+        val vExtractor = (r: Row) => Some(1)
 
         //create Series
-        val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
+        val series = new Series(1, cExtractor, projection, vExtractor, CountAggregator, Some(MinMaxAggregator))
 
         val tiles = RDDTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(t => {
@@ -171,10 +173,10 @@ class RDDTileGeneratorSpec extends FunSpec {
         val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(Seq(0,1), 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0), (1,0), (1,1)))
-        val vExtractor = (r: Row) => None
+        val vExtractor = (r: Row) => Some(1)
 
         //create Series
-        val series = new Series(9, cExtractor, projection, Some(vExtractor), CountAggregator, Some(MinMaxAggregator))
+        val series = new Series(9, cExtractor, projection, vExtractor, CountAggregator, Some(MinMaxAggregator))
 
         val tiles = RDDTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(t => {
@@ -209,10 +211,10 @@ class RDDTileGeneratorSpec extends FunSpec {
         val cExtractor = (r: Row) => Some(r.getDouble(0))
         val projection = new SeriesProjection(Seq(0), 0D, 1D)
         val request = new TileSeqRequest[(Int, Int)](Seq((0,0)))
-        val vExtractor = (r: Row) => None
+        val vExtractor = (r: Row) => Some(1)
 
         //create Series
-        val series = new Series(1, cExtractor, projection, Some(vExtractor), CountAggregator)
+        val series = new Series(1, cExtractor, projection, vExtractor, CountAggregator)
 
         val tiles = RDDTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(t => {
@@ -261,7 +263,7 @@ class RDDTileGeneratorSpec extends FunSpec {
         }
 
         //create Series
-        val series = new Series(1, cExtractor, projection, Some(vExtractor), SumAggregator, Some(MinMaxAggregator), Some(incrementSpread))
+        val series = new Series(1, cExtractor, projection, vExtractor, SumAggregator, Some(MinMaxAggregator), Some(incrementSpread))
 
         val tiles = RDDTileGeneratorSpecClosure.testSeriesClosure(data, series, request)
         val result = tiles.map(t => {
