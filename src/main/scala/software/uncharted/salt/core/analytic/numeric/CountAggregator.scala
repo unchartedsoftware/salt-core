@@ -18,6 +18,11 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+/**
+ * Useful for counting records or elements within a record,
+ * where the count for an individual record is passed in as
+ * an Int
+ */
 object CountAggregator extends Aggregator[Int, Double, Double] {
 
   def default(): Double = {

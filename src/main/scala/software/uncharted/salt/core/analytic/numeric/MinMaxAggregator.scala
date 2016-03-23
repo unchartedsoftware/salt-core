@@ -18,6 +18,10 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+/**
+ * Useful for calculating the maximum and minimum values
+ * across values derived from source records
+ */
 object MinMaxAggregator extends Aggregator[Double, (Double, Double), (Double, Double)] {
   def default(): (Double, Double) = {
     (MinAggregator.default, MaxAggregator.default)

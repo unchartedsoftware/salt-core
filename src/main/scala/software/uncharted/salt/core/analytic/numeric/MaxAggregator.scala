@@ -18,6 +18,10 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+/**
+ * Useful for calculating the maximum value across values
+ * derived from source records
+ */
 object MaxAggregator extends Aggregator[Double, Double, Double] {
   def default(): Double = {
     Double.NaN

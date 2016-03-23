@@ -18,7 +18,10 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
-//Track sums and counts separately, then finish by dividing
+/**
+ * Useful for calculating the mean value across values
+ * derived from source records
+ */
 object MeanAggregator extends Aggregator[Double, (Double, Double), Double] {
   def default(): (Double, Double) = {
     (CountAggregator.default, SumAggregator.default)

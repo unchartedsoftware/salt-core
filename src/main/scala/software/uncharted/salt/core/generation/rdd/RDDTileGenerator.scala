@@ -31,7 +31,9 @@ import scala.collection.mutable.{ListBuffer, ArrayBuffer, HashMap}
 import scala.util.Try
 
 /**
- * Tile Generator which an RDD combineByKey approach to generating large tile sets.
+ * Tile Generator which uses an RDD combineByKey approach to efficiently
+ * generate large tile sets.
+ *
  * @param sc a SparkContext
  * @tparam TC the abstract type representing a tile coordinate.
  */

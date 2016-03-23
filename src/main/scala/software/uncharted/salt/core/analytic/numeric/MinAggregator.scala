@@ -18,6 +18,10 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+/**
+ * Useful for calculating the minimum value across values
+ * derived from source records
+ */
 object MinAggregator extends Aggregator[Double, Double, Double] {
   def default(): Double = {
     Double.NaN

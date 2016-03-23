@@ -18,6 +18,10 @@ package software.uncharted.salt.core.analytic.numeric
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+/**
+ * Useful for summing values derived from a record, where
+ * the sum for an individual record is passed in as a Double
+ */
 object SumAggregator extends Aggregator[Double, Double, Double] {
   def default(): Double = {
     0D
