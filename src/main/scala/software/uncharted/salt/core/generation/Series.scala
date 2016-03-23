@@ -64,7 +64,7 @@ class Series[
   val maxBin: BC,
   val cExtractor: (RT) => Option[DC],
   val projection: Projection[DC,TC,BC],
-  val vExtractor: Option[(RT) => Option[T]] = None,
+  val vExtractor: (RT) => Option[T],
   val binAggregator: Aggregator[T, U, V],
   val tileAggregator: Option[Aggregator[V, W, X]] = None,
   val spreadingFunction: Option[SpreadingFunction[TC, BC, T]] = None) extends Serializable {
