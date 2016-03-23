@@ -30,14 +30,14 @@ class MeanAggregatorSpec extends FunSpec {
     describe("#add()") {
       it("should return a tuple representing the result of calling add() on a CountAggregator and a SumAggregator") {
         var test = Double.NaN
-        var expectedResult = (CountAggregator.add(CountAggregator.default, Some(test)), SumAggregator.add(SumAggregator.default, Some(test)))
+        var expectedResult = (CountAggregator.add(CountAggregator.default, Some(1)), SumAggregator.add(SumAggregator.default, Some(test)))
         assert(MeanAggregator.add(MeanAggregator.default, Some(test)).equals(expectedResult))
 
-        expectedResult = (CountAggregator.add(CountAggregator.default, None), SumAggregator.add(SumAggregator.default, None))
+        expectedResult = (CountAggregator.add(CountAggregator.default, Some(1)), SumAggregator.add(SumAggregator.default, None))
         assert(MeanAggregator.add(MeanAggregator.default, None).equals(expectedResult))
 
         test = Math.random()
-        expectedResult = (CountAggregator.add(CountAggregator.default, Some(test)), SumAggregator.add(SumAggregator.default, Some(test)))
+        expectedResult = (CountAggregator.add(CountAggregator.default, Some(1)), SumAggregator.add(SumAggregator.default, Some(test)))
         assert(MeanAggregator.add(MeanAggregator.default, Some(test)).equals(expectedResult))
       }
     }

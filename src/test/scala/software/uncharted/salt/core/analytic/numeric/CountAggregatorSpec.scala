@@ -28,12 +28,11 @@ class CountAggregatorSpec extends FunSpec {
     }
 
     describe("#add()") {
-      it("should add 1 to the existing count when a new value is passed in") {
+      it("should add the value to the existing count when a new value is passed in") {
         assert(CountAggregator.add(CountAggregator.default, Some(1)) === 1D)
-        assert(CountAggregator.add(CountAggregator.default, Some("hello")) === 1D)
       }
-      it("should add 1 to the existing count when a null record is passed in") {
-        assert(CountAggregator.add(CountAggregator.default, None) === 1D)
+      it("should add 0 to the existing count when a null record is passed in") {
+        assert(CountAggregator.add(CountAggregator.default, None) === 0D)
       }
     }
 
