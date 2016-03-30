@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Twitter Talks Superbowl 50 - Uncharted Software</title>
+    <link rel="stylesheet" href="styles/app.308d35ae.css">
+    <link href='https://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="title" content="Twitter Talks Superbowl 50 - Uncharted Software">
+    <meta name="description" content="What is trending on Twitter during the Superbowl? Visualizing the life of a retweet.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@UnchartedSoft">
+    <meta property="og:title" content="Twitter Talks Superbowl 50 - Uncharted Software">
+    <meta property="og:description" content="What is trending on Twitter during the Superbowl? Visualizing the life of a retweet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://unchartedsoftware.github.io/salt/demos/superbowl-retweets/">
+    <meta property="og:site_name" content="Twitter Talks Superbowl 50 - Uncharted Software">
+    <meta property="og:image" content="http://unchartedsoftware.github.io/salt/demos/superbowl-retweets/imgs/thumb2.jpg">
+    <meta itemprop="name" content="Twitter Talks Superbowl 50 - Uncharted Software">
+    <meta itemprop="image" content="http://unchartedsoftware.github.io/salt/demos/superbowl-retweets/imgs/thumb2.jpg">
+
+    <script>//twttr api hack</script>
+  </head>
+
+  <body aurelia-app>
+    <script src="jspm_packages/system.js"></script>
+    <script src="config.76b39cb5.js"></script>
+    <script>
+      // Loads WeakMap polyfill needed by MutationObservers
+      System.import('core-js').then(function() {
+        // Imports MutationObserver polyfill
+        return System.import('request-frame').then(function(requestFrame) {
+          requestFrame('request');
+          requestFrame('cancel');
+          requestFrame('native');
+          return System.import('polymer/mutationobservers');
+        });
+      }).then(function() {
+        // Ensures start of Aurelia when all required IE9 dependencies are loaded
+        System.import('aurelia-bootstrapper');
+      });
+    </script>
+    <script>
+     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+     ga('create', 'UA-21723198-11', 'auto');
+     ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
