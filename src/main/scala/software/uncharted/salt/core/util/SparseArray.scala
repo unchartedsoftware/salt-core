@@ -28,7 +28,7 @@ import scala.collection.mutable.{ArrayLike, Builder, HashMap}
  * @param values An initial set of values to place in the SparseArray. Should be fewer than size elements.
  * @tparam T the type of value being stored in the SparseArray
  */
-private[salt] class SparseArray[@specialized(Int, Long, Double) T](
+class SparseArray[@specialized(Int, Long, Double) T] private[salt] (
   size: Int,
   val default: T,
   inValues: Map[Int, T]
