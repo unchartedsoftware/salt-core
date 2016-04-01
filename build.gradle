@@ -49,7 +49,7 @@ configurations {
 
 group = 'software.uncharted.salt'
 archivesBaseName = 'salt-core'
-version = '3.0.0-SNAPSHOT'
+version = '3.0.0'
 
 project.ext {
   scalaBinaryVersion = '2.10'
