@@ -46,7 +46,7 @@ class SparseArraySpec extends FunSpec {
 
     describe("#density()") {
       it("should return the density of the SparseArray") {
-        val test = new SparseArray(2, -1, Map())
+        val test = new SparseArray(2, -1, Map(), 1)
         assert(test.length() == 2)
         assert(test.density() == 0)
         test.update(0, -1)

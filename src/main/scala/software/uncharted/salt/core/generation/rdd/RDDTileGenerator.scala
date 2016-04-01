@@ -267,7 +267,7 @@ private class RDDSeriesWrapper[
     }
     val key = binData._1
 
-    val finishedBins = new SparseArray[V](0, series.binAggregator.finish(series.binAggregator.default))
+    var finishedBins = new SparseArray[V](0, series.binAggregator.finish(series.binAggregator.default))
     val typedBinData = binData._2.asInstanceOf[SparseArray[U]]
     while (finishedBins.length < typedBinData.length) {
       val a = typedBinData(finishedBins.length)
@@ -277,6 +277,7 @@ private class RDDSeriesWrapper[
       }
       finishedBins += bin
     }
+    finishedBins = finishedBins.result()
 
     val finishedTile: Option[X] = series.tileAggregator match {
       case None => None
