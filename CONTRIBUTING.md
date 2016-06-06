@@ -52,4 +52,4 @@ Finally, [deploy](http://central.sonatype.org/pages/gradle.html) a Nexus-compati
 $ ./gradlew uploadArchives
 ```
 
-Release of the artifacts can be achieved using the process outlined [here](http://central.sonatype.org/pages/releasing-the-deployment.html)
+Release of the artifacts can be achieved [here](https://oss.sonatype.org/) using the process outlined [here](http://central.sonatype.org/pages/releasing-the-deployment.html)
