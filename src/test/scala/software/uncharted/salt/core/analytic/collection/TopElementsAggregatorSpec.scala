@@ -33,27 +33,50 @@ class TopElementsAggregatorSpec extends FunSpec {
       it("should count terms when a sequence of new terms is passed in") {
         val aggregator = new TopElementsAggregator[String](10)
         var default = aggregator.default
-        aggregator.add(default, Some(Seq("foo", "bar")))
-        assert(!default.contains("cab"))
-        assert(default.contains("foo"))
-        assert(default.contains("bar"))
-        assert(default.get("foo").get === 1)
-        assert(default.get("bar").get === 1)
-        aggregator.add(default, Some(Seq("foo", "bac")))
-        assert(default.get("foo").get === 2)
-        assert(default.get("bac").get === 1)
+        val result = aggregator.add(default, Some(Seq("foo", "bar")))
+        assert(!result.contains("cab"))
+        assert(result.contains("foo"))
+        assert(result.contains("bar"))
+        assert(result.get("foo").get === 1)
+        assert(result.get("bar").get === 1)
+        aggregator.add(result, Some(Seq("foo", "bac")))
+        assert(result.get("foo").get === 2)
+        assert(result.get("bac").get === 1)
       }
       it("should not alter the intermediate value when a null/empty record is passed in") {
         val aggregator = new TopElementsAggregator[String](10)
         var default = aggregator.default
-        aggregator.add(default, Some(Seq("foo", "bar")))
-        aggregator.add(default, Some(Seq()))
-        aggregator.add(default, None)
-        assert(!default.contains("cab"))
-        assert(default.contains("foo"))
-        assert(default.contains("bar"))
-        assert(default.get("foo").get === 1)
-        assert(default.get("bar").get === 1)
+        var result = aggregator.add(default, Some(Seq("foo", "bar")))
+        aggregator.add(result, Some(Seq()))
+        aggregator.add(result, None)
+        assert(!result.contains("cab"))
+        assert(result.contains("foo"))
+        assert(result.contains("bar"))
+        assert(result.get("foo").get === 1)
+        assert(result.get("bar").get === 1)
+      }
+      it("should not rely on default reconstruction") {
+        val aggregator = new TopElementsAggregator[String](10)
+        // Create two lines from the same default, and make sure they branch when separately added to
+        var a = aggregator.default()
+        var b = a
+
+        a = aggregator.add(a, Some(Seq("a", "aa", "aaa")))
+        a = aggregator.add(a, Some(Seq("aa", "aaa")))
+        a = aggregator.add(a, Some(Seq("aaa")))
+        b = aggregator.add(b, Some(Seq("b", "bb", "bbb")))
+        b = aggregator.add(b, Some(Seq("bb", "bbb")))
+        b = aggregator.add(b, Some(Seq("bbb")))
+
+        assert(a.size === 3)
+        assert(a.get("a").get === 1)
+        assert(a.get("aa").get === 2)
+        assert(a.get("aaa").get === 3)
+
+        assert(b.size === 3)
+        assert(b.get("b").get === 1)
+        assert(b.get("bb").get === 2)
+        assert(b.get("bbb").get === 3)
       }
     }
 

@@ -18,9 +18,11 @@ package software.uncharted.salt.core.analytic.collection
 
 import software.uncharted.salt.core.analytic.Aggregator
 
+import scala.collection.Map
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.PriorityQueue
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.PriorityQueue
 import scala.reflect.ClassTag
 
 /**
@@ -31,33 +33,53 @@ import scala.reflect.ClassTag
  * @tparam ET The element type
  */
 class TopElementsAggregator[ET: ClassTag](elementLimit: Int)
-extends Aggregator[Seq[ET], HashMap[ET, Int], List[(ET, Int)]] {
+extends Aggregator[Seq[ET], Map[ET, Int], List[(ET, Int)]] {
 
-  def default(): HashMap[ET, Int] = {
-    new HashMap[ET, Int]
+  def default(): Map[ET, Int] = {
+    Map[ET, Int]()
   }
 
-  override def add(current: HashMap[ET, Int], next: Option[Seq[ET]]): HashMap[ET, Int] = {
+  override def add(current: Map[ET, Int], next: Option[Seq[ET]]): Map[ET, Int] = {
     if (next.isDefined) {
-      next.get.foreach(t => {
-        if (current.contains(t)) {
-          current.put(t, current.get(t).get + 1)
-        } else {
-          current.put(t, 1)
+      // If our current map is mutable, add new data in directly.
+      // If not, convert to a mutable map, and then add data in
+      val sum = current match {
+        case hm: MutableMap[ET, Int] => hm
+        case _ => {
+          // The current value isn't itself a mutable hashmap yet; convert to one.
+          val hm = new HashMap[ET, Int]()
+          hm ++= current
+          hm
         }
-      })
+      }
+      next.get.foreach(t => sum.put(t, sum.getOrElse(t, 0) + 1))
+      sum
+    } else {
+      current
     }
-    current
   }
 
-  override def merge(left: HashMap[ET, Int], right: HashMap[ET, Int]): HashMap[ET, Int] = {
-    right.foreach(t => {
-      left.put(t._1, left.getOrElse(t._1, 0) + t._2)
+  override def merge(left: Map[ET, Int], right: Map[ET, Int]): Map[ET, Int] = {
+    // If either input map is mutable, merge the other into it.
+    // If neither is, convert one to mutable, and add the other into it.
+    val (to, from) = left match {
+      case hm: MutableMap[ET, Int] => (hm, right)
+      case _ =>
+        right match {
+          case hm: MutableMap[ET, Int] => (hm, left)
+          case _ =>
+            val hm = new HashMap[ET, Int]()
+            hm ++= left
+            (hm, right)
+        }
+    }
+    from.foreach(t => {
+      to.put(t._1, to.getOrElse(t._1, 0) + t._2)
     })
-    left
+    to
   }
 
-  def finish(intermediate: HashMap[ET, Int]): List[(ET, Int)] = {
+  override def finish(intermediate: Map[ET, Int]): List[(ET, Int)] = {
     val x = new PriorityQueue[(ET, Int)]()(Ordering.by(
       a => a._2
     ))
