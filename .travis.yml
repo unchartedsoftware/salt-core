@@ -1,15 +1,13 @@
 sudo: required
 
-language: bash
+language: java
 
 services:
   - docker
 
 env:
   # build against multiple versions of spark!
-  - SPARK_VERSION=1.4.1
-  - SPARK_VERSION=1.5.2
-  - SPARK_VERSION=1.6.1
+  - SPARK_VERSION=2.0.0
 
 before_script:
   # generate environment file so we can give the travis environment to our test container
@@ -22,7 +20,8 @@ before_script:
   - echo "DEBIAN_FRONTEND=noninteractive" >> travis.env
   - echo "HAS_JOSH_K_SEAL_OF_APPROVAL" >> travis.env
   - echo $SPARK_VERSION >> travis.env
+  - ./gradlew startTestEnv
 
 script:
-  # run test container
-  - docker run --env-file travis.env -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/salt --rm --workdir="/opt/salt" uncharted/sparklet:$SPARK_VERSION ./gradlew coverage coveralls
+  # build and testcd
+  - ./gradlew coverage coveralls
