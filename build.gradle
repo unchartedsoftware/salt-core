@@ -12,8 +12,7 @@
  */
 
 group = 'software.uncharted.salt'
-archivesBaseName = 'salt-core'
-version = '3.0.1'
+version = '4.0.0'
 
 project.ext {
   scalaBinaryVersion = '2.11'
@@ -22,7 +21,8 @@ project.ext {
   scoverageVersion = '1.1.1'
   scalatestVersion = '2.2.6'
   pegdownVersion = '1.6.0'
-  artifactName = archivesBaseName
+  packages = "org.scalatest:scalatest_${scalaBinaryVersion}:${scalatestVersion},org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}"
+  artifactName = 'salt-core'
   description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
   inceptionYear = '2015'
   url = 'https://github.com/unchartedsoftware/salt'
@@ -118,11 +118,13 @@ task test(overwrite: true, type: Exec, dependsOn: [startTestEnv, jar, jarScovera
   executable = 'docker'
   args = ["exec", project.name, "spark-submit", "--packages", packages, "--jars", "build/libs/${artifactName}-${version}-scoverage.jar", "--class", "software.uncharted.salt.Main", "build/libs/${artifactName}-${version}-tests.jar"]
 }
+// test.finalizedBy stopTestEnv // this does slow down development, so we'll make it manual instead of automatic
 
 task debug(overwrite: true, type: Exec, dependsOn: [startTestEnv, jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'docker'
   args = ["exec", project.name, "/bin/bash", "-c", "export SPARK_JAVA_OPTS=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999\" && spark-submit --packages ${packages} --jars build/libs/${artifactName}-${version}-scoverage.jar --class software.uncharted.salt.Main build/libs/${artifactName}-${version}-tests.jar"]
 }
+// debug.finalizedBy stopTestEnv // this does slow down development, so we'll make it manual instead of automatic
 
 task coverage(overwrite: true, dependsOn: test) << {
   reportScoverage.execute()
