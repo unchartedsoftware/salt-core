@@ -23,5 +23,5 @@ before_script:
   - ./gradlew startTestEnv
 
 script:
-  # build and testcd
+  # build and test
   - ./gradlew coverage coveralls
