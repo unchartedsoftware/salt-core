@@ -38,6 +38,11 @@ kill_test_environment() {
   docker rm -fv $WORKDIR
 }
 
+attach_test_environment() {
+  printf "${GREEN}Attaching${RESET} to Spark test environment (container: ${BLUE}${WORKDIR}${RESET})...\n"
+  docker attach $WORKDIR
+}
+
 verify_test_environment() {
   PRESENT=$(docker ps -a -q -f name=$WORKDIR)
   if [ -n "$PRESENT" ]; then
@@ -51,6 +56,8 @@ if [ "$1" = "stop" ]; then
   stop_test_environment
 elif [ "$1" = "rm" ]; then
   kill_test_environment
+elif [ "$1" = "attach" ]; then
+  attach_test_environment
 else
   verify_test_environment
 fi

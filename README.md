@@ -23,27 +23,22 @@ To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahe
 
 #### Using the Docker test container
 
-Since running Salt requires a Spark cluster, a containerized test environment can be created via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
+Running Salt requires a Spark cluster.
 
-Fire up the container using the provided shell script:
+Running the following command will build salt and start the test environment
 
 ```bash
-$ ./test-enviroment.sh
+$ ./gradlew
 ```
 
 Attach to the container that was just created:
 ```bash
-$ docker ps
-CONTAINER ID        IMAGE                      COMMAND             CREATED             STATUS              PORTS                                            NAMES
-f5a2add1579a        uncharted/sparklet:2.0.0   "/init bash"        2 minutes ago       Up 2 minutes        0.0.0.0:8080->8080/tcp, 0.0.0.0:9999->9999/tcp   salt-core
-
-$ docker attach f5a2add1579a
+$ ./test-environment attach
 ```
 
-Now, inside the container, build and install Salt:
-
+You can remove the container by running:
 ```bash
-$ ./gradlew install -x signArchives
+$ ./test-environment rm
 ```
 
 Be sure to download taxi_micro.csv to the root directory within the container.
