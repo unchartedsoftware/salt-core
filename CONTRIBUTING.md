@@ -15,6 +15,14 @@ Since testing Salt requires a Spark cluster, a containerized development/test en
 
 ```bash
 $ ./test-environment
+
+# then, attach to the container
+$ docker ps
+CONTAINER ID        IMAGE                      COMMAND             CREATED             STATUS              PORTS                                            NAMES
+f5a2add1579a        uncharted/sparklet:2.0.0   "/init bash"        2 minutes ago       Up 2 minutes        0.0.0.0:8080->8080/tcp, 0.0.0.0:9999->9999/tcp   salt-core
+
+$ docker attach f5a2add1579a
+
 # then, inside the running container
 $ ./gradlew
 ```
@@ -26,8 +34,17 @@ You can also debug the test suite using remote debugging on port 9999. If you're
 ```bash
 # start the test container as before
 $ ./test-environment
+
+# then, attach to the container
+$ docker ps
+CONTAINER ID        IMAGE                      COMMAND             CREATED             STATUS              PORTS                                            NAMES
+f5a2add1579a        uncharted/sparklet:2.0.0   "/init bash"        2 minutes ago       Up 2 minutes        0.0.0.0:8080->8080/tcp, 0.0.0.0:9999->9999/tcp   salt-core
+
+$ docker attach f5a2add1579a
+
 # then, inside the running container
 $ ./gradlew debug
+
 # You'll see a message indicating when you should connect your debugger.
 ```
 

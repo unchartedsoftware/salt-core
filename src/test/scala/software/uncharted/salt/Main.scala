@@ -21,10 +21,11 @@ import org.scalatest.tools.Runner
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
+import org.apache.spark.sql.SparkSession
 
 object Spark {
-  val conf = new SparkConf().setAppName("salt")
-  val sc = new SparkContext(conf)
+  var sparkSession = SparkSession.builder.appName("salt").getOrCreate()
+  val sc = sparkSession.sparkContext
 }
 
 object Main {

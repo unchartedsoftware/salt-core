@@ -1,4 +1,4 @@
-# Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt.svg?branch=master)](https://travis-ci.org/unchartedsoftware/salt) [![Coverage Status](https://coveralls.io/repos/unchartedsoftware/salt/badge.svg?branch=master)](https://coveralls.io/r/unchartedsoftware/salt?branch=master)
+# Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt-core.svg?branch=master)](https://travis-ci.org/unchartedsoftware/salt-core) [![Coverage Status](https://coveralls.io/repos/unchartedsoftware/salt-core/badge.svg?branch=master)](https://coveralls.io/r/unchartedsoftware/salt-core?branch=master)
 > http://uncharted.software/salt
 
 ## Getting Started
@@ -23,21 +23,25 @@ To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahe
 
 #### Using the Docker test container
 
-Since running Salt requires a Spark cluster, a containerized test environment can be created via [Docker](https://www.docker.com/). If you have docker installed, you can run the following example within that containerized environment.
+Running Salt requires a Spark cluster.
 
-Fire up the container using the provided shell script:
-
+Start and attach to the container that was just created:
 ```bash
-$ ./test-enviroment.sh
+$ ./test-environment
+$ ./test-environment attach
 ```
 
-Now, inside the container, build and install Salt:
-
+You can remove the container at any time by running:
 ```bash
-$ ./gradlew install -x signArchives
+$ ./test-environment rm
 ```
 
-Be sure to download taxi_micro.csv to the root directory within the container.
+Once attached, be sure to download taxi_micro.csv to the root directory within the container:
+
+```bash
+cd /
+curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
+```
 
 Keep the container running! We'll need it to try the following example.
 
@@ -46,7 +50,7 @@ Keep the container running! We'll need it to try the following example.
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:3.0.0"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:4.0.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
@@ -64,7 +68,7 @@ import org.apache.spark.sql.Row
 // source RDD
 // It is STRONGLY recommended that you filter your input RDD
 // down to only the columns you need for tiling.
-val rdd = sqlContext.read.format("com.databricks.spark.csv")
+val rdd = spark.read.format("com.databricks.spark.csv")
   .option("header", "true")
   .option("inferSchema", "true")
   .load("file:///taxi_micro.csv") // be sure to update the file path to reflect

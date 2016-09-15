@@ -115,7 +115,7 @@ class SparseArray[@specialized(Int, Long, Double) T] private[salt] (
     }
   }
 
-  override def seq: collection.IndexedSeq[T] = {
+  override def seq: IndexedSeq[T] = {
     if (materialized) {
       denseValues
     } else {

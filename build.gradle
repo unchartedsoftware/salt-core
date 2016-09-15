@@ -11,6 +11,25 @@
  *
  */
 
+group = 'software.uncharted.salt'
+version = '4.0.0'
+
+project.ext {
+  scalaBinaryVersion = '2.11'
+  scalaVersion = '2.11.8'
+  sparkVersion = System.getenv("SPARK_VERSION") ?: '2.0.0'
+  scoverageVersion = '1.1.1'
+  scalatestVersion = '2.2.6'
+  pegdownVersion = '1.6.0'
+  packages = "org.scalatest:scalatest_${scalaBinaryVersion}:${scalatestVersion},org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}"
+  artifactName = 'salt-core'
+  description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
+  inceptionYear = '2015'
+  url = 'https://github.com/unchartedsoftware/salt'
+  ossrhUsername = project.hasProperty('ossrhUsername') ? project.getProperty('ossrhUsername') : ''
+  ossrhPassword = project.hasProperty('ossrhPassword') ? project.getProperty('ossrhPassword') : ''
+}
+
 buildscript {
   repositories {
     mavenLocal()
@@ -18,22 +37,22 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.github.maiflai:gradle-scalatest:0.9'
-    classpath 'org.scoverage:gradle-scoverage:1.0.9'
-    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.7.2'
+    classpath "com.github.maiflai:gradle-scalatest:0.12"
+    classpath "org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:0.8.2"
+    classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
+    classpath "org.scoverage:gradle-scoverage:2.0.1"
   }
 }
 
-apply plugin: 'java'
-apply plugin: 'scala'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'com.github.maiflai.scalatest'
-apply plugin: 'scoverage'
-apply plugin: 'idea'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.github.maiflai.scalatest'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'org.scoverage'
+apply plugin: 'scala'
 apply plugin: 'scalaStyle'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -45,23 +64,6 @@ repositories {
 
 configurations {
   provided
-}
-
-group = 'software.uncharted.salt'
-archivesBaseName = 'salt-core'
-version = '3.0.1'
-
-project.ext {
-  scalaBinaryVersion = '2.10'
-  scalaVersion = '2.10.6'
-  sparkVersion = System.getenv("SPARK_VERSION") ?: '1.6.1'
-  scoverageVersion = '1.1.1'
-  artifactName = archivesBaseName
-  description = 'A Spark Scala library for creating interactive visualizations to explore massive datasets.'
-  inceptionYear = '2015'
-  url = 'https://github.com/unchartedsoftware/salt'
-  ossrhUsername = project.hasProperty('ossrhUsername') ? project.getProperty('ossrhUsername') : ''
-  ossrhPassword = project.hasProperty('ossrhPassword') ? project.getProperty('ossrhPassword') : ''
 }
 
 jar {
@@ -102,16 +104,27 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
-  executable = 'spark-submit'
-  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}","--jars","/opt/salt/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/${artifactName}-${version}-tests.jar"]
+task startTestEnv(overwrite: true, type: Exec) {
+  executable = './test-environment.sh'
+  args = ["start"]
 }
 
-task debug(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
-  executable = 'spark-submit'
-  environment.put 'SPARK_JAVA_OPTS', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999'
-  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}","--jars","/opt/salt/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.salt.Main","build/libs/${artifactName}-${version}-tests.jar"]
+task stopTestEnv(overwrite: true, type: Exec) {
+  executable = './test-environment.sh'
+  args = ["stop"]
 }
+
+task test(overwrite: true, type: Exec, dependsOn: [startTestEnv, jar, jarScoverage, testJar, docsJar, scalaStyle]) {
+  executable = 'docker'
+  args = ["exec", project.name, "spark-submit", "--packages", packages, "--jars", "build/libs/${artifactName}-${version}-scoverage.jar", "--class", "software.uncharted.salt.Main", "build/libs/${artifactName}-${version}-tests.jar"]
+}
+// test.finalizedBy stopTestEnv // this does slow down development, so we'll make it manual instead of automatic
+
+task debug(overwrite: true, type: Exec, dependsOn: [startTestEnv, jar, jarScoverage, testJar, docsJar, scalaStyle]) {
+  executable = 'docker'
+  args = ["exec", project.name, "/bin/bash", "-c", "export SPARK_JAVA_OPTS=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999\" && spark-submit --packages ${packages} --jars build/libs/${artifactName}-${version}-scoverage.jar --class software.uncharted.salt.Main build/libs/${artifactName}-${version}-tests.jar"]
+}
+// debug.finalizedBy stopTestEnv // this does slow down development, so we'll make it manual instead of automatic
 
 task coverage(overwrite: true, dependsOn: test) << {
   reportScoverage.execute()
@@ -215,8 +228,8 @@ dependencies {
     provided "org.apache.spark:spark-sql_${scalaBinaryVersion}:${sparkVersion}"
 
     //scalatest
-    testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5"
-    testRuntime 'org.pegdown:pegdown:1.1.0'
+    testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:${scalatestVersion}"
+    testRuntime "org.pegdown:pegdown:${pegdownVersion}"
 
     //scoverage
     scoverage "org.scoverage:scalac-scoverage-plugin_${scalaBinaryVersion}:${scoverageVersion}",
@@ -224,7 +237,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '2.13'
 }
 
 idea {
