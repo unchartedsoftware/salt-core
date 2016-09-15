@@ -25,23 +25,23 @@ To begin, we'll need a spark-shell. If you have your own Spark cluster, skip ahe
 
 Running Salt requires a Spark cluster.
 
-Running the following command will build salt and start the test environment
-
+Start and attach to the container that was just created:
 ```bash
-$ ./gradlew
-```
-
-Attach to the container that was just created:
-```bash
+$ ./test-environment
 $ ./test-environment attach
 ```
 
-You can remove the container by running:
+You can remove the container at any time by running:
 ```bash
 $ ./test-environment rm
 ```
 
-Be sure to download taxi_micro.csv to the root directory within the container.
+Once attached, be sure to download taxi_micro.csv to the root directory within the container:
+
+```bash
+cd /
+curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
+```
 
 Keep the container running! We'll need it to try the following example.
 
