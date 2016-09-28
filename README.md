@@ -50,7 +50,7 @@ Keep the container running! We'll need it to try the following example.
 Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:4.0.0"
+$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:4.0.1"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
