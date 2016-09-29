@@ -34,7 +34,7 @@ import scala.collection.mutable.{ArrayLike, Builder, HashMap}
  *                  array instead of a map. 1/3 by default.
  * @tparam T the type of value being stored in the SparseArray
  */
-class SparseArray[@specialized(Int, Long, Double) T] private[salt] (
+class SparseArray[@specialized(Int, Long, Double) T] (
   size: Int,
   val default: T,
   inValues: Map[Int, T],

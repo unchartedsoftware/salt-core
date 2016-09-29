@@ -38,7 +38,7 @@ class SeriesData[
   BC,
   @specialized(Int, Long, Double) V,
   @specialized(Int, Long, Double) X
-] private[salt] (
+] (
   private[salt] val projection: Projection[_, TC, BC],
   private[salt] val maxBin: BC,
   val coords: TC,
