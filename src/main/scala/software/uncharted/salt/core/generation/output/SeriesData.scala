@@ -39,8 +39,8 @@ class SeriesData[
   @specialized(Int, Long, Double) V,
   @specialized(Int, Long, Double) X
 ] (
-  private[salt] val projection: Projection[_, TC, BC],
-  private[salt] val maxBin: BC,
+  val projection: Projection[_, TC, BC],
+  val maxBin: BC,
   val coords: TC,
   val bins: SparseArray[V],
   val tileMeta: Option[X]
