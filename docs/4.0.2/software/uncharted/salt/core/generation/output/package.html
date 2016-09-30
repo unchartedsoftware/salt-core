@@ -1,0 +1,162 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>output - salt-core 4.0.2 API - software.uncharted.salt.core.generation.output</title>
+          <meta name="description" content="output - salt - core 4.0.2 API - software.uncharted.salt.core.generation.output" />
+          <meta name="keywords" content="output salt core 4.0.2 API software.uncharted.salt.core.generation.output" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../index.html';
+            var hash = 'software.uncharted.salt.core.generation.output.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="software">software</a>.<a href="../../../../package.html" class="extype" name="software.uncharted">uncharted</a>.<a href="../../../package.html" class="extype" name="software.uncharted.salt">salt</a>.<a href="../../package.html" class="extype" name="software.uncharted.salt.core">core</a>.<a href="../package.html" class="extype" name="software.uncharted.salt.core.generation">generation</a></p>
+        <h1>output</h1><span class="permalink">
+      <a href="../../../../../../index.html#software.uncharted.salt.core.generation.output.package" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">output</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="software.uncharted.salt.core.generation.output.SeriesData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeriesData[TC,BC,V,X]extendsSerializable"></a>
+      <a id="SeriesData[TC,BC,V,X]:SeriesData[TC,BC,V,X]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SeriesData.html"><span class="name">SeriesData</span></a><span class="tparams">[<span name="TC">TC</span>, <span name="BC">BC</span>, <span name="V">V</span>, <span name="X">X</span>]</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#software.uncharted.salt.core.generation.output.package@SeriesData[TC,BC,V,X]extendsSerializable" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A thin wrapper class for the output of a tile generation,
+for a single Series
+</p><div class="fullcomment"><div class="comment cmt"><p>A thin wrapper class for the output of a tile generation,
+for a single Series
+</p></div><dl class="paramcmts block"><dt class="tparam">TC</dt><dd class="cmt"><p>the abstract type representing a tile coordinate.</p></dd><dt class="tparam">BC</dt><dd class="cmt"><p>the abstract type representing a bin coordinate. Must be something that can be represented in 1 dimension.</p></dd><dt class="tparam">V</dt><dd class="cmt"><p>Output data type for bin aggregators, and input for tile aggregator</p></dd><dt class="tparam">X</dt><dd class="cmt"><p>Output data type for tile aggregators</p></dd></dl></div>
+    </li><li name="software.uncharted.salt.core.generation.output.SeriesDataMergeException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SeriesDataMergeExceptionextendsExceptionwithProductwithSerializable"></a>
+      <a id="SeriesDataMergeException:SeriesDataMergeException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SeriesDataMergeException.html"><span class="name">SeriesDataMergeException</span></a><span class="params">(<span name="msg">msg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#software.uncharted.salt.core.generation.output.package@SeriesDataMergeExceptionextendsExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="software.uncharted.salt.core.generation.output.Tile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Tile[TC]extendsSerializable"></a>
+      <a id="Tile[TC]:Tile[TC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Tile.html"><span class="name">Tile</span></a><span class="tparams">[<span name="TC">TC</span>]</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#software.uncharted.salt.core.generation.output.package@Tile[TC]extendsSerializable" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Container for the output of a tile job, where every &quot;tile&quot; has
+within it the results of the individual Series, grouped by
+coordinate.</p><div class="fullcomment"><div class="comment cmt"><p>Container for the output of a tile job, where every &quot;tile&quot; has
+within it the results of the individual Series, grouped by
+coordinate. SeriesData is retrieved from a Tile by using
+SeriesData.apply(Tile).
+</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
