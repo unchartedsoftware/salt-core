@@ -36,21 +36,15 @@ You can remove the container at any time by running:
 $ ./test-environment rm
 ```
 
-Once attached, be sure to download taxi_micro.csv to the root directory within the container:
-
-```bash
-cd /
-curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
-```
-
 Keep the container running! We'll need it to try the following example.
 
 #### <a name="example-generation"></a>Generation
 
-Launch a spark-shell. We'll be using salt, and a popular csv->DataFrame library for this example:
+Attach to the container using `./test-environment attach`. Then download the sample data file and launch a spark-shell with salt to try this example:
 
 ```bash
-$ spark-shell --packages "com.databricks:spark-csv_2.10:1.2.0,software.uncharted.salt:salt-core:4.0.2"
+$ curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
+$ spark-shell --packages "software.uncharted.salt:salt-core:4.0.2"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
@@ -68,11 +62,10 @@ import org.apache.spark.sql.Row
 // source RDD
 // It is STRONGLY recommended that you filter your input RDD
 // down to only the columns you need for tiling.
-val rdd = spark.read.format("com.databricks.spark.csv")
+val rdd = spark.read.format("csv")
   .option("header", "true")
   .option("inferSchema", "true")
-  .load("file:///taxi_micro.csv") // be sure to update the file path to reflect
-                                  // the download location of taxi_micro.csv
+  .load("taxi_micro.csv")
   .select("pickup_lon", "pickup_lat", "passengers")
   .rdd
 
