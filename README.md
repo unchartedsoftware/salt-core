@@ -65,7 +65,7 @@ import org.apache.spark.sql.Row
 val rdd = spark.read.format("csv")
   .option("header", "true")
   .option("inferSchema", "true")
-  .load("/taxi_micro.csv")
+  .load("taxi_micro.csv")
   .select("pickup_lon", "pickup_lat", "passengers")
   .rdd
 
