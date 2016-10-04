@@ -43,7 +43,7 @@ Keep the container running! We'll need it to try the following example.
 Attach to the container using `./test-environment attach`. Then download the sample data file and launch a spark-shell with salt to try this example:
 
 ```bash
-curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
+$ curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
 $ spark-shell --packages "software.uncharted.salt:salt-core:4.0.2"
 ```
 
