@@ -85,7 +85,7 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
   /** The (fixed) length of the sparse array */
   def length (): Int = _length
   /** The range of indices of the sparse array */
-  def indices = Range(0, _length)
+  def indices: Range = Range(0, _length)
   /** The default value of the sparse array */
   def default (): T = _default
 
