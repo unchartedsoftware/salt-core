@@ -106,7 +106,7 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
   /** The proportion of possible elements having a non-default value beyond which the SparseArray will be
     * materialized
     */
-  private def materializationThreshold = _threshold
+  private[util] def materializationThreshold = _threshold
 
   /** Determine the density this array would have, if not materialized, and with the given number of elements having
     * non-default values.
