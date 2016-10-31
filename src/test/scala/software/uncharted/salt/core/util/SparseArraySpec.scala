@@ -20,6 +20,10 @@ import org.scalatest._
 
 class SparseArraySpec extends FunSpec {
   describe("SparseArray") {
+    it("Should be serializable") {
+      assert(classOf[Serializable].isAssignableFrom(classOf[SparseArray[_]]))
+    }
+
     describe("#apply()") {
       it("should return the element at the given index if materialized") {
         val test = SparseArray(2, -1, 0.0f)(0 -> 12)

@@ -36,7 +36,8 @@ import scala.reflect.ClassTag
   * @param _threshold The proportion of elements with non-default values beyond which the array will be materialized
   * @tparam T the type of value being stored in the SparseArray
   */
-class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _default: T, _threshold: Float = 1/3F) {
+class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _default: T, _threshold: Float = 1/3F
+                                                               ) extends Serializable {
   private val sparseStorage = mutable.Map[Int, T]()
   private var denseStorage: Option[Array[T]] = None
 
