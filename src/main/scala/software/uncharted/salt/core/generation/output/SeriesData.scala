@@ -60,7 +60,7 @@ class SeriesData[
    * tile coordinate and the same bin dimensions. The new SeriesData will inherit this SeriesData's
    * Projection.
    *
-   * @param other the SeriesData to merge with
+   * @param that the SeriesData to merge with
    * @param binMerge the function for merging bin values
    * @param tileMetaMerge  the Optional function for merging tile metadata
    * @tparam OV other's bin value type
@@ -70,29 +70,22 @@ class SeriesData[
    */
   @throws(classOf[SeriesDataMergeException])
   def merge[OV, OX, NV: ClassTag, NX](
-    other: SeriesData[TC, BC, OV, OX],
+    that: SeriesData[TC, BC, OV, OX],
     binMerge: (V, OV) => NV,
     tileMetaMerge: Option[(X, OX) => NX] = None
   ): SeriesData[TC, BC, NV, NX] = {
-    if (other.bins.length != bins.length) {
+    if (this.bins.length != that.bins.length) {
       throw new SeriesDataMergeException("Two Series with different bin dimensions cannot be merged.")
-    } else if (!coords.equals(other.coords)) {
+    } else if (this.coords != that.coords) {
       throw new SeriesDataMergeException("SeriesData with nonmatching tile coordinates cannot be merged.")
     }
 
-    // new default value
-    val newDefault = binMerge(bins.default, other.bins.default)
-
-    // merge bins
-    val newBins = new SparseArray[NV](0, newDefault)
-    while (newBins.length<bins.length) {
-      newBins += binMerge(bins(newBins.length), other.bins(newBins.length))
-    }
+    val newBins = SparseArray.merge(binMerge)(this.bins, that.bins)
 
     // compute new meta
     var newMeta: Option[NX] = None
-    if  (tileMetaMerge.isDefined && tileMeta.isDefined && other.tileMeta.isDefined) {
-      newMeta = Some(tileMetaMerge.get(tileMeta.get, other.tileMeta.get))
+    if  (tileMetaMerge.isDefined && this.tileMeta.isDefined && that.tileMeta.isDefined) {
+      newMeta = Some(tileMetaMerge.get(this.tileMeta.get, that.tileMeta.get))
     }
 
     new SeriesData(projection, maxBin, coords, newBins, newMeta)
