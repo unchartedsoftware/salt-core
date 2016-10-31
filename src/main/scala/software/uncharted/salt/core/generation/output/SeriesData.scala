@@ -83,9 +83,12 @@ class SeriesData[
     val newBins = SparseArray.merge(binMerge)(this.bins, that.bins)
 
     // compute new meta
-    var newMeta: Option[NX] = None
-    if  (tileMetaMerge.isDefined && this.tileMeta.isDefined && that.tileMeta.isDefined) {
-      newMeta = Some(tileMetaMerge.get(this.tileMeta.get, that.tileMeta.get))
+    val newMeta: Option[NX] = for (
+      mergeFcn <- tileMetaMerge;
+      thisMeta <- this.tileMeta;
+      thatMeta <- that.tileMeta
+    ) yield {
+      mergeFcn(thisMeta, thatMeta)
     }
 
     new SeriesData(projection, maxBin, coords, newBins, newMeta)
