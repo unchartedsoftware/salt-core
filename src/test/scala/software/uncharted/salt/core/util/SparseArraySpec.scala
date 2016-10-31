@@ -206,6 +206,7 @@ class SparseArraySpec extends FunSpec {
         assert(b(0) === 1)
         assert(b(1) === 0)
         assert(b(2) === 16)
+        assert(b.default() === 0)
       }
 
       it("Should work fine on a sparse array") {
@@ -217,6 +218,33 @@ class SparseArraySpec extends FunSpec {
         assert(b(0) === 1)
         assert(b(1) === 0)
         assert(b(2) === 16)
+        assert(b.default() === 0)
+      }
+    }
+
+    describe("#mapWithIndex") {
+      it("Should work fine on a dense array") {
+        val a = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        val b = a.mapWithIndex((n, i) => n*n + i)
+        assert(b.isMaterialized)
+        assert(b.density() === 1.0f)
+        assert(b.materializationThreshold === 0.0f)
+        assert(b(0) === 1)
+        assert(b(1) === 1)
+        assert(b(2) === 18)
+        assert(b.default() === -1)
+      }
+
+      it("Should work fine on a sparse array") {
+        val a = SparseArray(3, 0, 1.0f)(0 -> 1, 2 -> 4)
+        val b = a.mapWithIndex((n, i) => n*n + i)
+        assert(!b.isMaterialized)
+        assert(b.density === 2/3f)
+        assert(b.materializationThreshold === 1.0f)
+        assert(b(0) === 1)
+        assert(b(1) === -1)
+        assert(b(2) === 18)
+        assert(b.default() === -1)
       }
     }
 
