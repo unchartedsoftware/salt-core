@@ -155,6 +155,32 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
     result
   }
 
+  /** Transform this SparseArray according to the input function.
+    *
+    * Unlike map, the input function here is given the index of the element.
+    *
+    * For the default value, it is given an index of -1.
+    *
+    * @param fcn The value transformation function
+    * @tparam U The output value type
+    * @return A new SparseArray, with the values of  this array transformed as specified
+    */
+  def mapWithIndex[U: ClassTag] (fcn: (T, Int) => U): SparseArray[U] = {
+    val result = new SparseArray(_length, fcn(default, -1), _threshold)
+
+    if (isMaterialized) {
+      // Materialization is just defining dense storage, so we don't need to do anything else here.
+      result.denseStorage = denseStorage.map { storage =>
+        storage.zipWithIndex.map{ case (value, index) => fcn(value, index)}
+      }
+    } else {
+      sparseStorage.foreach { case (index, value) =>
+        result(index) = fcn(value, index)
+      }
+    }
+    result
+  }
+
   /** Aggregate the non-defaulted values in this SparseArray
     *
     * Note there is a slight difference between how reduce runs in SparseArrays and in other sequences, in the the
