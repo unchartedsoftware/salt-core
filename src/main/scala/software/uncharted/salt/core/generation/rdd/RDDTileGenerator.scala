@@ -272,7 +272,7 @@ private class RDDSeriesWrapper[
 
     series.tileAggregator.foreach { aggregator =>
       for (i <- finishedBins.indices) {
-        aggregator.add(tile, Some(finishedBins(i)))
+        tile = aggregator.add(tile, Some(finishedBins(i)))
       }
     }
 
