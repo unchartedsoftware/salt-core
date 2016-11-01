@@ -73,4 +73,11 @@ class MercatorProjection(
   override def binTo1D(bin: (Int, Int), maxBin: (Int, Int)): Int = {
     bin._1 + bin._2*(maxBin._1 + 1)
   }
+
+  override def binFrom1D (index: Int, maxBin: (Int, Int)): (Int, Int) = {
+    val bins = maxBin._1 + 1
+
+    val x = index % bins
+    (x, (index - x) / bins)
+  }
 }

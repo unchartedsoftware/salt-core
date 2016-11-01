@@ -58,4 +58,8 @@ class SeriesProjection(
   override def binTo1D(bin: Int, maxBin: Int): Int = {
     bin
   }
+
+  override def binFrom1D(index: Int, maxBin: Int): Int = {
+    index
+  }
 }

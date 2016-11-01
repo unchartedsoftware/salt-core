@@ -17,8 +17,6 @@
 package software.uncharted.salt.core.projection.numeric
 
 import org.scalatest._
-import software.uncharted.salt.core.projection._
-import org.apache.spark.sql.Row
 
 class MercatorProjectionSpec extends FunSpec {
   describe("MercatorProjection") {
@@ -156,6 +154,19 @@ class MercatorProjectionSpec extends FunSpec {
           val unidim = projection.binTo1D(bin, (99,99))
           assert(unidim <= 100*100)
           assert(unidim === bin._1 + bin._2*100)
+        }
+      }
+    }
+
+    describe("#binFrom1D()") {
+      it("should convert an index to a 2D bin coordinate, assuming row-major order") {
+        val projection = new MercatorProjection(Seq(0), (-180D, -85D), (180D, 85D))
+
+        // fuzz inputs
+        for (i <- 0 until 100) {
+          val bin = (Math.round(Math.random*99).toInt, Math.round(Math.random*99).toInt)
+          val index = bin._1 + 100 * bin._2
+          assert(bin === projection.binFrom1D(index, (99, 99)))
         }
       }
     }
