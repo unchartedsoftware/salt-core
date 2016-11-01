@@ -94,5 +94,16 @@ class SeriesProjectionSpec extends FunSpec {
         }
       }
     }
+
+    describe("#binFrom1D()") {
+      it("should be a no-op, returning the index passed in") {
+        val projection = new SeriesProjection(Seq(0), 0D, 1D)
+        //fuzz inputs
+        for (i <- 0 until 100) {
+          val bin = Math.round(Math.random*99).toInt
+          assert(projection.binFrom1D(bin, 99) === bin)
+        }
+      }
+    }
   }
 }
