@@ -16,6 +16,7 @@
 
 package software.uncharted.salt.core.util
 
+import scala.collection.mutable.Buffer
 import org.scalatest._
 
 class SparseArraySpec extends FunSpec {
@@ -245,6 +246,32 @@ class SparseArraySpec extends FunSpec {
         assert(b(1) === -1)
         assert(b(2) === 18)
         assert(b.default() === -1)
+      }
+    }
+
+    describe("#default") {
+      it("should not change when its type is mutable and it is used as a basis for non-default values") {
+        val sa = SparseArray(3, Buffer[Int]())()
+        sa(0) = sa(0) += 2
+        sa(1) = sa(1) += 3
+        assert(List(2) === sa(0).toList)
+        assert(List(3) === sa(1).toList)
+        assert(List[Int]() === sa(2).toList)
+      }
+      it("should not change when its type is mutable, etc, even after being mapped.") {
+        val sa = SparseArray(4, Buffer[Int]())()
+        sa(0) = sa(0) += 2
+        val sa2 = sa.map(_.map(n => n*n))
+        sa2(1) = sa2(1) += 3
+        sa2(2) = sa2(2) += 5
+        assert(List(2) === sa(0).toList)
+        assert(List[Int]() === sa(1).toList)
+        assert(List[Int]() === sa(2).toList)
+        assert(List[Int]() === sa(3).toList)
+        assert(List(4) === sa2(0).toList)
+        assert(List(3) === sa2(1).toList)
+        assert(List(5) === sa2(2).toList)
+        assert(List[Int]() === sa2(3).toList)
       }
     }
 

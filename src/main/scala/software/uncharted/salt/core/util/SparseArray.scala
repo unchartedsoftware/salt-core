@@ -51,10 +51,11 @@ import scala.reflect.ClassTag
   * @param _threshold The proportion of elements with non-default values beyond which the array will be materialized
   * @tparam T the type of value being stored in the SparseArray
   */
-class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _default: T, _threshold: Float = 1/3F
+class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _default: => T, _threshold: Float = 1/3F
                                                                ) extends Serializable {
   private val sparseStorage = mutable.Map[Int, T]()
   private var denseStorage: Option[Array[T]] = None
+  private val sampleDefault: T = _default
 
   /** Getter for the element at the given index */
   def apply (index: Int): T = {
@@ -85,7 +86,7 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
     if (denseStorage.isDefined) {
       denseStorage.foreach(_(index) = value)
     } else if (0 <= index && index < _length) {
-      if (value == _default) {
+      if (value == sampleDefault) {
         sparseStorage.remove(index)
       } else if (sparseStorage.contains(index) || sparseDensityWith(sparseStorage.size + 1) <= _threshold) {
         sparseStorage(index) = value
@@ -205,7 +206,7 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
   }
 }
 object SparseArray {
-  def apply[T: ClassTag] (length: Int, default: T, threshold: Float = 1/3F)
+  def apply[T: ClassTag] (length: Int, default: => T, threshold: Float = 1/3F)
                          (initialValues: (Int, T)*): SparseArray[T] = {
     val result = new SparseArray(length, default, threshold)
     initialValues.foreach { case (index, value) => result(index) = value }
