@@ -31,23 +31,15 @@ import scala.reflect.ClassTag
   * Automatically materializes into a dense array when the number of non-default
   * values stored exceeds some threshold.
   *
-  * Note that this is <em>not</em> a standard scala sequence.  While the map
-  * method has basically the same meaning, the reduce method <em>only</em> has
-  * the same meaning if the default value passed into the sparse array is a zero,
-  * because reduce only operates on non-defaulted entries.  Also not that this
-  * means that, if given a non-zero default value, reduce will return different
-  * values if an array is materialized and if it is not.  In general, it is
-  * clearly best to use a default value equivalent to zero with respect to any
-  * operations that will be performed on the data.
+  * Note that this is <em>not</em> a standard scala sequence.  Use the .seq
+  * method to obtain an equivalent that is, if needed.
   *
   * Probably not thread-safe due to lack of locking on materialization.
   *
   * TODO: https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/ReadWriteLock.html
   *
   * @param _length The (fixed) length of the array
-  * @param _default The default value used for elements without a specifically set value.  This value should always
-  *                 be a zero with respect to the operations to be performed on the sparse array.  If it is not, the
-  *                 above warnings about non-standard behavior in the reduce function will come into play.
+  * @param _default The default value used for elements without a specifically set value.
   * @param _threshold The proportion of elements with non-default values beyond which the array will be materialized
   * @tparam T the type of value being stored in the SparseArray
   */
@@ -180,20 +172,6 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
       }
     }
     result
-  }
-
-  /** Aggregate the non-defaulted values in this SparseArray
-    *
-    * Note there is a slight difference between how reduce runs in SparseArrays and in other sequences, in the the
-    * reduction function is <em>only</em> run on non-defaulted values.  If running on defaulted values is desired,
-    * please use seq.reduce.
-    *
-    * @param fcn A function that takes two values and combines them into one
-    * @tparam U The reduced output type
-    * @return The reduced value of all non-default entries in the SparseArray
-    */
-  def reduce[U >: T] (fcn: (U, U) => U): U = {
-    denseStorage.map(_.reduce(fcn)).getOrElse(sparseStorage.values.reduce(fcn))
   }
 
   /** Transform this SparseArray into a normal scala Seq.  This returns a materialized form of the SparseArray, but
