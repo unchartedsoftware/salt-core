@@ -290,5 +290,17 @@ class SparseArraySpec extends FunSpec {
         assert(seq.toList === List(1, 0, 4))
       }
     }
+
+    describe("#head") {
+      it("should return the default when element 0 isn't set") {
+        val sa = SparseArray(3, 0, 0.0f)(1 -> 1, 2 -> 4)
+        assert(0 === sa.head)
+      }
+
+      it("should return the explicitly set value of element 0 when appropriate") {
+        val sa = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        assert(1 === sa.head)
+      }
+    }
   }
 }
