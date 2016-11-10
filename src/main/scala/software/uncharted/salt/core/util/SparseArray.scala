@@ -148,6 +148,11 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
     result
   }
 
+  /** Shorthand accessor for the first element of the array
+    * @return The head element
+    */
+  def head: T = this(0)
+
   /** Transform this SparseArray according to the input function.
     *
     * Unlike map, the input function here is given the index of the element.
