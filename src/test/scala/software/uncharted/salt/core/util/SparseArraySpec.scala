@@ -16,21 +16,46 @@
 
 package software.uncharted.salt.core.util
 
+import scala.collection.mutable.Buffer
 import org.scalatest._
 
 class SparseArraySpec extends FunSpec {
   describe("SparseArray") {
+    it("Should be serializable") {
+      assert(classOf[Serializable].isAssignableFrom(classOf[SparseArray[_]]))
+    }
+
     describe("#apply()") {
-      it("should return the element at the given index") {
-        val test = new SparseArray(2, -1, Map(0 -> 12))
-        assert(test(0) == 12)
+      it("should return the element at the given index if materialized") {
+        val test = SparseArray(2, -1, 0.0f)(0 -> 12)
+        assert(test.isMaterialized)
+        assert(test(0) === 12)
       }
-      it("should return the default element if there is no value set at the given index") {
-        val test = new SparseArray(2, -1, Map(0 -> 12))
-        assert(test(1) == -1)
+      it("should return the default element if there is no value set at the given index if materialized") {
+        val test = SparseArray(2, -1, 0.0f)(0 -> 12)
+        assert(test.isMaterialized)
+        assert(test(1) === -1)
       }
-      it("should throw an ArrayOutOfBoundsException if the given index is outside the SparseArray size") {
-        val test = new SparseArray(2, -1, Map())
+      it("should throw an ArrayOutOfBoundsException if the given index is outside the SparseArray size if materialized") {
+        val test = SparseArray(2, -1, 0.0f)(0 -> 12)
+        assert(test.isMaterialized)
+        intercept[ArrayIndexOutOfBoundsException] {
+          test(2)
+        }
+      }
+      it("should return the element at the given index if not materialized") {
+        val test = SparseArray(2, -1, 1.0f)(0 -> 12)
+        assert(!test.isMaterialized)
+        assert(test(0) === 12)
+      }
+      it("should return the default element if there is no value set at the given index if not materialized") {
+        val test = SparseArray(2, -1, 1.0f)(0 -> 12)
+        assert(!test.isMaterialized)
+        assert(test(1) === -1)
+      }
+      it("should throw an ArrayOutOfBoundsException if the given index is outside the SparseArray size if not materialized") {
+        val test = SparseArray(2, -1, 1.0f)(0 -> 12)
+        assert(!test.isMaterialized)
         intercept[ArrayIndexOutOfBoundsException] {
           test(2)
         }
@@ -39,47 +64,54 @@ class SparseArraySpec extends FunSpec {
 
     describe("#length()") {
       it("should return the size of the SparseArray") {
-        val test = new SparseArray(2, -1, Map())
-        assert(test.length() == 2)
+        val test = SparseArray(2, -1)()
+        assert(test.length() === 2)
       }
     }
 
     describe("#density()") {
       it("should return the density of the SparseArray") {
-        val test = new SparseArray(2, -1, Map(), 1)
-        assert(test.length() == 2)
-        assert(test.density() == 0)
-        test.update(0, -1)
-        assert(test.density() == 0)
-        test.update(1, 2)
-        assert(test.density() == 0.5)
+        val test = SparseArray(2, -1, 1.0f)()
+        assert(test.length() === 2)
+        assert(test.density() === 0.0f)
+        test(0) = -1
+        assert(test.density() === 0.0f)
+        test(1) = 2
+        assert(test.density() === 0.5f)
+      }
+
+      it("should not cause materialization even at maximum density when the materialization threshold is set to 1.0") {
+        val test = SparseArray(2, -1, 1.0f)(0 -> 3, 1 -> 2)
+        assert(!test.isMaterialized)
       }
     }
 
     describe("#update()") {
       it("should set the element at the given index if the given index never had a value") {
-        val test = new SparseArray(2, -1, Map())
-        test.update(0, 12)
-        assert(test(0) == 12)
+        val test = SparseArray(2, -1)()
+        test(0) = 12
+        assert(test(0) === 12)
       }
 
       it("should set the element at the given index if the given index was already set") {
-        val test = new SparseArray(2, -1, Map(0 -> 0))
-        test.update(0, 12)
-        assert(test(0) == 12)
+        val test = SparseArray(2, -1)(0 -> 0)
+        test(0) = 12
+        assert(test(0) === 12)
       }
 
       it("should safely set the element at the given index to the default value, eliminating an existing stored value if one was present") {
-        val test = new SparseArray(5, -1, Map(0 -> 0))
-        test.update(0, 12)
-        test.update(0, -1)
-        test.update(1, -1)
-        assert(test(0) == -1)
-        assert(test(1) == -1)
+        val test = SparseArray(5, -1)(0 -> 0)
+        test(0) = 12
+        assert(test(0) === 12)
+        test(0) = -1
+        test(1) = -1
+        assert(test(0) === -1)
+        assert(test(1) === -1)
+        assert(test.density() === 0.0f)
       }
 
       it("should throw an ArrayOutOfBoundsException if the given index is outside the SparseArray size") {
-        val test = new SparseArray(2, -1, Map())
+        val test = SparseArray(2, -1)()
         intercept[ArrayIndexOutOfBoundsException] {
           test.update(2, 12)
         }
@@ -88,52 +120,186 @@ class SparseArraySpec extends FunSpec {
 
     describe("#seq()") {
       it("should convert the SparseArray to an IndexedSeq") {
-        val test = new SparseArray(2, -1, Map(0 -> 0))
+        val test = SparseArray(2, -1)(0 -> 0)
         val seq = test.seq
         assert(seq.isInstanceOf[scala.collection.IndexedSeq[Int]])
-        assert(seq.length == test.length)
+        assert(seq.length === test.length)
       }
     }
 
-    describe("Builder") {
-      val test = new SparseArray(2, -1, Map(0 -> 0))
-      describe("#newBuilder()") {
-        it("should return a new, empty SparseArray with the same default value") {
-          val b = test.newBuilder()
-          assert(b.result.size == 0)
-          assert(b.result.default == test.default)
-        }
+    describe("#merge") {
+      def add (p: SparseArray[Int], q: SparseArray[Int]): SparseArray[Int] =
+        SparseArray.merge((pp: Int, qq: Int) => pp + qq)(p, q)
+
+      it("should merge two sparse arrays without creating extra elements") {
+        val a = SparseArray(3, 0, 1.0f)(0 -> 2)
+        val b = SparseArray(3, 0, 1.0f)(1 -> 4)
+        val c = SparseArray.merge((aa: Int, bb: Int) => 3*aa+5*bb)(a, b)
+        assert(c(0) === 6)
+        assert(c(1) === 20)
+        assert(c(2) === 0)
+        assert(c.length() === 3)
+        assert(c.density() === 2/3f)
       }
-      describe("#+=()") {
-        it("should append an element to the SparseArray builder") {
-          val b = test.newBuilder()
-          b += 12
-          assert(b.result.size == 1)
-          assert(b.result()(0) == 12)
-        }
-        it("should safely append a default element to the SparseArray builder") {
-          val b = test.newBuilder()
-          b += -1
-          assert(b.result.size == 1)
-          assert(b.result()(0) == -1)
-        }
+
+      it("should result in a sparse array as long as the longer input") {
+        val test1 = add(SparseArray(3, 0, 1.0f)(1 -> 3), SparseArray(5, 0, 1.0f)(2 -> 10))
+        assert(test1(0) === 0)
+        assert(test1(1) === 3)
+        assert(test1(2) === 10)
+        assert(test1(3) === 0)
+        assert(test1(4) === 0)
+        assert(test1.length() === 5)
+        assert(test1.density() === 2/5f)
+
+        val test2 = add(SparseArray(5, 0, 1.0f)(2 -> 10), SparseArray(3, 0, 1.0f)(1 -> 3))
+        assert(test2(0) === 0)
+        assert(test2(1) === 3)
+        assert(test2(2) === 10)
+        assert(test2(3) === 0)
+        assert(test2(4) === 0)
+        assert(test2.length() === 5)
+        assert(test2.density() === 2/5f)
       }
-      describe("#clear()") {
-        it("should clear the SparseArray builder") {
-          val b = test.newBuilder()
-          b += 12
-          b.clear()
-          assert(b.result.size == 0)
-        }
+
+      it("should have the threshold of the parent, if the contents stay below said threshold") {
+        val test = add(SparseArray(3, 0, 0.5f)(0 -> 2), SparseArray(3, 0, 0.5f)(0 -> 4))
+        assert(test.materializationThreshold === 0.5f)
+        assert(test.density() === 1/3f)
+        assert(!test.isMaterialized)
       }
-      describe("#result()") {
-        it("should convert the SparseArray builder into a SparseArray") {
-          val b = test.newBuilder()
-          b += 12
-          assert(b.result().isInstanceOf[SparseArray[Int]])
-          assert(b.result().length() == 1)
-          assert(b.result()(0) == 12)
-        }
+
+      it("should have been materialized if the parent threshold is crossed") {
+        val test = add(SparseArray(3, 0, 0.5f)(0 -> 2), SparseArray(3, 0, 0.5f)(1 -> 4))
+        assert(test.materializationThreshold === 0.5f)
+        assert(test.density() === 1.0f)
+        assert(test.isMaterialized)
+      }
+
+      it("should not be materialized if parent thresholds are crossed, but a higher threshold is given") {
+        val test = SparseArray.merge((a: Int, b: Int) => a + b, Some(1.0f))(
+          SparseArray(3, 0, 0.5f)(0 -> 2),
+          SparseArray(3, 0, 0.5f)(1 -> 4)
+        )
+        assert(test.materializationThreshold === 1.0f)
+        assert(test.density === 2/3f)
+        assert(!test.isMaterialized)
+      }
+
+      it("should be materialized if parent thresholds are not crossed, but a lower threshold is given") {
+        val test = SparseArray.merge((a: Int, b: Int) => a + b, Some(0.25f))(
+          SparseArray(3, 0, 0.5f)(0 -> 2),
+          SparseArray(3, 0, 0.5f)(0 -> 4)
+        )
+        assert(test.materializationThreshold === 0.25f)
+        assert(test.density === 1.0f)
+        assert(test.isMaterialized)
+      }
+    }
+
+    describe("#map") {
+      it("Should work fine on a dense array") {
+        val a = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        val b = a.map(n => n*n)
+        assert(b.isMaterialized)
+        assert(b.density === 1.0f)
+        assert(b.materializationThreshold === 0.0f)
+        assert(b(0) === 1)
+        assert(b(1) === 0)
+        assert(b(2) === 16)
+        assert(b.default() === 0)
+      }
+
+      it("Should work fine on a sparse array") {
+        val a = SparseArray(3, 0, 1.0f)(0 -> 1, 2 -> 4)
+        val b = a.map(n => n*n)
+        assert(!b.isMaterialized)
+        assert(b.density === 2/3f)
+        assert(b.materializationThreshold === 1.0f)
+        assert(b(0) === 1)
+        assert(b(1) === 0)
+        assert(b(2) === 16)
+        assert(b.default() === 0)
+      }
+    }
+
+    describe("#mapWithIndex") {
+      it("Should work fine on a dense array") {
+        val a = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        val b = a.mapWithIndex((n, i) => n*n + i)
+        assert(b.isMaterialized)
+        assert(b.density() === 1.0f)
+        assert(b.materializationThreshold === 0.0f)
+        assert(b(0) === 1)
+        assert(b(1) === 1)
+        assert(b(2) === 18)
+        assert(b.default() === -1)
+      }
+
+      it("Should work fine on a sparse array") {
+        val a = SparseArray(3, 0, 1.0f)(0 -> 1, 2 -> 4)
+        val b = a.mapWithIndex((n, i) => n*n + i)
+        assert(!b.isMaterialized)
+        assert(b.density === 2/3f)
+        assert(b.materializationThreshold === 1.0f)
+        assert(b(0) === 1)
+        assert(b(1) === -1)
+        assert(b(2) === 18)
+        assert(b.default() === -1)
+      }
+    }
+
+    describe("#default") {
+      it("should not change when its type is mutable and it is used as a basis for non-default values") {
+        val sa = SparseArray(3, Buffer[Int]())()
+        sa(0) = sa(0) += 2
+        sa(1) = sa(1) += 3
+        assert(List(2) === sa(0).toList)
+        assert(List(3) === sa(1).toList)
+        assert(List[Int]() === sa(2).toList)
+      }
+      it("should not change when its type is mutable, etc, even after being mapped.") {
+        val sa = SparseArray(4, Buffer[Int]())()
+        sa(0) = sa(0) += 2
+        val sa2 = sa.map(_.map(n => n*n))
+        sa2(1) = sa2(1) += 3
+        sa2(2) = sa2(2) += 5
+        assert(List(2) === sa(0).toList)
+        assert(List[Int]() === sa(1).toList)
+        assert(List[Int]() === sa(2).toList)
+        assert(List[Int]() === sa(3).toList)
+        assert(List(4) === sa2(0).toList)
+        assert(List(3) === sa2(1).toList)
+        assert(List(5) === sa2(2).toList)
+        assert(List[Int]() === sa2(3).toList)
+      }
+    }
+
+    describe("#seq") {
+      it("Should create a materialized sequence given a sparse array, without materializing the sparse array") {
+        val sa = SparseArray(3, 0, 1.0f)(0 -> 1, 2 -> 4)
+        val seq = sa.seq
+        assert(!sa.isMaterialized)
+        assert(seq.toList === List(1, 0, 4))
+      }
+
+      it("Should work on a materialized sparse array") {
+        val sa = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        assert(sa.isMaterialized)
+        val seq = sa.seq
+        assert(seq.toList === List(1, 0, 4))
+      }
+    }
+
+    describe("#head") {
+      it("should return the default when element 0 isn't set") {
+        val sa = SparseArray(3, 0, 0.0f)(1 -> 1, 2 -> 4)
+        assert(0 === sa.head)
+      }
+
+      it("should return the explicitly set value of element 0 when appropriate") {
+        val sa = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
+        assert(1 === sa.head)
       }
     }
   }

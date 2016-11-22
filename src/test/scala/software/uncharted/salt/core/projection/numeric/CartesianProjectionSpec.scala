@@ -124,5 +124,18 @@ class CartesianProjectionSpec extends FunSpec {
         }
       }
     }
+
+    describe("#binFrom1D()") {
+      it("should convert an index to a 2D bin coordinate, assuming row-major order") {
+        val projection = new CartesianProjection(Seq(0), (0D, 0D), (1D, 1D))
+
+        // fuzz inputs
+        for (i <- 0 until 100) {
+          val bin = (Math.round(Math.random*99).toInt, Math.round(Math.random*99).toInt)
+          val index = bin._1 + 100 * bin._2
+          assert(bin === projection.binFrom1D(index, (99, 99)))
+        }
+      }
+    }
   }
 }

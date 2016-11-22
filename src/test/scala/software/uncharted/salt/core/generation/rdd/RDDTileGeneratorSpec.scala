@@ -96,8 +96,8 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
-        val min = result(0).bins.reduce((a,b) => Math.min(a, b))
-        val max = result(0).bins.reduce((a,b) => Math.max(a, b))
+        val min = result(0).bins.seq.reduce((a,b) => Math.min(a, b))
+        val max = result(0).bins.seq.reduce((a,b) => Math.max(a, b))
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)
@@ -157,8 +157,8 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
-        val min = result(0).bins.reduce((a,b) => Math.min(a, b))
-        val max = result(0).bins.reduce((a,b) => Math.max(a, b))
+        val min = result(0).bins.seq.reduce((a,b) => Math.min(a, b))
+        val max = result(0).bins.seq.reduce((a,b) => Math.max(a, b))
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)
@@ -281,8 +281,8 @@ class RDDTileGeneratorSpec extends FunSpec {
         assert(result(0).bins(1) === manualBins.get(true).getOrElse(0))
 
         //verify max/min tile analytic
-        val min = result(0).bins.reduce((a,b) => Math.min(a, b))
-        val max = result(0).bins.reduce((a,b) => Math.max(a, b))
+        val min = result(0).bins.seq.reduce((a,b) => Math.min(a, b))
+        val max = result(0).bins.seq.reduce((a,b) => Math.max(a, b))
         assert(result(0).tileMeta.isDefined)
         assert(result(0).tileMeta.get._1 === min)
         assert(result(0).tileMeta.get._2 === max)

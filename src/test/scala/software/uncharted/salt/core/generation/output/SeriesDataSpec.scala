@@ -27,7 +27,7 @@ class SeriesDataSpec extends FunSpec {
 
     describe("#apply()") {
       it("should access the given bin using a bin coordinate, returning the appropriate value") {
-        val bins = new SparseArray(2, 0, Map(1 -> 12))
+        val bins = SparseArray(2, 0)(1 -> 12)
         val data = new SeriesData(projection, 1, (0, 0), bins, None)
         assert(data(0) == bins(0))
         assert(data(1) == bins(1))
@@ -36,10 +36,10 @@ class SeriesDataSpec extends FunSpec {
 
     describe("#merge()") {
       it("should allow clients to merge bins from two compatible SeriesData objects") {
-        val bins = new SparseArray(2, 0, Map(1 -> 12))
+        val bins = SparseArray(2, 0)(1 -> 12)
         val data = new SeriesData(projection, 1, (0, 0), bins, Some("hello"))
 
-        val otherBins = new SparseArray(2, 4, Map(1 -> 6))
+        val otherBins = SparseArray(2, 4)(1 -> 6)
         val otherData = new SeriesData(projection, 1, (0, 0), otherBins, Some("world"))
 
         val result = data.merge(otherData, (l: Int, r: Int) => l+r)
@@ -50,10 +50,10 @@ class SeriesDataSpec extends FunSpec {
       }
 
       it("should allow clients to merge tile metadata from two compatible SeriesData objects") {
-        val bins = new SparseArray(2, 0, Map(1 -> 12))
+        val bins = SparseArray(2, 0)(1 -> 12)
         val data = new SeriesData(projection, 1, (0, 0), bins, Some("hello"))
 
-        val otherBins = new SparseArray(2, 4, Map(1 -> 6))
+        val otherBins = SparseArray(2, 4)(1 -> 6)
         val otherData = new SeriesData(projection, 1, (0, 0), otherBins, Some("world"))
 
         val result = data.merge(
@@ -72,10 +72,10 @@ class SeriesDataSpec extends FunSpec {
       }
 
       it("should throw a SeriesDataMergeException if the two SeriesData objects have differing numbers of bins") {
-        val bins = new SparseArray(2, 0, Map(1 -> 12))
+        val bins = SparseArray(2, 0)(1 -> 12)
         val data = new SeriesData(projection, 1, (0, 0), bins, None)
 
-        val otherBins = new SparseArray(3, 4, Map(1 -> 6))
+        val otherBins = SparseArray(3, 4)(1 -> 6)
         val otherData = new SeriesData(projection, 2, (0, 0), otherBins, None)
 
         intercept[SeriesDataMergeException] {
@@ -84,10 +84,10 @@ class SeriesDataSpec extends FunSpec {
       }
 
       it("should throw a SeriesDataMergeException if the two SeriesData objects have different tile coordinates") {
-        val bins = new SparseArray(2, 0, Map(1 -> 12))
+        val bins = SparseArray(2, 0)(1 -> 12)
         val data = new SeriesData(projection, 1, (0, 0), bins, None)
 
-        val otherBins = new SparseArray(2, 4, Map(1 -> 6))
+        val otherBins = SparseArray(2, 4)(1 -> 6)
         val otherData = new SeriesData(projection, 1, (1, 0), otherBins, None)
 
         intercept[SeriesDataMergeException] {

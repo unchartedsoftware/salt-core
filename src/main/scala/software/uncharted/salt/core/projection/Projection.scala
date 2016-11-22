@@ -43,4 +43,12 @@ abstract class Projection[DC, TC, BC]() extends Serializable {
    * @return the bin index converted into its one-dimensional representation
    */
   def binTo1D(bin: BC, maxBin: BC): Int
+
+  /**
+    * Project a 1 dimensional index into a bin index for easy retrieval of bin values from an array
+    * @param index An array index
+    * @param maxBin The maximum possible bin index (i.e. if your tile is 256x256, this would be (255, 255))
+    * @return The bin index indicated by this one dimensional representation
+    */
+  def binFrom1D (index: Int, maxBin: BC): BC
 }
