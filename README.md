@@ -44,7 +44,7 @@ Attach to the container using `./test-environment attach`. Then download the sam
 
 ```bash
 $ curl -OL http://assets.oculusinfo.com/pantera/taxi_micro.csv
-$ spark-shell --packages "software.uncharted.salt:salt-core:4.0.3"
+$ spark-shell --packages "software.uncharted.salt:salt-core:4.1.0"
 ```
 
 Now it's time to run a simple tiling job! Enter paste mode (:paste), and paste the following script:
