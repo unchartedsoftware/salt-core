@@ -223,6 +223,20 @@ class SparseArraySpec extends FunSpec {
       }
     }
 
+    describe("#flatMap") {
+      it("Should work fine on a dense array") {
+        val a = SparseArray(5, List[String](), 0.0f)(3 -> List("abc", "def"), 1 -> List("ghi", "jkl"))
+        assert(List("ghi", "jkl", "abc", "def") === a.flatMap(list => list).toList)
+      }
+      it("Should work fine on a sparse array") {
+        val a = SparseArray(5, List[String](), 1.0f)(3 -> List("abc", "def"), 1 -> List("ghi", "jkl"))
+        assert(List("ghi", "jkl", "abc", "def") === a.flatMap(list => list).toList)
+      }
+      it("Should include default values when the input function doesn't map them to empty iterables") {
+        val a = SparseArray(5, List[String](), 1.0f)(3 -> List("abc", "def"), 1 -> List("ghi", "jkl"))
+        assert(List("mno", "ghi", "jkl", "mno", "mno", "abc", "def", "mno", "mno") === a.flatMap(list => list :+ "mno").toList)
+      }
+    }
     describe("#mapWithIndex") {
       it("Should work fine on a dense array") {
         val a = SparseArray(3, 0, 0.0f)(0 -> 1, 2 -> 4)
