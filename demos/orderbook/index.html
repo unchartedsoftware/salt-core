@@ -134,31 +134,31 @@
     Leaflet1D.fixZoom(map);
 
     var buysLayer;
-    var a = $.getJSON('//embed.pantera.io/orderbook/citi/buys/master-meta.json', function( meta ) {
-      buysLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/buys/{z}/{x}/{y}.bins', {
+    var a = $.getJSON('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/buys/master-meta.json', function( meta ) {
+      buysLayer = new L.BinaryTileLayer('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/buys/{z}/{x}/{y}.bins', {
         dataBounds: meta,
         ramp: 'cool'
       });
     });
 
     var sellsLayer;
-    var b = $.getJSON('//embed.pantera.io/orderbook/citi/sells/master-meta.json', function( meta ) {
-      sellsLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/sells/{z}/{x}/{y}.bins', {
+    var b = $.getJSON('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/sells/master-meta.json', function( meta ) {
+      sellsLayer = new L.BinaryTileLayer('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/sells/{z}/{x}/{y}.bins', {
         dataBounds: meta,
         ramp: 'hot'
       });
     });
 
     var buysXLayer;
-    var c = $.getJSON('//embed.pantera.io/orderbook/citi/buys-x/master-meta.json', function( meta ) {
-      buysXLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/buys-x/{z}/{x}/{y}.bins', {
+    var c = $.getJSON('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/buys-x/master-meta.json', function( meta ) {
+      buysXLayer = new L.BinaryTileLayer('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/buys-x/{z}/{x}/{y}.bins', {
         dataBounds: meta,
         ramp: 'verdant'
       });
     });
 
     var sellsXLayer;
-    var d = $.getJSON('//embed.pantera.io/orderbook/citi/sells-x/master-meta.json', function( meta ) {
+    var d = $.getJSON('https://s3.amazonaws.com/embed.pantera.io/orderbook/citi/sells-x/master-meta.json', function( meta ) {
       sellsXLayer = new L.BinaryTileLayer('https://s3.amazonaws.com/embed.pantera.io/orderbook/c/sells-x/{z}/{x}/{y}.bins', {
         dataBounds: meta,
         ramp: 'grey'
