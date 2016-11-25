@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Salt Bin Example</title>
+    <meta name="description" content="Example application using Salt to generate Bin tiles">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+    <style>
+      #map, html, body {
+        width: 100%; height: 100%; padding: 0; margin: 0;
+        overflow: hidden;
+      }
+      #map {
+        background: black;
+      }
+      .x-position, .y-position {
+        position: absolute;
+        pointer-events: none;
+      }
+      .line {
+          box-sizing: border-box;
+          display: block;
+          opacity: 0.5;
+      }
+      .label {
+          position: absolute;
+          color: white;
+          font-family: sans-serif;
+      }
+      .x-position {
+        display: none;
+        bottom: 0;
+        width: 150px;
+      }
+      .x-position .line {
+          border-left: solid 1px #ccc;
+          width: 0;
+          height: 100%;
+      }
+      .x-position .label {
+          left: 5px;
+          bottom: 5px;
+      }
+      .y-position {
+        display: none;
+        left: 0;
+        height: 2em;
+      }
+      .y-position .line {
+          border-top: solid 1px #ccc;
+          height: 0;
+          width: 100%;
+        }
+      .y-position .label {
+          top: -21px;
+          right: 5px;
+      }
+      #info {
+        position: absolute;
+        top: 0;
+        left: 5%;
+        width: 200px;
+        background: #eee;
+        color: #333;
+        font-family: sans-serif;
+        padding: 10px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      h2 {
+        font-size: 16px;
+      }
+      .symbol {
+        font-weight: bold;
+        font-family: fixed;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div id="xPosition" class="x-position">
+      <span class="line"></span>
+      <span class="label"></span>
+    </div>
+    <div id="yPosition" class="y-position">
+      <span class="line"></span>
+      <span class="label"></span>
+    </div>
+    <div id="info">
+      <h1>OrderBook Ultra</h1>
+      <p>Symbol: <span class="symbol">C</span> - April 3, 2013</p>
+    </div>
+  </body>
+
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+
+  <script src="./js/util/color-ramp.js"></script>
+  <script src="./js/util/value-transform.js"></script>
+  <script src="./js/util/leaflet-1d.js"></script>
+  <script src="./js/binary-layer.js"></script>
+
+  <script>
+
+    function numberWithCommas(x) {
+      return x.toFixed(2);
+    }
+
+    // Map control
+    var map = new L.Map('map', {
+      zoomControl: false,
+      center: [-85.05113, 0],
+      zoom: 3,
+      minZoom: 2,
+      maxZoom: 10,
+      boxZoom: false,
+      touchZoom: false,
+      zoomAnimation: false,
+      maxBounds: [
+        [-85.05113, -180],
+        [85.05113, 180]
+      ]
+    });
+
+    new L.Control.Zoom({ position: 'topright' }).addTo(map);
+
+    Leaflet1D.fixDrag(map);
+    Leaflet1D.fixZoom(map);
+
+    var buysLayer;
+    var a = $.getJSON('//embed.pantera.io/orderbook/citi/buys/master-meta.json', function( meta ) {
+      buysLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/buys/{z}/{x}/{y}.bins', {
+        dataBounds: meta,
+        ramp: 'cool'
+      });
+    });
+
+    var sellsLayer;
+    var b = $.getJSON('//embed.pantera.io/orderbook/citi/sells/master-meta.json', function( meta ) {
+      sellsLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/sells/{z}/{x}/{y}.bins', {
+        dataBounds: meta,
+        ramp: 'hot'
+      });
+    });
+
+    var buysXLayer;
+    var c = $.getJSON('//embed.pantera.io/orderbook/citi/buys-x/master-meta.json', function( meta ) {
+      buysXLayer = new L.BinaryTileLayer('//embed.pantera.io/orderbook/citi/buys-x/{z}/{x}/{y}.bins', {
+        dataBounds: meta,
+        ramp: 'verdant'
+      });
+    });
+
+    var sellsXLayer;
+    var d = $.getJSON('//embed.pantera.io/orderbook/citi/sells-x/master-meta.json', function( meta ) {
+      sellsXLayer = new L.BinaryTileLayer('https://s3.amazonaws.com/embed.pantera.io/orderbook/c/sells-x/{z}/{x}/{y}.bins', {
+        dataBounds: meta,
+        ramp: 'grey'
+      });
+    });
+
+    $.when(a,b,c,d).then(function() {
+      var orders = L.layerGroup([buysLayer, sellsLayer]);
+      var executes = L.layerGroup([buysXLayer, sellsXLayer]);
+
+      orders.addTo(map);
+
+      L.control.layers({}, {
+        "Executes": executes,
+        "Buys": buysLayer,
+        "Sells": sellsLayer
+      }).addTo(map);
+    });
+
+
+    // Hacky jQuery axes
+    var bounds = {
+      x: {
+        min: 14400000+18000000,
+        max: 64800000+18000000
+      },
+      y: {
+        min: 40,
+        max: 52
+      }
+    };
+    var xPos = $('#xPosition');
+    var yPos = $('#yPosition');
+    var xLabel = xPos.find('.label');
+    var yLabel = yPos.find('.label');
+    var isShowing = false;
+    map.on('mousemove', (e) => {
+      if (e.latlng.lat < 85 && e.latlng.lat > -85 && e.latlng.lng > -180 && e.latlng.lng < 180 ) {
+        if (!isShowing) {
+          isShowing = true;
+          xPos.show();
+          yPos.show();
+        }
+
+        xPos.css({
+          left: e.containerPoint.x,
+          height: map.getSize().y - e.containerPoint.y
+        });
+        // Convert lat/lng to data range
+        var xVal = (e.latlng.lng + 180)/360 * (bounds.x.max-bounds.x.min) + bounds.x.min;
+        xLabel.html(moment(xVal).format("h:mm:ss.SSSA"));
+
+        yPos.css({
+          top: e.containerPoint.y,
+          width: e.containerPoint.x
+        });
+        // Convert lat to pixels from bottom of viz, then scale to % of 6 tile-heights. x175000 give us retweet number
+        var yVal = (map.getSize().y - e.containerPoint.y)/(6*256) * 12 + 40;
+        yLabel.html('$'+numberWithCommas(yVal));
+      } else if (isShowing) {
+        xPos.hide();
+        yPos.hide();
+        isShowing = false;
+      }
+    });
+    // map.on('mouseout', function() {
+    //   xPos.hide();
+    //   yPos.hide();
+    //   isShowing = false;
+    // });
+
+    map.on('resize', e => {
+      map.setView([0,0], map.getZoom());
+    });
+  </script>
+</html>
