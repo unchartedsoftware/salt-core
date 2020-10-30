@@ -2,7 +2,7 @@
 
 ## Rules
 
-1. **PR everything**. Commits made directly to master are prohibited, except under specific circumstances
+1. **PR everything**. Commits made directly to `main` are prohibited, except under specific circumstances
 1. **Use feature branches**. Create an issue for every single feature or bug and tag it. If you are a core contributor, create a branch named feature/[issue #] to resolve the issue. If you are not, fork and branch.
 1. Use github "Fixes #[issue]" syntax on your PRs to indicate which issues you are attempting to resolve
 1. **Keep salt-core small**. If some piece of functionality *can* fit in a separate salt-* module, then it probably *should*
