@@ -1,4 +1,4 @@
-# Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt-core.svg?branch=master)](https://travis-ci.org/unchartedsoftware/salt-core) [![Coverage Status](https://coveralls.io/repos/github/unchartedsoftware/salt-core/badge.svg?branch=master)](https://coveralls.io/github/unchartedsoftware/salt-core?branch=master)
+# Salt &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/salt-core.svg?branch=main)](https://travis-ci.org/unchartedsoftware/salt-core) [![Coverage Status](https://coveralls.io/repos/github/unchartedsoftware/salt-core/badge.svg?branch=main)](https://coveralls.io/github/unchartedsoftware/salt-core?branch=main)
 > http://uncharted.software/salt
 
 ## Getting Started
