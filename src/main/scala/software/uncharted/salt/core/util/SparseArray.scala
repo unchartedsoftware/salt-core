@@ -148,7 +148,29 @@ class SparseArray[@specialized(Int, Long, Double) T: ClassTag] (_length: Int, _d
     result
   }
 
+  /** Transform this SparseArray according to the input function, concatenating transformed sequences.
+    *
+    * @param fcn The value transformation function
+    * @tparam U The output type
+    * @return A new sequence, with the values of this array transformed as specified
+    */
+  def flatMap[U: ClassTag] (fcn: T => Iterable[U]): Seq[U] = {
+    if (isMaterialized) {
+      denseStorage.map(_.flatMap(fcn)).get
+    } else if (fcn(_default).isEmpty) {
+      (0 until _length).flatMap { n =>
+        if (sparseStorage.contains(n)) {
+          fcn(sparseStorage(n))
+        } else {
+          None
+        }
+      }
+    } else {
+      seq.flatMap(fcn)
+    }
+  }
   /** Shorthand accessor for the first element of the array
+    *
     * @return The head element
     */
   def head: T = this(0)
