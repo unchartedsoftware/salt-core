@@ -7,8 +7,6 @@ baseurl: "/salt-core/" # the subpath of your site, e.g. /blog/
 url: "//unchartedsoftware.github.io" # the base hostname & protocol for your site
 latest: "4.1.0"
 
-googleAnalytics: UA-21723198-11
-
 # Build settings
 markdown: kramdown
 highlighter: pygments
